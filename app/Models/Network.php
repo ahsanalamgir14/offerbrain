@@ -4,32 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Network extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+    protected $softDelete = true;
+    protected $dates = ['deleted_at'];
+
     protected $table = 'networks';
     protected $casts = [
         'relationship' => 'object',
     ];
     protected $guarded = [];
     protected $fillable = [
+        'network_affiliate_id',
         'network_id',
-        'customer_id',
         'name',
-        'identifier',
         'account_status',
-        'displayed_name',
-        'is_show_name',
-        'timezone_id',
-        'language_id',
-        'currency_id',
-        'logo_image_url',
-        'favicon_image_url',
-        'support_email',
-        'email_background_logo_color',
+        'network_employee_id',
+        'internal_notes',
+        'has_notifications',
+        'network_traffic_source_id',
+        'account_executive_id',
+        'adress_id',
+        'default_currency_id',
+        'is_contact_address_enabled',
+        'enable_media_cost_tracking_links',
         'time_created',
         'time_saved',
         'relationship',
+        'referrer_id',
     ];
 }

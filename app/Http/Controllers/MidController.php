@@ -28,75 +28,54 @@ class MidController extends Controller
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
         }
-        // $model = new Mid();
-        // $model->to = $start_date;
-        // $model->from = $end_date;
-        // $model->order_status = 2;
-        // $query = Mid::take(1);
-        // dd($query->get());
-        // DD($start_date);
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
-        $data = DB::table('mids')->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
-        ->where('orders.acquisition_date', '>=', $start_date)
-        ->where('orders.acquisition_date', '<=', $end_date)
-        ->where(['orders.order_status' => 2])
-        ->select('mids.*', DB::raw('SUM(orders.order_total) as sum'), DB::raw('COUNT(orders.id)  as mid_count'))
-        ->groupBy('mids.id')->get();
 
-        dd($data);
-        foreach ($data as $mid) {
-            if ($start_date != null && $end_date != null) {
-                $approved = DB::table('orders')->where('acquisition_date', '>=', $start_date)->where('acquisition_date', '<=', $end_date)->where(['order_status' => 2, 'gateway_id' => $mid->gateway_id]);
-                // $approved = $orders->where(['order_status' => 2]);
-                // $declined = $orders->where(['order_status' => 7]);
-                // dd($orders->count());
-                // $approved_orders = $orders->where(['order_status' => 2]);
-                // dd($approved_orders->count());
-                // $declined_orders = $orders->where(['order_status' => 7]);
-                $mid->current_monthly_amount = $approved->sum('order_total');
-                $mid->mid_count = $approved->count();
-                // $mid->declined_orders = $declined->count();
-                // $mid->decline_orders->decline_data
-            }
-            // $mid->decline_orders = Decline::where(['gateway_alias' => $mid->gateway_alias])->first();
-            // $mid->mid_count = MidCount::where(['gateway_alias' => $mid->gateway_alias])->first();
-            // $mid->global_fields = Profile::where(['alias' => $mid->gateway_alias])->pluck('global_fields')->first();
+        $data = DB::table('mids')
+        ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
+        ->join('profiles','mids.gateway_alias', '=', 'profiles.alias')
+        ->where('orders.time_stamp', '>=', $start_date)
+        ->where('orders.time_stamp', '<=', $end_date)
+        ->select(DB::raw('mids.*'))
+        ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
+        ->addSelect(DB::raw('SUM(orders.order_total) as sum'))
+        ->selectRaw("count(case when orders.order_status = '2' then 1 end) as mid_count")
+        ->selectRaw("count(case when orders.order_status = '7' then 1 end) as decline_per")
+        ->addSelect('profiles.global_fields->mid_group as group_name')
+        ->groupBy('mids.id','profiles.global_fields->mid_group')
+        ->get();
 
-            // $mid->decline_orders = ['decline_per' => 0];
-            $mid->global_fields = Profile::where(['alias' => $mid->gateway_alias])->pluck('global_fields')->first();
-        }
+        // $data = Mid::all();
         return response()->json(['status' => true, 'data' => $data]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function get_mid_count_detail(Request $request)
     {
-        //
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $gateway_id = $request->gateway_id;
+        $status = $request->status;
+
+        $array = [];
+        $details = DB::table('orders')
+            ->where('orders.gateway_id', $gateway_id)
+            ->where('orders.acquisition_date', '>=', $start_date)
+            ->where('orders.acquisition_date', '<=', $end_date)
+            ->where('orders.order_status', $status)
+            ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
+            ->select('order_products.name as name')
+            ->addSelect(DB::raw('COUNT(order_products.name) as total_count'))
+            ->groupby('order_products.name')->distinct()->get();
+
+        foreach ($details as $detail) {
+            $data['name'] = $detail->name;
+            $data['total_count'] = $detail->total_count;
+            $data['percentage'] = round(($detail->total_count / $request->total_count) * 100, 2);
+            array_push($array, $data);
+        }
+        return response()->json(['status' => true, 'data' => $array]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Mid  $mid
-     * @return \Illuminate\Http\Response
-     */
     public function show($alias)
     {
         $data = Profile::where(['alias' => $alias])->first();
@@ -157,13 +136,24 @@ class MidController extends Controller
     {
         $profile = Profile::where('alias', $alias)->first();
         DB::table('profiles')->where('alias', $alias)->update(['global_fields->mid_group' => '']);
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
+        $url = 'https://thinkbrain.sticky.io/api/v2/providers/payment/profiles/' . $profile->profile_id;
+        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->put(
+            $url,
+            [
+                "fields" => [
+                    "global_fields" => [
+                        "mid_group" => ''
+                    ]
+                ]
+            ]
+        )->getBody()->getContents());
         return response()->json(['status' => true, 'message' => 'Mid-group removed from' . $profile->alias]);
         // dd('die');
     }
     public function pull_payment_router_view()
     {
-        // dd('die');
-        // return response()->json(['status' => false, '']);
         $new_gateways = 0;
         $updated_gateways = 0;
         $db_gateway_alias = Mid::all()->pluck('gateway_alias')->toArray();
@@ -173,14 +163,11 @@ class MidController extends Controller
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post($url, ['payment_router_id' => 1])->getBody()->getContents());
         $routers = $api_data->data;
-        // dd($routers);
         if ($routers) {
-            //adding or updating page 1 campaigns
             foreach ($routers as $router) {
                 $gateways = $router->gateways;
 
                 foreach ($gateways as $gateway) {
-                    // dd($gateway);
                     if (in_array($gateway->gateway_alias, $db_gateway_alias)) {
                         $update = Mid::where(['gateway_alias' => $gateway->gateway_alias])->first();
                         $gateway->router_id = $router->id;
@@ -209,6 +196,7 @@ class MidController extends Controller
                 }
             }
         }
+        // app(\App\Http\Controllers\ProfileController::class)->update_profiles();
         return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'updated_mids' => $updated_gateways]]);
     }
     public function get_gateway_ids()
@@ -226,10 +214,22 @@ class MidController extends Controller
 
     public function assign_mid_group(Request $request)
     {
-        // dd($request->alias);
         $profile = Profile::where('alias', $request->alias)->first();
         if ($profile) {
             DB::table('profiles')->where('alias', $request->alias)->update(['global_fields->mid_group' => $request->group_name]);
+            $username = "yasir_dev";
+            $password = "yyutmzvRpy5TPU";
+            $url = 'https://thinkbrain.sticky.io/api/v2/providers/payment/profiles/' . $profile->profile_id;
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->put(
+                $url,
+                [
+                    "fields" => [
+                        "global_fields" => [
+                            "mid_group" => $request->group_name
+                        ]
+                    ]
+                ]
+            )->getBody()->getContents());
             return response()->json(['status' => true, 'message' => $request->group_name . ' Assigned as Mid-group to ' . $profile->alias]);
         } else {
             return response()->json(['status' => false, 'message' => 'Gateway Alias ' . $request->alias . ' is not found against any Profile.']);
@@ -238,15 +238,45 @@ class MidController extends Controller
 
     public function assign_bulk_group(Request $request)
     {
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
         // dd($request->all());
         $data = $request->all();
         $alias = array_column($data, 'gateway_alias');
         $total_mids = count($alias);
         if ($request->group_name == '') {
             DB::table('profiles')->whereIn('alias', $alias)->update(['global_fields->mid_group' => '']);
+            $profiles = DB::table('profiles')->whereIn('alias', $alias)->get();
+            foreach ($profiles as $profile) {
+                $url = 'https://thinkbrain.sticky.io/api/v2/providers/payment/profiles/' . $profile->profile_id;
+                Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->put(
+                    $url,
+                    [
+                        "fields" => [
+                            "global_fields" => [
+                                "mid_group" => ''
+                            ]
+                        ]
+                    ]
+                );
+            }
             return response()->json(['status' => true, 'message' => 'Unassigned group to ' . $total_mids . ' mids']);
         } else {
             DB::table('profiles')->whereIn('alias', $alias)->update(['global_fields->mid_group' => $request->group_name]);
+            $profiles = DB::table('profiles')->whereIn('alias', $alias)->get();
+            foreach ($profiles as $profile) {
+                $url = 'https://thinkbrain.sticky.io/api/v2/providers/payment/profiles/' . $profile->profile_id;
+                Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->put(
+                    $url, 
+                    [
+                        "fields" => [
+                            "global_fields" => [
+                                "mid_group" => $request->group_name
+                            ]
+                        ]
+                    ]
+                );
+            }
             return response()->json(['status' => true, 'message' => $request->group_name . ' Assigned as Mid-group to ' . $total_mids . ' mids ']);
         }
     }

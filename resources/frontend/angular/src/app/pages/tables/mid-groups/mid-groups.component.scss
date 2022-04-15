@@ -1,20 +1,37 @@
-.mb{
-    margin-bottom: 10px;
+.mb {
+  margin-bottom: 10px;
 }
-.ml{
-    margin-left: 10px;
+.ml {
+  margin-left: 10px;
 }
 .clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
-.edit-link{
-    color: #6495ED;
+.edit-link {
+  color: #6495ed;
 }
-.delete-link{
-    color: #F62217;
+.delete-link {
+  color: #f62217;
 }
 ::ng-deep .tooltip-list {
-    max-width: unset !important;
-    white-space: pre-wrap;
-    // font-size: 8px;
+  max-width: unset !important;
+  white-space: pre-wrap;
+  // font-size: 8px;
+}
+
+:host ::ng-deep .mat-sort-header-container {
+  display: flex;
+  justify-content: center;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  text-align: center;
+}
+.mat-column-gross_revenue {
+    text-align: right !important;
+    justify-content: flex-end !important;
+  }
+  td.mat-column-gross_revenue {
+    padding-right: 130px !important;
   }

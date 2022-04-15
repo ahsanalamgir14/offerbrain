@@ -2,8 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\OrdersController;
-
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +21,7 @@ Route::any('/register', function() {
 });
 
 Route::any('/get_records', [OrdersController::class, 'pull_orders_jan']);
+Route::any('/update_profiles', [ProfileController::class, 'update_profiles']);
 
 Route::group(['middleware' => 'auth'], function () {
 Route::any('/{any}', [HomeController::class, 'index'])->where('any', '^(?!api).*$');

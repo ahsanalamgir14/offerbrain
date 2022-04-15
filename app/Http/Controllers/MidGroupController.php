@@ -25,18 +25,55 @@ class MidGroupController extends Controller
         if ($start_date != null && $end_date != null){
             $start_date = date('Y-m-d H:i:s', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date));
-            // dd($end_date);
-            $query->whereBetween('created_at', [$start_date, $end_date.' 23:59:59']);
+            // $query->whereBetween('created_at', [$start_date, $end_date.' 23:59:59']);
         }
         $data = $query->get();
-
-        foreach ($data as $key => $group) {
-            $profiles = Profile::where('global_fields->mid_group', '=', $group['group_name']);
-            $group['assigned_mids'] = $profiles->count();
-            $group['assigned_mid_ids'] = $profiles->pluck('profile_id')->toArray();
-            $group['mids_data'] = DB::table('mids')->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
+        if($start_date != null && $end_date != null){
+            foreach ($data as $key => $group) {
+                $profiles = Profile::where('global_fields->mid_group', '=', $group['group_name']);
+                $group['assigned_mids'] = $profiles->count();
+                $group['assigned_mid_ids'] = $profiles->pluck('profile_id')->toArray();
+                $group['mids_data'] = DB::table('mids')->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
+                $orders = DB::table('orders')
+                ->where('time_stamp', '>=', $start_date)
+                ->where('time_stamp', '<=', $end_date)
+                ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
+                $group['gross_revenue'] = round($orders,2);
+            }
+        } else {
+            foreach ($data as $key => $group) {
+                $profiles = Profile::where('global_fields->mid_group', '=', $group['group_name']);
+                $group['assigned_mids'] = $profiles->count();
+                $group['assigned_mid_ids'] = $profiles->pluck('profile_id')->toArray();
+                $group['mids_data'] = DB::table('mids')->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
+                $orders = DB::table('orders')
+                ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
+                $group['gross_revenue'] = round($orders,2);
+            }
         }
+        // $start_date = $request->start_date;
+        // $end_date = $request->end_date;
+        // if ($start_date != null && $end_date != null) {
+        //     $start_date = date('Y-m-d H:i:s', strtotime($request->start_date));
+        //     $end_date = date('Y-m-d', strtotime($request->end_date));
+        // }
+
+        // $data = DB::table('mid_groups')
+        // ->join('profiles','mid_groups.group_name = profiles.global_fields->mid_group')
+        // ->join('mids','profiles.profile_id = mids.gateway_id')
+        // ->where('deleted_at',null)
+        // ->get();
+
         return response()->json(['status' => true, 'data' => $data]);
+    }
+    public function get_assigned_mids(Request $request)
+    {
+        $data = MidGroup::where('group_name', 'like', '%' . $request->value . '%')->get('assigned_mids')->first();
+        if(isset($data)){
+            return response()->json(['status' => true, 'mids' => $data->assigned_mids]);
+        } else {
+            return response()->json(['status' => false, 'mids' => 0]);
+        }
     }
 
     /**

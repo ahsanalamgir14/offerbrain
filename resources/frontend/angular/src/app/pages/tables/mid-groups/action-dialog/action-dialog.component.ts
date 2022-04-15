@@ -1,6 +1,7 @@
 import { Component, Inject, Optional } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActionDialogModel } from './action-dialog.model';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'fury-action-dialog',
@@ -15,6 +16,10 @@ export class ActionDialogComponent {
   message: string;
   groupName: string;
   bankPercentage: string;
+  timeout: any = null;
+  isExecute = false;
+  assignedMids: string;
+  endPoint = '';
 
   constructor(
     public dialogRef: MatDialogRef<ActionDialogComponent>,
@@ -26,6 +31,7 @@ export class ActionDialogComponent {
     this.message = data.message;
     this.groupName = data.group_name;
     this.bankPercentage = data.bank_per;
+    this.endPoint = environment.endpoint;
   }
 
   doAction() {
@@ -37,7 +43,19 @@ export class ActionDialogComponent {
     };
     this.dialogRef.close({ event: this.action, data: data });
   }
-
+  async checkTotalMids(value: string){
+    clearTimeout(this.timeout);
+    if(value != ''){
+      this.timeout = setTimeout(()=>{  
+        const response = fetch(`${this.endPoint}/api/get_assigned_mids?value=${value}`).then(res => res.json()).then((data) => {
+            this.isExecute = true;
+            this.assignedMids = data.mids;
+          });
+        }, 500);
+      } else {
+        this.isExecute = false;
+    }
+  }
   closeDialog() {
     this.dialogRef.close({ event: 'Cancel' });
   }

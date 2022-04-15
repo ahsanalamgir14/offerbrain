@@ -1,0 +1,133 @@
+<fury-page-layout mode="simple">
+    <!-- filters -->
+<fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
+    <div class="content" layout="column" class="full-width">
+      <mat-expansion-panel [expanded]="0" hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div fxLayoutGap="50px">
+          <div fxLayout="column">
+            <div [@fadeInUp]>
+              <h3>Date Option</h3>
+            </div>
+            <div fxLayout="column" layout-wrap fxLayoutGap="10px">
+              <div fxLayout="row" layout-wrap fxLayoutGap="10px">
+                <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
+                <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This Month</button></div>
+                <div>
+                  <button mat-raised-button color="warn" [matMenuTriggerFor]="more">More</button>
+                  <mat-menu #more="matMenu">
+                    <button mat-menu-item (click)="selectDate('yesterday')">Yesterday</button>
+                    <button mat-menu-item (click)="selectDate('pastWeek')">Past Week</button>
+                    <button mat-menu-item (click)="selectDate('pastTwoWeek')">Past 2 Weeks</button>
+                    <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
+                    <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
+                    <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
+                  </mat-menu>
+                </div>
+              </div>
+              <div>
+                <mat-form-field appearance="fill">
+                  <mat-label>Enter a date range</mat-label>
+                  <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                    <input matStartDate formControlName="start" placeholder="Start date">
+                    <input matEndDate formControlName="end" placeholder="End date">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #picker></mat-date-range-picker>
+
+                  <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+                  <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+            <div fxFlex="100" fxFlex.xs="55">
+                <div [@fadeInUp]>
+                    <h3>Other Options</h3>
+                </div>
+                <div fxLayout="row" fxLayoutGap="30px">
+                    <div fxLayout="column" fxLayoutGap="0px">
+                        <div>
+                            <mat-form-field appearance="fill">
+                              <mat-label>Account Status</mat-label>
+                              <mat-select (selectionChange)="commonFilter($event.value, 'account_status')">
+                                <mat-option [value]="">All</mat-option>
+                                <mat-option value="active">Active</mat-option>
+                                <mat-option value="suspended">Suspended</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                    </div>
+                    <div fxLayout="column" fxLayoutGap="0px">
+                        <div>
+                            <mat-form-field appearance="fill">
+                              <mat-label>Network</mat-label>
+                              <mat-select (selectionChange)="commonFilter($event.value, 'network_id')">
+                                <mat-option [value]="">All</mat-option>
+                                <mat-option *ngFor="let network of networks" [value]="network['network_id']">{{network['name']}}</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                    </div>
+                    <div fxLayout="column" fxLayoutGap="0px">
+                        <div>
+                            <mat-form-field appearance="fill">
+                              <mat-label>Is Notification Enabled</mat-label>
+                              <mat-select (selectionChange)="commonFilter($event.value, 'has_notifications')">
+                                <mat-option value="1">Yes</mat-option>
+                                <mat-option value="0">No</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                    </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutGap="30px">
+                    <div fxLayout="row" fxLayoutAlign="end end">
+                        <button mat-raised-button color="accent" (click)="getData()">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </mat-expansion-panel>
+    </div>
+  </fury-page-layout-content>
+    <fury-page-layout-content @fadeInRight]>
+        <fury-list name="Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)">
+            <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+            <table [dataSource]="dataSource" mat-table matSort>
+
+                <!-- fullName Column -->
+                <ng-container *ngFor="let column of columns">
+                    <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+                        <td *matCellDef="let row" mat-cell>
+                            {{ row[column.property] }}
+                        </td>
+                    </ng-container>
+                </ng-container>
+
+                <!-- actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> Actions </th>
+                    <td mat-cell *matCellDef="let row">
+                        <a class="view-link" (click)="viewDetails(row.network_affiliate_id)">View</a> |
+                        <a class="delete-link" (click)="handleDeleteAction(row.network_affiliate_id)">Delete</a>
+                    </td>
+                </ng-container>
+
+                <tr *matHeaderRowDef="visibleColumns" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+            </table>
+
+            <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
+            </mat-paginator> -->
+
+        </fury-list>
+    </fury-page-layout-content>
+</fury-page-layout>

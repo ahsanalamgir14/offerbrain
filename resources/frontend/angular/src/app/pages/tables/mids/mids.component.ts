@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { MatSort } from '@angular/material/sort';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { MidDetailDialogComponent } from '../../mid-detail-dialog/mid-detail-dialog.component';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
 import { GroupDialogComponent } from './group-dialog/group-dialog.component';
 import { GroupDialogModel } from './group-dialog/group-dialog';
@@ -80,6 +81,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   assignedMids: number = 0;
   unAssignedMids: number = 0;
   unInitializedMids: number = 0;
+  totalClosed: number = 0;
+  totalPaused: number = 0;
   selectedRows: Mid[] = [];
   selectAll: boolean = false;
   isBulkUpdate: boolean = false;
@@ -106,7 +109,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
-
+    this.selectDate('lastMonth');
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -177,23 +180,23 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getTooltipDeclines(mid) {
     var productNames = [];
-    let data = {};
-    if (mid.decline_orders.decline_data) {
-      data = mid.decline_orders.decline_data;
-    }
-    let totalDeclinedOrders = mid.decline_orders.total_declined;
-    if (totalDeclinedOrders != 0) {
-      Object.values(data).forEach(v => {
-        if (v['name'] != undefined) {
-          let list = '';
-          list += v['name'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['count'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['percentage'] + '%';
-          if (!productNames.includes(list)) {
-            productNames.push(list);
-          }
-        }
-      });
-      productNames.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalDeclinedOrders + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalDeclinedOrders / 100).toFixed(2) + '%');
-    }
+    // let data = {};
+    // if (mid.decline_orders.decline_data) {
+    //   data = mid.decline_orders.decline_data;
+    // }
+    // let totalDeclinedOrders = mid.decline_orders.total_declined;
+    // if (totalDeclinedOrders != 0) {
+    //   Object.values(data).forEach(v => {
+    //     if (v['name'] != undefined) {
+    //       let list = '';
+    //       list += v['name'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['count'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['percentage'] + '%';
+    //       if (!productNames.includes(list)) {
+    //         productNames.push(list);
+    //       }
+    //     }
+    //   });
+    //   productNames.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalDeclinedOrders + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalDeclinedOrders / 100).toFixed(2) + '%');
+    // }
     return productNames;
   }
 
@@ -219,6 +222,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return midCountArray;
   }
+  openDialog(id, gateway_id, evt: MouseEvent, total_count, status){
+    const target = new ElementRef(evt.currentTarget);
+    const dialogRef = this.dialog.open(MidDetailDialogComponent, {
+      data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status }
+    });    
+  }
 
   countContent() {
     this.assignedMids = 0;
@@ -233,6 +242,14 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.unAssignedMids++;
       } else {
         this.assignedMids++;
+      }
+      
+      if(mid.gateway_alias.indexOf("CLOSED") !== -1){
+        this.totalClosed++;
+      }
+      
+      if(mid.global_monthly_cap == '$0.00'){
+        this.totalPaused++;
       }
     });
   }

@@ -12,15 +12,15 @@ export class CampaignService {
   gateway: any;
   public ticketsGetResponse = new BehaviorSubject([]);
   public addNewMonthResponse = new BehaviorSubject([]);
-  public sticketDailyResponse = new BehaviorSubject([]);
-  public sticketWeeklyResponse = new BehaviorSubject([]);
-  public sticketMonthlyResponse = new BehaviorSubject([]);
+  public ticketDailyResponse = new BehaviorSubject([]);
+  public ticketWeeklyResponse = new BehaviorSubject([]);
+  public ticketMonthlyResponse = new BehaviorSubject([]);
 
   ticketsGetResponse$ = this.ticketsGetResponse.asObservable();
   addNewMonthResponse$ = this.addNewMonthResponse.asObservable();
-  sticketDailyResponse$ = this.sticketDailyResponse.asObservable();
-  sticketWeeklyResponse$ = this.sticketWeeklyResponse.asObservable();
-  sticketMonthlyResponse$ = this.sticketMonthlyResponse.asObservable();
+  ticketDailyResponse$ = this.ticketDailyResponse.asObservable();
+  ticketWeeklyResponse$ = this.ticketWeeklyResponse.asObservable();
+  ticketMonthlyResponse$ = this.ticketMonthlyResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -45,52 +45,59 @@ export class CampaignService {
     });
     return this.data;
   }
-  async getDailySticket(): Promise<any> {
-    await this.apiService.getData(`STicket-daily`).then(res => res.json()).then((data) => {
+  async getDailyTicket(): Promise<any> {
+    await this.apiService.getData(`ticket-daily`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketDailyResponse.next(data);
+      this.ticketDailyResponse.next(data);
     });
     return this.data;
   }
-  async getWeeklySticket(): Promise<any> {
-    await this.apiService.getData(`STicket-weekly`).then(res => res.json()).then((data) => {
+  async getWeeklyTicket(): Promise<any> {
+    await this.apiService.getData(`ticket-weekly`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketWeeklyResponse.next(data);
+      this.ticketWeeklyResponse.next(data);
     });
     return this.data;
   }
-  async getMonthlySticket(): Promise<any> {
-    await this.apiService.getData(`STicket-monthly`).then(res => res.json()).then((data) => {
+  async getMonthlyTicket(): Promise<any> {
+    await this.apiService.getData(`ticket-monthly`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketMonthlyResponse.next(data);
+      this.ticketMonthlyResponse.next(data);
     });
     return this.data;
   }
-  async refreshDailySticket(): Promise<any> {
+  async refreshGoldenTicket(): Promise<any> {
+    await this.apiService.getData(`refresh-golden-ticket`).then(res => res.json()).then((data) => {
+      this.data = data;
+      this.ticketDailyResponse.next(data);
+    });
+    return this.data;
+  }
+  async refreshDailyTicket(): Promise<any> {
     await this.apiService.getData(`refresh-daily`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketDailyResponse.next(data);
+      this.ticketDailyResponse.next(data);
     });
     return this.data;
   }
-  async refreshAllDailySticket(): Promise<any> {
+  async refreshAllDailyTicket(): Promise<any> {
     await this.apiService.getData(`refresh-all-daily`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketDailyResponse.next(data);
+      this.ticketDailyResponse.next(data);
     });
     return this.data;
   }
-  async refreshWeeklySticket(): Promise<any> {
+  async refreshWeeklyTicket(): Promise<any> {
     await this.apiService.getData(`refresh-weekly`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketWeeklyResponse.next(data);
+      this.ticketWeeklyResponse.next(data);
     });
     return this.data;
   }
-  async refreshMonthlySticket(): Promise<any> {
+  async refreshMonthlyTicket(): Promise<any> {
     await this.apiService.getData(`refresh-monthly`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.sticketMonthlyResponse.next(data);
+      this.ticketMonthlyResponse.next(data);
     });
     return this.data;
   }

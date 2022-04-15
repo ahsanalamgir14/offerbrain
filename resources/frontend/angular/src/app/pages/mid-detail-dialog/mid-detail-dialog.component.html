@@ -1,0 +1,23 @@
+<div class="fixActionRow">
+    <mat-spinner class="text-center" *ngIf="isLoading"></mat-spinner>
+    <div mat-dialog-content class="mat-typography">
+        <ng-container class="flex" *ngIf="details.length != 0">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let detail of details">
+                        <td>{{ detail.name}}</td>
+                        <td>{{ detail.total_count}}</td>
+                        <td>{{ detail.percentage }}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
+    </div>
+</div>

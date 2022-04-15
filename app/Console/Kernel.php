@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\DailyOrders;
+use App\Http\Controllers\OrdersController;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,8 +26,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        echo OrdersController::testFunctions();
         // $schedule->command('inspire')->hourly();
-        $schedule->command('daily:orders')->timezone('Asia/Karachi')->everyMinute();
+        // $schedule->command('daily:orders')->cron('*/1 * * * *');
     }
 
     /**

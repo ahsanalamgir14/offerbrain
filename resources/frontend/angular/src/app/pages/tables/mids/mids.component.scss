@@ -130,3 +130,33 @@ th.mat-header-cell,
 td.mat-cell {
   text-align: center;
 }
+//Sir Nabeel Changes
+// .sticky-columns {
+//   overflow: unset;
+//   height: 100%;
+// }
+// .mat-header-row{
+//   position: sticky;
+//   top: 0;
+//   z-index: 100;
+//   background: white;
+//   }
+
+table {
+  border-color: none !important;
+}
+.ng-star-inserted{
+  text-align: center !important;
+}
+
+.highlight-grey{
+  background-color: #616d7e;
+  color: white;
+}
+.highlight-orange{
+  background-color: orange;
+  color: white;
+}
+.custom-orange{
+  background-color: orange;
+}

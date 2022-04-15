@@ -1,6 +1,24 @@
 .view-link {
   color: #6495ed;
+  cursor: pointer;
 }
 .delete-link {
   color: #f62217;
+  cursor: pointer;
+}
+.no-bottom-padding {
+  padding-bottom: 0px;
+}
+
+:host ::ng-deep .mat-sort-header-container {
+  display: flex;
+  justify-content: center;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  text-align: center;
+}
+table {
+  border-color: none !important;
 }

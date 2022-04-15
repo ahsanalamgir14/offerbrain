@@ -113,7 +113,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
 
   ngOnInit() {
     this.notyf.dismissAll();
-    this.selectDate('thisMonth');
+    // this.selectDate('thisMonth');
     this.getSubscription = this.midGroupService.getResponse$.subscribe(data => this.manageGetResponse(data));
     this.refreshSubscription = this.midGroupService.refreshResponse$.subscribe(data => this.manageRefreshResponse(data));
     this.addGroupSubscription = this.midGroupService.addGroupResponse$.subscribe(data => this.manageAddGroupResponse(data));

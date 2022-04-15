@@ -3,18 +3,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject } from 'rxjs';
+import { Observable, of, ReplaySubject, observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
-import { Network } from './network.model';
-import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
-import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
-
-//self imports
+import { ListColumn } from 'src/@fury/shared/list/list-column.model';
+import { fadeInRightAnimation } from 'src/@fury/animations/fade-in-right.animation';
+import { fadeInUpAnimation } from 'src/@fury/animations/fade-in-up.animation';
 import { FormGroup, FormControl } from '@angular/forms';
+import { Network } from './affiliates-network.model';
 import { AffiliatesNetworkService } from './affiliates-network.service';
 import { Subscription } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
+import { formatDate } from '@angular/common';
+import { environment } from 'src/environments/environment';
+import { ApiService } from 'src/app/api.service';
+import { Pipe, PipeTransform } from '@angular/core';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
 import { Notyf } from 'notyf';
 
 @Component({
@@ -22,21 +26,23 @@ import { Notyf } from 'notyf';
   templateUrl: './affiliates-network.component.html',
   styleUrls: ['./affiliates-network.component.scss'],
   animations: [fadeInRightAnimation, fadeInUpAnimation]
+
 })
 export class AffiliatesNetworkComponent implements OnInit {
+  subject$: ReplaySubject<Network[]> = new ReplaySubject<Network[]>(1);
+  data$: Observable<Network[]> = this.subject$.asObservable();
 
-  networks: [];
-
-  //customer coding
+  affiliates: Network[];
   getSubscription: Subscription;
   deleteSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
-  pageSize = 25;
-  currentPage = 1;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   filters = {};
   address = [];
+  networks = [];
+  all_fields = [];
+  all_values = [];
   search = '';
   notyf = new Notyf();
   name: string;
@@ -45,47 +51,41 @@ export class AffiliatesNetworkComponent implements OnInit {
   allIdArray = [];
   timer: any;
   isChecked = false;
+  start_date = '';
+  end_date = '';
+  columns: any = [];
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
 
   @Input()
-  columns: ListColumn[] = [
-    { name: 'Checkbox', property: 'checkbox', visible: true },
-    { name: 'Network Id', property: 'network_id', visible: true, isModelProperty: true },
-    { name: 'Customer Id', property: 'customer_id', visible: true, isModelProperty: true },
-    { name: 'Name', property: 'name', visible: true, isModelProperty: true },
-    { name: 'identifier', property: 'identifier', visible: true, isModelProperty: true },
-    { name: 'account_status', property: 'account_status', visible: true, isModelProperty: true },
-    { name: 'displayed_name', property: 'displayed_name', visible: true, isModelProperty: true },
-    { name: 'is_show_name', property: 'is_show_name', visible: true, isModelProperty: true },
-    { name: 'timezone_id', property: 'timezone_id', visible: true, isModelProperty: true },
-    { name: 'language_id', property: 'language_id', visible: true, isModelProperty: true },
-    { name: 'currency_id', property: 'currency_id', visible: true, isModelProperty: true },
-    { name: 'logo_image_url', property: 'logo_image_url', visible: true, isModelProperty: true },
-    { name: 'favicon_image_url', property: 'favicon_image_url', visible: true, isModelProperty: true },
-    { name: 'support_email', property: 'support_email', visible: true, isModelProperty: true },
-    { name: 'email_background_logo_color', property: 'email_background_logo_color', visible: true, isModelProperty: true },
-    { name: 'time_created', property: 'time_created', visible: true, isModelProperty: true },
-    { name: 'time_saved', property: 'time_saved', visible: true, isModelProperty: true },
-    { name: 'relationships', property: 'relationships', visible: true, isModelProperty: true },
-    { name: 'Actions', property: 'actions', visible: true },
-
-  ] as ListColumn[];
   dataSource: MatTableDataSource<Network>;
   selection = new SelectionModel<Network>(true, []);
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private networkService: AffiliatesNetworkService) { }
+  constructor(private dialog: MatDialog, private affiliatesService: AffiliatesNetworkService) { }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property);
   }
 
+  mapData() {
+    return of(this.affiliates.map(midGroup => new Network(midGroup)));
+  }
+
   ngOnInit(): void {
-    // this.getSubscription = this.networkService.customersGetResponse$.subscribe(data => this.manageGetResponse(data));
-    // this.deleteSubscription = this.networkService.deleteResponse$.subscribe(data => this.manageDeleteResponse(data));
+  
     this.getData();
     this.dataSource = new MatTableDataSource();
+    this.data$.pipe(
+      filter(data => !!data)
+    ).subscribe((affiliates) => {
+      this.affiliates = affiliates;
+      this.dataSource.data = affiliates;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -94,27 +94,37 @@ export class AffiliatesNetworkComponent implements OnInit {
   }
 
   pageChanged(event: PageEvent) {
-    this.pageSize = event.pageSize;
-    this.currentPage = event.pageIndex;
     this.getData();
   }
 
   async getData() {
     this.isLoading = true;
     this.isChecked = false;
-    this.filters = {
-      "currentPage": this.currentPage,
-      "pageSize": this.pageSize,
-      "search": this.search,
+    if(this.range.get('start').value != null){
+      this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')
     }
-    await this.networkService.getNetworks()
-      .then(networks => {
-        this.allIdArray = [];
-        this.networks = networks.data;
-        this.dataSource.data = networks.data;
-        setTimeout(() => {
-          // this.paginator.pageIndex = this.currentPage;
-          // this.paginator.length = networks.pag.count;
+    if(this.range.get('end').value != null){
+      this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
+    }
+    this.filters = {
+      "search": this.search,
+      "start": this.start_date,
+      "end": this.end_date,
+      'all_fields': this.all_fields,
+      'all_values': this.all_values,
+    }
+    await this.affiliatesService.getColumns().then(columns => {
+      this.columns = columns.data;
+    });
+    await this.affiliatesService.getAffiliates(this.filters)
+    .then(affiliates => {
+      this.allIdArray = [];
+      this.affiliates = affiliates.data.affiliates;
+      this.dataSource.data = affiliates.data.affiliates;
+      this.networks = affiliates.data.networks;
+      console.log('Affiliates are ',this.affiliates)
+        this.mapData().subscribe(affiliates => {
+          this.subject$.next(affiliates);
         });
         this.isLoading = false;
       }, error => {
@@ -130,20 +140,72 @@ export class AffiliatesNetworkComponent implements OnInit {
     value = value.toLowerCase();
     this.dataSource.filter = value;
   }
+  commonFilter(value, field) {
+    if (this.all_fields.indexOf(field) === -1) {
+      this.all_fields.push(field);
+      this.all_values.push(value);
+    } else {
+      let index = this.all_fields.indexOf(field);
+      this.all_values[index] = value;
+    }
+    // this.getData();
+  }
 
-  viewDetails(id) {
+
+  viewDetails(id){
     console.log(id);
   }
 
   handleDeleteAction(id) {
-    console.log(id);
+    const dialogData = new ConfirmationDialogModel('Confirm Delete', 'Are you sure you want to delete this redord?');
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      maxWidth: '500px',
+      closeOnNavigation: true,
+      disableClose: true,
+      data: dialogData
+    })
+    dialogRef.afterClosed().subscribe(dialogResult => {
+      if (dialogResult) {
+        this.affiliatesService.deleteData(id);
+        this.getData();
+        this.notyf.success('Network deleted successfully!');
+      }
+    });
   }
 
   ngOnDestroy(): void {
     if (this.deleteSubscription) {
-      // this.networkService.deleteResponse.next([]);
+      // this.affiliateservice.deleteResponse.next([]);
       // this.deleteSubscription.unsubscribe();
     }
   }
+  selectDate(param) {
+    var startDate = new Date();
+    var endDate = new Date();
+    if (param == 'today') {
+      this.range.get('start').setValue(new Date());
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'yesterday') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
+      this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
+    } else if (param == 'thisMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
+    } else if (param == 'pastWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'pastTwoWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'lastMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastThreeMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastSixMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    }
+  }
 }
-

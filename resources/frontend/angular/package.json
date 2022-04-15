@@ -52,6 +52,7 @@
     "sass-loader": "^12.4.0",
     "screenfull": "~6.0.0",
     "simplebar": "~5.3.6",
+    "title-case": "^3.0.3",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.4"
   },

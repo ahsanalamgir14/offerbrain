@@ -87,6 +87,33 @@ class ProfileController extends Controller
     {
         //
     }
+    public function update_profiles(){
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
+
+        $profile_data = new Profile();
+        $profile_id = $profile_data->pluck('profile_id')->toArray();
+        
+        $account_ids = $this->pull_account_ids($username, $password);
+        if ($account_ids) {
+            foreach ($account_ids as $acc_id) {
+                $url = 'https://thinkbrain.sticky.io/api/v2/providers/payment/' . $acc_id . '/profiles';
+                $data = json_decode(Http::withBasicAuth($username, $password)->accept('application/json')->get($url)->getBody()->getContents());
+                if (property_exists($data, 'data')) {
+                    $profiles_array[] = $data->data;
+                    for($i = 0; $i < count($profiles_array); $i++){
+                        if(in_array('146',$profile_id)){
+                            Profile::where('profile_id',$profiles_array[$i]->id)->update(['alias' => $profiles_array[$i]->alias]);
+                        } else {
+                            $profile_data->alias = $profiles_array[$i]->alias;
+                            $profile_data->create();
+                        }
+                    }
+                }
+            }
+            return;
+        }
+    }
     public function pull_profiles()
     {
         $username = "yasir_dev";
@@ -163,13 +190,13 @@ class ProfileController extends Controller
             $data->currency_code = $data->currency->code;
             $data->currency_symbol_left = $data->currency->symbol_left;
             if(property_exists($data->fields, 'global_fields')){
-                $data->global_fields = json_encode($data->fields->global_fields);
+                $data->global_fields = $data->fields->global_fields;
             }
             if(property_exists($data->fields, 'account_fields')){
-                $data->account_fields = json_encode($data->fields->account_fields);
+                $data->account_fields = $data->fields->account_fields;
             }
             if(property_exists($data->fields, 'fee_fields')){
-                $data->fee_fields = json_encode($data->fields->fee_fields);
+                $data->fee_fields = $data->fields->fee_fields;
             }
             if (in_array($data->profile_id, $db_profile_ids)) {
                 $updated_profiles++;

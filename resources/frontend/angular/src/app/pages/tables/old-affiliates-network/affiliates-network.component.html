@@ -1,0 +1,53 @@
+<!-- <div class="padding">
+    <fury-breadcrumbs current="Affiliates Network"></fury-breadcrumbs>
+</div> -->
+
+<fury-page-layout mode="simple">
+    <fury-page-layout-content @fadeInRight]>
+        <fury-list name="Networks" [columns]="columns" (filterChange)="onFilterChange($event)">
+            <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+            <table [dataSource]="dataSource" mat-table matSort>
+
+                <!-- Checkbox Column -->
+                <ng-container matColumnDef="checkbox">
+                    <th *matHeaderCellDef class="actions-cell" mat-header-cell>
+                        <mat-checkbox (change)="$event ? masterToggle($event) : null" [checked]="selection.hasValue() && isAllSelected()"
+                            [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+                    </th>
+                    <td *matCellDef="let row" class="actions-cell" mat-cell>
+                        <mat-checkbox color="primary" (click)="$event.stopPropagation()" (change)="$event ? selectToggle($event, row.id) : null"
+                            [checked]="selection.isSelected(row)"></mat-checkbox>
+                    </td>
+                </ng-container>
+
+                <!-- fullName Column -->
+                <ng-container *ngFor="let column of columns">
+                    <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+                        <td *matCellDef="let row" mat-cell>
+                            {{ row[column.property] }}
+                        </td>
+                    </ng-container>
+                </ng-container>
+
+                <!-- actions Column -->
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef> Actions </th>
+                    <td mat-cell *matCellDef="let row">
+                        <a class="view-link" (click)="viewDetails(row.network_id)">View</a> |
+                        <a class="delete-link" (click)="handleDeleteAction(row.network_id)">Delete</a>
+                    </td>
+                </ng-container>
+
+
+                <tr *matHeaderRowDef="visibleColumns" mat-header-row></tr>
+                <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+            </table>
+
+            <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
+            </mat-paginator> -->
+
+        </fury-list>
+    </fury-page-layout-content>
+</fury-page-layout>

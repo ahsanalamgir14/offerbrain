@@ -1,0 +1,89 @@
+<!-- <div class="padding">
+  <fury-breadcrumbs current="Golden Ticket"></fury-breadcrumbs>
+</div> -->
+
+<fury-page-layout-content fxLayout fxLayoutAlign="space-between center">
+    <div class="mt" *ngIf="isChecked">
+      <button class="ml-1" mat-raised-button color="warn" (click)="deleteRecord()">Delete {{idArray?.length}} Selected
+        Record</button>
+    </div>
+  </fury-page-layout-content>
+  
+  <fury-page-layout mode="simple">
+    <fury-page-layout-content [@fadeInUp]>
+      <fury-list  style="box-shadow:none;"  name="Campaigns Network" [columns]="columns" (filterChange)="onFilterChange($event)">
+        <mat-progress-bar mode="query" color="warn" *ngIf="isDeleting"></mat-progress-bar>
+        <!-- <ngx-ui-loader></ngx-ui-loader> -->
+        <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+  
+        <!-- Progress Spinner -->
+        <!-- <div *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center; background: white;">
+          <mat-progress-spinner color="primary" mode="indeterminate">
+          </mat-progress-spinner>http://ec2-184-72-73-137.compute-1.amazonaws.com/orders
+        </div> -->
+        <!-- <div class="sticky-columns"> -->
+          <table [dataSource]="dataSource" mat-table matSort>
+  
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="checkbox">
+              <th *matHeaderCellDef class="actions-cell" mat-header-cell>
+                <mat-checkbox (change)="$event ? masterToggle($event) : null" [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+              </th>
+              <td *matCellDef="let row" class="actions-cell" mat-cell>
+                <mat-checkbox color="primary" (click)="$event.stopPropagation()" (change)="$event ? selectToggle($event, row.id) : null"
+                  [checked]="selection.isSelected(row)"></mat-checkbox>
+              </td>
+            </ng-container>
+  
+            <!-- fullName Column -->
+            <ng-container *ngFor="let column of columns">
+              <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+                <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+                <td *matCellDef="let row" mat-cell>
+                  {{ row[column.property] }}
+                </td>
+              </ng-container>
+            </ng-container>
+  
+            <!-- old button actions Column to be deleted -->
+            <!-- <ng-container matColumnDef="actions">
+            <th *matHeaderCellDef class="actions-cell" mat-header-cell mat-sort-header></th>
+            <td *matCellDef="let element" class="actions-cell" mat-cell>
+              <button type="button" mat-icon-button [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+  
+              <mat-menu #actionsMenu="matMenu" yPosition="below" xPosition="before">
+                <button (click)="openDialog(element.id)" mat-menu-item>
+                  <span>View Details</span>
+                </button>
+                <button (click)="handleDeleteAction(element.id)" mat-menu-item>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container> -->
+  
+            <!-- Action Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef> Actions </th>
+              <td mat-cell *matCellDef="let row">
+                <a class="view-link" (click)="openDialog(row.id)">View</a> |
+                <a class="delete-link" (click)="handleDeleteAction(row.id)">Delete</a>
+              </td>
+            </ng-container>
+  
+            <tr *matHeaderRowDef="visibleColumns; sticky: true" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+          </table>
+        <!-- </div> -->
+  
+        <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+          (page)="pageChanged($event)" aria-label="Select page">
+        </mat-paginator> -->
+  
+      </fury-list>
+  
+    </fury-page-layout-content>
+  </fury-page-layout>

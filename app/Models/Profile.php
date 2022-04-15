@@ -27,4 +27,8 @@ class Profile extends Model
         'account_fields',
         'fee_fields'
     ];
+
+    function getGlobalFieldsAttribute($value){
+        return json_decode($value);
+    }
 }

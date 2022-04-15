@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Http;
 use App\Models\Network;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
+use DB;
 
 class NetworkController extends Controller
 {
@@ -13,9 +15,26 @@ class NetworkController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Network::all();
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $query = Network::select('*');
+        if ($start_date != null && $end_date != null){
+            $query->where('time_created', '>', strtotime($request->start_date));
+            $query->where('time_created', '<', strtotime($request->end_date));
+        }
+        if ($request->fields != null) {
+            $field_array = explode(',', $request->fields);
+            $value_array = explode(',', $request->values);
+            for ($i = 0; $i < count($value_array); $i++) {
+                if($value_array[$i] != ''){
+                    $query->where($field_array[$i], $value_array[$i]);
+                }
+            }
+        }
+        $data['affiliates'] = $query->get();
+        // $data['networks'] = Network::all();
         return response()->json(['status' => true, 'data' => $data]);
     }
 
@@ -43,22 +62,22 @@ class NetworkController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Network  $network
+     * @param  \App\Models\Network  $affiliate
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $network = Network::where(['network_id' => $id])->first();
-        return response()->json(['status' => true, 'data' => $network]);
+        $affiliate = Network::where(['network_affiliate_id' => $id])->first();
+        return response()->json(['status' => true, 'data' => $affiliate]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Network  $network
+     * @param  \App\Models\Network  $affiliate
      * @return \Illuminate\Http\Response
      */
-    public function edit(Network $network)
+    public function edit(Network $affiliate)
     {
         //
     }
@@ -67,10 +86,10 @@ class NetworkController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Network  $network
+     * @param  \App\Models\Network  $affiliate
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Network $network)
+    public function update(Request $request, Network $affiliate)
     {
         //
     }
@@ -78,45 +97,47 @@ class NetworkController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Network  $network
+     * @param  \App\Models\Network  $affiliate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Network $network)
+    public function destroy_affiliates(Request $request)
     {
-        //
+        $id = $request->all();
+        // $is_true = DB::table('affiliates')->where('id', $id)->delete();
+        $is_true = Network::where('id', $id)->delete();
+        if ($is_true) {
+            return response()->json(['status' => true, 'message' => '<b>1</b> Network Deleted Successfully']);
+        }
     }
-
-    public function pull_networks()
+    public function pull_affiliates()
     {
-        $new_networks = 0;
-        $updated_networks = 0;
-        $db_network_ids = Network::all()->pluck('network_id')->toArray();
+        $new_affiliates = 0;
+        $updated_affiliates = 0;
+        $db_network_affiliate_ids = Network::all()->pluck('network_affiliate_id')->toArray();
         $key = "X-Eflow-API-Key";
         $value = "nH43mlvTSCuYUOgOXrRA";
-        $url = 'https://api.eflow.team/v1/networks';
-        // !needs code to be changed when more network (currently there is only one network in API response)
-        $network = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
-        // dd($api_data);
-        // $networks = $api_data->networks;
-        // $paging = $api_data->paging;
+        $url = 'https://api.eflow.team/v1/networks/affiliates';
+        $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
+        $affiliates = $api_data->affiliates;
+        $paging = $api_data->paging;
 
-        if ($network) {
-            // foreach ($networks as $network) {
-            if (in_array($network->network_id, $db_network_ids)) {
-                $update = network::where(['network_id' => $network->network_id])->first();
-                $update->update((array)$network);
-                $updated_networks++;
-            } else {
-                network::create((array)$network);
-                $new_networks++;
+        if ($affiliates) {
+            foreach ($affiliates as $affiliate) {
+                if (in_array($affiliate->network_affiliate_id, $db_network_affiliate_ids)) {
+                    $update = Network::where(['network_affiliate_id' => $affiliate->network_affiliate_id])->first();
+                    $update->update((array)$affiliate);
+                    $updated_affiliates++;
+                } else {
+                    Network::create((array)$affiliate);
+                    $new_affiliates++;
+                }
             }
-            // }
             return response()->json(
                 [
                     'status' => true,
                     'data' => [
-                        'New Networks: ' => $new_networks,
-                        'Updates Networks: ' => $updated_networks
+                        'New Affiliates: ' => $new_affiliates,
+                        'Updates Affiliates: ' => $updated_affiliates
                     ]
                 ]
             );

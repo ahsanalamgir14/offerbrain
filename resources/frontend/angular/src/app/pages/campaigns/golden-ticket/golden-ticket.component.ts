@@ -38,7 +38,7 @@ export class GoldenTicketComponent implements OnInit {
   months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   year: string = null;
   years: number[] = [];
-  notyf = new Notyf();
+  notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
 
   @Input()
   columns: ListColumn[] = [
@@ -215,9 +215,22 @@ export class GoldenTicketComponent implements OnInit {
     this.year = null;
   }
 
-  refresh() {
+  async refresh() {
     this.resetFilters();
-    this.getData();
+    this.isLoading = true;
+        this.notyf.open({ type: 'info', message: 'Records will be refreshed soon...' });
+    await this.campaignService.refreshGoldenTicket()
+      .then(tickets => {
+        this.tickets = tickets.data;
+        this.dataSource.data = tickets.data;
+        setTimeout(() => {
+          // this.paginator.pageIndex = this.currentPage;
+          // this.paginator.length = tickets.pag.count;
+        });
+        this.isLoading = false;
+      }, error => {
+        this.isLoading = false;
+      });
   }
 
   ngOnDestroy() {

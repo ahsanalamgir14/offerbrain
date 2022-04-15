@@ -1,0 +1,89 @@
+<!-- <div class="padding">
+  <fury-breadcrumbs current="Golden STicket (Weekly)"></fury-breadcrumbs>
+</div> -->
+
+<!-- !buttons important comment-->
+<!-- <fury-page-layout-content fxLayout fxLayoutAlign="space-between center">
+    <div>
+      <mat-form-field appearance="fill">
+        <mat-label>Select Month</mat-label> 
+        <mat-select [(value)]="month">
+          <mat-option *ngFor="let month of months, index as i" value="{{month}}">{{month}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="pl-1">
+        <mat-label>Select Year </mat-label>
+        <mat-select [(value)]="year">
+          <mat-option *ngFor="let year of years, index as i" value="{{year}}">{{year}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button class="ml-1" mat-raised-button color="warn" (click)="filterRecord()">Apply</button>
+      <button class="ml-1" mat-raised-button color="warn" (click)="resetFilters()">Reset</button>
+      <button class="ml-1" mat-raised-button color="warn" (click)="addCustomMonth()">Add</button>
+    </div>
+    <div>
+      <button mat-raised-button color="accent" (click)="refresh()">Refresh</button>
+      <button class="ml-1" mat-raised-button color="accent" (click)="addCurrentMonth()">Add Current Month</button>
+    </div>
+  </fury-page-layout-content> -->
+
+<fury-page-layout mode="simple">
+  <fury-page-layout-content [@fadeInUp]>
+    <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh</button>
+    <fury-list name="Golden STicket (Weekly)" [columns]="columns" (filterChange)="onFilterChange($event)">
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+      <table [dataSource]="dataSource" mat-table matSort>
+
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="checkbox">
+          <th *matHeaderCellDef class="actions-cell" mat-header-cell>
+            <mat-checkbox color="primary" (click)="$event.stopPropagation()"></mat-checkbox>
+          </th>
+          <td *matCellDef="let row" class="actions-cell" mat-cell>
+            <mat-checkbox color="primary" (click)="$event.stopPropagation()"></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Image Column -->
+        <ng-container matColumnDef="image">
+          <th *matHeaderCellDef class="image-cell" mat-header-cell></th>
+          <td *matCellDef="let row" class="image-cell" mat-cell>
+            <img src="http://i.pravatar.cc/30?u={{ row.name }}">
+          </td>
+        </ng-container>
+
+        <!-- fullName Column -->
+        <ng-container *ngFor="let column of columns">
+          <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ row[column.property] }}
+            </td>
+          </ng-container>
+        </ng-container>
+
+
+        <!-- actions Column -->
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef class="actions-cell" mat-header-cell mat-sort-header></th>
+          <td *matCellDef="let row" class="actions-cell" mat-cell>
+            <button type="button" mat-icon-button [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="visibleColumns" mat-header-row></tr>
+        <tr (click)="updateCustomer(row)" *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
+          mat-row></tr>
+      </table>
+
+      <!-- <mat-paginator class="paginator" [pageSize]="pageSize"></mat-paginator> -->
+      <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+        (page)="pageChanged($event)" aria-label="Select page">
+      </mat-paginator>
+
+    </fury-list>
+
+  </fury-page-layout-content>
+</fury-page-layout>

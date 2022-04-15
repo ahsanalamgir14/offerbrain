@@ -1,0 +1,28 @@
+.mt {
+  padding-top: 20px;
+}
+.view-link {
+  color: #6495ed;
+}
+.delete-link {
+  color: #f62217;
+}
+.clickable {
+  cursor: pointer;
+}
+.sticky-columns {
+  // display: flex;
+  // flex-direction: column;
+  height: 550px;
+  max-width: 100%;
+  overflow: auto;
+}
+
+//   .sticky {
+//     background: #fff;
+//     box-shadow: 0 3px 12px 0 rgba(0,0,0,.08);
+//     position: fixed;
+//     top: 0;
+//     height: 120px;
+//     width: 100%;
+//   }

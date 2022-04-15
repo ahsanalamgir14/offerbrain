@@ -1,3 +1,7 @@
+import { DatePipe } from '@angular/common'
+const datePipe: DatePipe = new DatePipe('en-US')
+let nf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
+
 export class MidGroup {
     id: string;
     group_name: string;
@@ -8,6 +12,7 @@ export class MidGroup {
     bank_per: string;
     target_bank_balance: string;
     updated_at: string;
+    balance : number;
 
     constructor(midGroup) {
         this.id = midGroup.id;
@@ -15,9 +20,10 @@ export class MidGroup {
         this.group_alias = midGroup.group_alias;
         this.assigned_mids = midGroup.assigned_mids;
         this.mids_data = midGroup.mids_data;
-        this.gross_revenue = '$ ' + this.numberWithCommas(midGroup.gross_revenue);
+        this.gross_revenue = '$' + nf.format(midGroup.gross_revenue);
         this.bank_per = midGroup.bank_per + ' %';
-        this.target_bank_balance = '$ ' + this.numberWithCommas(midGroup.target_bank_balance);
+        this.balance = (midGroup.gross_revenue * midGroup.bank_per) / 100;
+        this.target_bank_balance = '$' + nf.format(this.balance);
         this.updated_at = '-';
     }
     numberWithCommas(x) {

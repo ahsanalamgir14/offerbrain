@@ -97,6 +97,10 @@ class OrdersController extends Controller
 
     public function show($id)
     {
+        $order = Order::where(['order_id'=>$id])->first();
+        // return $order->employeeNotes;
+        return Carbon::parse($order->updated_at)->format('Y-m-d');
+
     }
 
     public function edit($id)
@@ -1107,8 +1111,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-01-28';
-        $ending_day = '2022-01-28';
+        $starting_day = '2022-02-04';
+        $ending_day = '2022-02-04';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);

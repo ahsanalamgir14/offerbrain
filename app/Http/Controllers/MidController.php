@@ -156,7 +156,7 @@ class MidController extends Controller
     {
         $new_gateways = 0;
         $updated_gateways = 0;
-        $db_gateway_alias = Mid::all()->pluck('gateway_alias')->toArray();
+        $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v1/payment_router_view';
@@ -168,8 +168,8 @@ class MidController extends Controller
                 $gateways = $router->gateways;
 
                 foreach ($gateways as $gateway) {
-                    if (in_array($gateway->gateway_alias, $db_gateway_alias)) {
-                        $update = Mid::where(['gateway_alias' => $gateway->gateway_alias])->first();
+                    if (in_array($gateway->gateway_id, $db_gateway_ids)) {
+                        $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
                         $gateway->router_id = $router->id;
                         $gateway->router_name = $router->name;
                         $gateway->router_date_in = $router->date_in;

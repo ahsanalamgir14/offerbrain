@@ -220,7 +220,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.getCampaignsSubscription = this.ordersService.getCampaignsResponse$.subscribe(data => this.manageCampaignsResponse(data))
     this.getProductsSubscription = this.ordersService.getProductsResponse$.subscribe(data => this.manageProductsResponse(data))
-
+    this.selectDate('today');
     this.ordersService.getCampaigns();
     this.ordersService.getProducts();
     this.getData();

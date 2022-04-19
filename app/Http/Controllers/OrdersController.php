@@ -98,7 +98,7 @@ class OrdersController extends Controller
     public function show($id)
     {
         $order = Order::where(['order_id'=>$id])->first();
-        // return $order->employeeNotes;
+        return $order;
         return Carbon::parse($order->updated_at)->format('Y-m-d');
 
     }
@@ -852,40 +852,37 @@ class OrdersController extends Controller
                 $results = $order_views->data;
                 foreach ($results as $result) {
 
-                    // $order = new Order();
-                    // $month = Carbon::parse($result->acquisition_date)->format('F');
-                    // $year = Carbon::parse($result->acquisition_date)->format('Y');
-                    // $result->acquisition_month = $month;
-                    // $result->acquisition_year = $year;
-                    // $result->trx_month = $month;
-                    // $result->billing_email = $result->email_address;
-                    // $result->billing_telephone = $result->customers_telephone;
-                    // $result->shipping_email = $result->email_address;
-                    // $result->shipping_telephone = $result->customers_telephone;
-                    // if (property_exists($result, 'employeeNotes')) {
-                    //     $result->employeeNotes = serialize($result->employeeNotes);
-                    // }
-                    // $result->utm_info = serialize($result->utm_info);
-                    // if (property_exists($result, 'products')) {
-                    //     $result->products = serialize($result->products);
-                    // }
-                    // $result->systemNotes = serialize($result->systemNotes);
-                    // $result->totals_breakdown = serialize($result->totals_breakdown);
+                    $month = Carbon::parse($result->time_stamp)->format('F');
+                    $year = Carbon::parse($result->time_stamp)->format('Y');
+                    $result->acquisition_month = $month;
+                    $result->acquisition_year = $year;
+                    $result->trx_month = $month;
+                    $result->billing_email = $result->email_address;
+                    $result->billing_telephone = $result->customers_telephone;
+                    $result->shipping_email = $result->email_address;
+                    $result->shipping_telephone = $result->customers_telephone;
+                    if (property_exists($result, 'employeeNotes')) {
+                        $result->employeeNotes = serialize($result->employeeNotes);
+                    }
+                    $result->utm_info = serialize($result->utm_info);
+                    if (property_exists($result, 'products')) {
+                        $result->products = serialize($result->products);
+                    }
+                    $result->systemNotes = serialize($result->systemNotes);
+                    $result->totals_breakdown = serialize($result->totals_breakdown);
                     if (in_array($result->order_id, $db_order_ids)) {
                         $updated_orders++;
-                        // $order = Order::where(['order_id' => $result->order_id])->first();
-                        // $order->update((array)$result);
+                        $db_order = Order::where(['order_id' => $result->order_id])->first();
+                        $db_order->update((array)$result);
 
-                        // $order_product = OrderProduct::where(['order_id' => $order->order_id])->first();
-                        // $mass_assignment = $this->get_order_product_mass($result);
-                        // $order_product->update($mass_assignment);
+                        $mass_assignment = $this->get_order_product_mass($result);
+                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
 
                     } else {
                         $new_orders++;
-                        // $order->create((array)$result);
-                        // $order_product = new OrderProduct();
-                        // $mass_assignment = $this->get_order_product_mass($result);
-                        // $order_product->create($mass_assignment);
+                        Order::create((array)$result);
+                        $mass_assignment = $this->get_order_product_mass($result);
+                        OrderProduct::create($mass_assignment);
                     }
                 }
                 $data = null;
@@ -1050,8 +1047,8 @@ class OrdersController extends Controller
                 $results = $order_views->data;
                 foreach ($results as $result) {
 
-                    $month = Carbon::parse($result->acquisition_date)->format('F');
-                    $year = Carbon::parse($result->acquisition_date)->format('Y');
+                    $month = Carbon::parse($result->time_stamp)->format('F');
+                    $year = Carbon::parse($result->time_stamp)->format('Y');
                     $result->acquisition_month = $month;
                     $result->acquisition_year = $year;
                     $result->trx_month = $month;
@@ -1111,8 +1108,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-02-04';
-        $ending_day = '2022-02-04';
+        $starting_day = '2022-02-15';
+        $ending_day = '2022-02-15';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);

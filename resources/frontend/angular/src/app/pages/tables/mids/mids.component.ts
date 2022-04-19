@@ -109,7 +109,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
-    this.selectDate('lastMonth');
+    this.selectDate('thisMonth');
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(

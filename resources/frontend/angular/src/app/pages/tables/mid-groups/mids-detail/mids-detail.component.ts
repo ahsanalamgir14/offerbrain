@@ -46,7 +46,7 @@ export class MidsDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input()
   columns: ListColumn[] = [
 
-    { name: 'Id', property: 'id', visible: true, isModelProperty: true },
+    // { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'router_id', property: 'router_id', visible: true, isModelProperty: true },
     { name: 'Gateway Id', property: 'gateway_id', visible: true, isModelProperty: true },
     { name: 'Gateway Alias', property: 'gateway_alias', visible: true, isModelProperty: true },

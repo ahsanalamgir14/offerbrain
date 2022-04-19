@@ -90,7 +90,11 @@ class ColumnController extends Controller
         // dd($request->all());
         $data = $request->all();
         $column = Column::where(['table' => $request->table, 'property' => $request->property])->first();
-        $column->update($data);
-        return response()->json(['status' => true, 'message' => 'Filter Changed Successfully']);
+        if($column){
+            $column->update($data);
+            return response()->json(['status' => true, 'message' => 'Filter Changed Successfully']);
+        } else {
+            return response()->json(['status' => true, 'message' => 'That column cannot be dynamic']);
+        }
     }
 }

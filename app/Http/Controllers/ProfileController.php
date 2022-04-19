@@ -101,12 +101,19 @@ class ProfileController extends Controller
                 $data = json_decode(Http::withBasicAuth($username, $password)->accept('application/json')->get($url)->getBody()->getContents());
                 if (property_exists($data, 'data')) {
                     $profiles_array[] = $data->data;
-                    for($i = 0; $i < count($profiles_array); $i++){
-                        if(in_array('146',$profile_id)){
-                            Profile::where('profile_id',$profiles_array[$i]->id)->update(['alias' => $profiles_array[$i]->alias]);
+                    for($i = 0; $i < count($profiles_array[0]); $i++){
+                        if(in_array($profiles_array[0][$i]->id,$profile_id)){
+                            Profile::where('profile_id',$profiles_array[0][$i]->id)->update(['alias' => $profiles_array[0][$i]->alias, 'account_name' => $profiles_array[0][$i]->account_name]);
                         } else {
-                            $profile_data->alias = $profiles_array[$i]->alias;
-                            $profile_data->create();
+                            $insert['profile_id'] = $profiles_array[0][$i]->id;
+                            $insert['alias'] = $profiles_array[0][$i]->alias;
+                            $insert['account_name'] = $profiles_array[0][$i]->account_name;
+                            $insert['account_id'] = $acc_id;
+                            $insert['currency_title'] = $profiles_array[0][$i]->currency->title;
+                            $insert['currency_code'] = $profiles_array[0][$i]->currency->code;
+                            $insert['currency_symbol_left'] = $profiles_array[0][$i]->currency->symbol_left;
+                            $insert['currency_id'] = $profiles_array[0][$i]->currency->id;
+                            Profile::insert($insert);
                         }
                     }
                 }
@@ -114,6 +121,7 @@ class ProfileController extends Controller
             return;
         }
     }
+ 
     public function pull_profiles()
     {
         $username = "yasir_dev";

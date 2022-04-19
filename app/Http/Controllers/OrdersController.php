@@ -713,7 +713,7 @@ class OrdersController extends Controller
             $url,
             [
                 'start_date' => '04/14/2022',
-                'end_date' => '04/14/2022',
+                'end_date' => '04/19/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -814,8 +814,7 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public function pull_cron_orders()
-    {
+    public function pull_cron_orders(){
         $new_orders = 0;
         $updated_orders = 0;
         $start = Carbon::today();
@@ -829,20 +828,19 @@ class OrdersController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/order_find';
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
-            $url,
-            [
-                'start_date' => $start_date,
-                'end_date' => $end_date,
-                'campaign_id' => 'all',
-                'criteria' => 'all'
-            ]
+        $url,
+        [
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+        'campaign_id' => 'all',
+        'criteria' => 'all'
+        ]
         )->getBody()->getContents());
 
         $order_ids = $api_data->order_id;
         $total_orders = $api_data->total_orders;
         // dd($total_orders);
         if ($total_orders < 50000) {
-
             $chunked_array = array_chunk($order_ids, 500);
             foreach ($chunked_array as $chucked_ids) {
                 $order_view_api = 'https://thinkbrain.sticky.io/api/v1/order_view';
@@ -887,7 +885,7 @@ class OrdersController extends Controller
                 }
                 $data = null;
                 $results = null;
-            }
+         }
             return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
         } else {
             return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);

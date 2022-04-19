@@ -147,7 +147,7 @@
                     <!-- Group name column -->
                     <ng-container matColumnDef="gateway_alias">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Gateway Alias</th>
-                        <td *matCellDef="let row" (click)="openRevenueDialog(row)" mat-cell [ngClass]="row.gateway_alias.indexOf('CLOSED') !== -1 ? 'highlight-grey' : row.global_monthly_cap == '$0.00' ? 'highlight-orange' : ''">
+                        <td *matCellDef="let row" (click)="openRevenueDialog(row)" mat-cell [ngClass]="row.gateway_alias.indexOf('CLOSED') !== -1 ? 'highlight-grey' : row.current_monthly_amount == '0.00' ? 'highlight-orange' : ''">
                             {{ row.gateway_alias }}
                         </td>
                     </ng-container>

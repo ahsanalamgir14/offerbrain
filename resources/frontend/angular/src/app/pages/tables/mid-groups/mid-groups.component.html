@@ -12,7 +12,8 @@
                         <div [@fadeInUp]>
                             <h3>Date Filter</h3>
                         </div>
-                        <div fxLayout="column" layout-wrap fxLayoutGap="10px" *ngIf="!skeletonloader">
+                        <!-- *ngIf="!skeletonloader" -->
+                        <div fxLayout="column" layout-wrap fxLayoutGap="10px">
                             <div fxLayout="row" layout-wrap fxLayoutGap="10px">
                                 <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
                                 <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This
@@ -46,25 +47,26 @@
                                 </mat-form-field>
                             </div>
                         </div>
-                        <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{
+                        <!-- <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{
                       height: '50px',
                       width: '300px',
                     'border-radius': 0
                   }"
-                            *ngIf="skeletonloader"> </ngx-skeleton-loader>
+                            *ngIf="skeletonloader"> </ngx-skeleton-loader> -->
                     </div>
-                    <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px" *ngIf="!skeletonloader">
+                    <!-- ngIf="!skeletonloader" -->
+                    <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
                         <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
                         <!-- <div><button mat-raised-button color="accent" (click)="refresh()">Refresh Groups</button></div> -->
                     </div>
                     <div fxLayout="row" fxLayoutAlign="end end">
-                        <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
+                        <!-- <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
                             [theme]="{
                   height: '30px',
                   width: '80px',
                   'border-radius': 0
                 }"
-                            *ngIf="skeletonloader"> </ngx-skeleton-loader>
+                            *ngIf="skeletonloader"> </ngx-skeleton-loader> -->
                     </div>
                 </div>
             </mat-expansion-panel>

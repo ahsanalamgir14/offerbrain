@@ -75,6 +75,36 @@ mat-header-row {
   background: none;
 }
 
+.mat-dialog-container {
+  max-height: 600px !important;
+  height: none !important;
+}
+
 ::ng-deep .icon-outside .mat-dialog-container {
   overflow: unset;
+  max-height: 600px !important;
+  height: none !important;
+}
+
+.title {
+  padding-bottom: 20px;
+  text-align: center;
+}
+
+:host ::ng-deep .mat-sort-header-container {
+  display: flex;
+  justify-content: center;
+  width: 150px;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  text-align: center;
+}
+.sticky-columns {
+  // display: flex;
+  // flex-direction: column;
+  height: 560px;
+  max-width: 100%;
+  overflow: auto;
 }

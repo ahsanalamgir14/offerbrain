@@ -113,7 +113,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
 
   ngOnInit() {
     this.notyf.dismissAll();
-    // this.selectDate('thisMonth');
+    this.selectDate('thisMonth');
     this.getSubscription = this.midGroupService.getResponse$.subscribe(data => this.manageGetResponse(data));
     this.refreshSubscription = this.midGroupService.refreshResponse$.subscribe(data => this.manageRefreshResponse(data));
     this.addGroupSubscription = this.midGroupService.addGroupResponse$.subscribe(data => this.manageAddGroupResponse(data));
@@ -296,17 +296,19 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   }
 
   openDialog(data) {
-
-    const dialogRef = this.dialog.open(MidsDetailComponent, {
-      disableClose: true,
-      data: {
-        group: data.group_name,
-        mids: data.mids_data
-      }
-    });
-    // dialogRef.updateSize('1000px');
-    dialogRef.afterClosed().subscribe(result => {
-    });
+    console.log(data);
+    if (data.assigned_mids != 0) {
+      const dialogRef = this.dialog.open(MidsDetailComponent, {
+        disableClose: true,
+        data: {
+          group: data.group_name,
+          mids: data.mids_data
+        }
+      });
+      // dialogRef.updateSize('', '600px');
+      dialogRef.afterClosed().subscribe(result => {
+      });
+    }
   }
 
   selectDate(param) {

@@ -32,12 +32,13 @@ class CreateMidsTable extends Migration
             $table->string('current_monthly_amount')->nullable()->default(null);
             $table->string('processing_percent')->nullable()->default(null);
             $table->string('decline_per')->nullable()->default(0);
-            $table->unsignedBigInteger('decline_id')->nullable()->default(null);
-            $table->unsignedBigInteger('mid_count_id')->nullable()->default(null);
-            $table->json('decline_orders')->nullable()->default(null);
-            $table->foreign('decline_id')->references('id')->on('declines');
-            $table->foreign('mid_count_id')->references('id')->on('declines');
-            $table->foreign('campaign_id')->references('campaign_id')->on('campaigns');
+            $table->unique(['gateway_id','gateway_alias']);
+            // $table->unsignedBigInteger('decline_id')->nullable()->default(null);
+            // $table->unsignedBigInteger('mid_count_id')->nullable()->default(null);
+            // $table->json('decline_orders')->nullable()->default(null);
+            // $table->foreign('decline_id')->references('id')->on('declines');
+            // $table->foreign('mid_count_id')->references('id')->on('declines');
+            // $table->foreign('campaign_id')->references('campaign_id')->on('campaigns');
             $table->timestamps();
         });
     }

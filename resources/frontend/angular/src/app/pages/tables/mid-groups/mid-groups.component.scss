@@ -29,9 +29,17 @@ td.mat-cell {
   text-align: center;
 }
 .mat-column-gross_revenue {
-    text-align: right !important;
-    justify-content: flex-end !important;
-  }
-  td.mat-column-gross_revenue {
-    padding-right: 130px !important;
-  }
+  text-align: right !important;
+  justify-content: flex-end !important;
+}
+td.mat-column-gross_revenue {
+  padding-right: 130px !important;
+}
+
+.sticky-columns {
+  // display: flex;
+  // flex-direction: column;
+  height: 550px;
+  max-width: 100%;
+  overflow: auto;
+}

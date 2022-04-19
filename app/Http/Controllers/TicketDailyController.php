@@ -273,10 +273,10 @@ class TicketDailyController extends Controller
             $EOT_per = 0;
             // $start_day = '2022-04-13 00:00:00';
             // $end_day = '2022-04-13 23:59:59';
-            // $start_day = Carbon::parse('2022-02-03')->startOfDay();
-            // $end_day = Carbon::parse('2022-02-03')->endOfDay();
-            $start_day = Carbon::parse($day->date)->startOfDay();
-            $end_day = Carbon::parse($day->date)->endOfDay();
+            $start_day = Carbon::parse('2022-01-05')->startOfDay();
+            $end_day = Carbon::parse('2022-01-05')->endOfDay();
+            // $start_day = Carbon::parse($day->date)->startOfDay();
+            // $end_day = Carbon::parse($day->date)->endOfDay();
             // dd($end_day);
 
 
@@ -286,7 +286,7 @@ class TicketDailyController extends Controller
                 ->select('order_id')->get()->count();
             // dd($initials);
 
-            $declines = DB::table('orders')->where(['orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0, 'orders.order_status' => 7, 'orders.campaign_id' => 2])
+            $declines = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
                 ->where('orders.time_stamp', '>=', $start_day)
                 ->where('orders.time_stamp', '<=', $end_day)
                 ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year', 'orders.order_status')
@@ -302,7 +302,7 @@ class TicketDailyController extends Controller
             // $initials = $join->where(['orders.order_status' => 2])->where(['order_products.offer_name' => 'Golden Ticket Offer'])->where('order_products.name', 'LIKE', '%(c)%')->get()->count();
             // $initials = $orders->where(['orders.billing_cycle' => 0])->get()->count();
             // $initials = $orders->where(['orders.order_status' => 2])->get()->count();
-            // dd($declines);
+            dd($declines);
             $EOT_approved = $join->where(['order_products.offer_name' => 'EssentialSweep'])->where('order_products.name', 'LIKE', '%(CR1)%')->get()->count();
 
 

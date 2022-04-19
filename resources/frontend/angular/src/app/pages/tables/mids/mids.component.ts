@@ -247,8 +247,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       if(mid.gateway_alias.indexOf("CLOSED") !== -1){
         this.totalClosed++;
       }
+      // if(mid.gateway_alias.indexOf("CLOSING") !== -1){
+      //   this.totalPaused++;
+      // }
       
-      if(mid.global_monthly_cap == '$0.00'){
+      if(mid.current_monthly_amount == '0.00'){
         this.totalPaused++;
       }
     });

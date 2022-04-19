@@ -709,7 +709,7 @@ class OrdersController extends Controller
             $url,
             [
                 'start_date' => '04/14/2022',
-                'end_date' => '04/14/2022',
+                'end_date' => '04/19/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -810,8 +810,7 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public function pull_cron_orders()
-    {
+    public function pull_cron_orders(){
         $new_orders = 0;
         $updated_orders = 0;
         $start = Carbon::today();
@@ -825,13 +824,13 @@ class OrdersController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/order_find';
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
-            $url,
-            [
-                'start_date' => $start_date,
-                'end_date' => $end_date,
-                'campaign_id' => 'all',
-                'criteria' => 'all'
-            ]
+        $url,
+        [
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+        'campaign_id' => 'all',
+        'criteria' => 'all'
+        ]
         )->getBody()->getContents());
 
         $order_ids = $api_data->order_id;
@@ -839,54 +838,51 @@ class OrdersController extends Controller
         // dd($total_orders);
         if ($total_orders < 50000) {
 
-            $chunked_array = array_chunk($order_ids, 500);
-            foreach ($chunked_array as $chucked_ids) {
-                $order_view_api = 'https://thinkbrain.sticky.io/api/v1/order_view';
-                $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
-                    ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+        $chunked_array = array_chunk($order_ids, 500);
+        foreach ($chunked_array as $chucked_ids) {
+            $order_view_api = 'https://thinkbrain.sticky.io/api/v1/order_view';
+            $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+            ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
 
-                $results = $order_views->data;
-                foreach ($results as $result) {
+        $results = $order_views->data;
+        foreach ($results as $result) {
 
-                    // $order = new Order();
-                    // $month = Carbon::parse($result->acquisition_date)->format('F');
-                    // $year = Carbon::parse($result->acquisition_date)->format('Y');
-                    // $result->acquisition_month = $month;
-                    // $result->acquisition_year = $year;
-                    // $result->trx_month = $month;
-                    // $result->billing_email = $result->email_address;
-                    // $result->billing_telephone = $result->customers_telephone;
-                    // $result->shipping_email = $result->email_address;
-                    // $result->shipping_telephone = $result->customers_telephone;
-                    // if (property_exists($result, 'employeeNotes')) {
-                    //     $result->employeeNotes = serialize($result->employeeNotes);
-                    // }
-                    // $result->utm_info = serialize($result->utm_info);
-                    // if (property_exists($result, 'products')) {
-                    //     $result->products = serialize($result->products);
-                    // }
-                    // $result->systemNotes = serialize($result->systemNotes);
-                    // $result->totals_breakdown = serialize($result->totals_breakdown);
-                    if (in_array($result->order_id, $db_order_ids)) {
-                        $updated_orders++;
-                        // $order = Order::where(['order_id' => $result->order_id])->first();
-                        // $order->update((array)$result);
+            $month = Carbon::parse($result->time_stamp)->format('F');
+            $year = Carbon::parse($result->time_stamp)->format('Y');
+            $result->acquisition_month = $month;
+            $result->acquisition_year = $year;
+            $result->trx_month = $month;
+            $result->billing_email = $result->email_address;
+            $result->billing_telephone = $result->customers_telephone;
+            $result->shipping_email = $result->email_address;
+            $result->shipping_telephone = $result->customers_telephone;
+        if (property_exists($result, 'employeeNotes')) {
+            $result->employeeNotes = serialize($result->employeeNotes);
+        }
+            $result->utm_info = serialize($result->utm_info);
+        if (property_exists($result, 'products')) {
+            $result->products = serialize($result->products);
+        }
+            $result->systemNotes = serialize($result->systemNotes);
+            $result->totals_breakdown = serialize($result->totals_breakdown);
+        if (in_array($result->order_id, $db_order_ids)) {
+            $updated_orders++;
+            $db_order = Order::where(['order_id' => $result->order_id])->first();
+            $db_order->update((array)$result);
 
-                        // $order_product = OrderProduct::where(['order_id' => $order->order_id])->first();
-                        // $mass_assignment = $this->get_order_product_mass($result);
-                        // $order_product->update($mass_assignment);
+            $mass_assignment = $this->get_order_product_mass($result);
+            $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
 
-                    } else {
-                        $new_orders++;
-                        // $order->create((array)$result);
-                        // $order_product = new OrderProduct();
-                        // $mass_assignment = $this->get_order_product_mass($result);
-                        // $order_product->create($mass_assignment);
-                    }
-                }
-                $data = null;
-                $results = null;
+        } else {
+            $new_orders++;
+            Order::create((array)$result);
+            $mass_assignment = $this->get_order_product_mass($result);
+            OrderProduct::create($mass_assignment);
             }
+        }
+            $data = null;
+            $results = null;
+        }
             return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
         } else {
             return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);

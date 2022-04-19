@@ -83,7 +83,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     { name: 'Gross Revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'Bank %', property: 'bank_per', visible: true, isModelProperty: true },
     { name: 'Target Bank Balance', property: 'target_bank_balance', visible: true, isModelProperty: true },
-    { name: 'Updated_at', property: 'updated_at', visible: false, isModelProperty: false },
+    // { name: 'Updated_at', property: 'updated_at', visible: false, isModelProperty: false },
     { name: 'Actions', property: 'actions', visible: true },
 
   ] as ListColumn[];

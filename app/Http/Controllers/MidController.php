@@ -22,6 +22,7 @@ class MidController extends Controller
      */
     public function index(Request $request)
     {
+        exit;
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {

@@ -19,6 +19,8 @@ export class MidDetailDialogComponent implements OnInit {
   filters = {};
   isLoading = true;
   details = [];
+  count_sum = 0;
+  percentage_sum = 0;
 
   constructor(public dialogRef: MatDialogRef<MidDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MidDetailDialogModel) {
@@ -32,8 +34,11 @@ export class MidDetailDialogComponent implements OnInit {
 
   ngOnInit(): void {
     const response = fetch(`${this.endPoint}/api/get_mid_count_detail?gateway_id=${this.gateway_id}&start_date=${this.start_date}&end_date=${this.end_date}&total_count=${this.total_count}&status=${this.status}`).then(res => res.json()).then((data) => {
-      this.isLoading = false;
       if(data.status){
+        data.data.forEach((v)=> { 
+          this.percentage_sum = +this.percentage_sum + +v.percentage;
+          this.count_sum = +this.count_sum + +v.total_count;
+        });
         this.details = data.data;
         this.isLoading = false;
       }

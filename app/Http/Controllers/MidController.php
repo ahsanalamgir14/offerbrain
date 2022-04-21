@@ -42,6 +42,8 @@ class MidController extends Controller
         ->addSelect(DB::raw('SUM(orders.order_total) as sum'))
         ->selectRaw("count(case when orders.order_status = '2' then 1 end) as mid_count")
         ->selectRaw("count(case when orders.order_status = '7' then 1 end) as decline_per")
+        ->selectRaw("count(case when orders.order_status = '6' then 1 end) as refund_per")
+        ->selectRaw("count(case when orders.is_chargeback = '1' then 1 end) as chargeback_per")
         ->addSelect('profiles.global_fields->mid_group as group_name')
         ->groupBy('mids.id','profiles.global_fields->mid_group')
         ->get();
@@ -53,24 +55,28 @@ class MidController extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        if ($start_date != null && $end_date != null) {
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+        }
         $gateway_id = $request->gateway_id;
         $status = $request->status;
 
         $array = [];
         $details = DB::table('orders')
             ->where('orders.gateway_id', $gateway_id)
-            ->where('orders.acquisition_date', '>=', $start_date)
-            ->where('orders.acquisition_date', '<=', $end_date)
+            ->where('orders.time_stamp', '>=', $start_date)
+            ->where('orders.time_stamp', '<=', $end_date)
             ->where('orders.order_status', $status)
             ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
             ->select('order_products.name as name')
             ->addSelect(DB::raw('COUNT(order_products.name) as total_count'))
-            ->groupby('order_products.name')->distinct()->get();
+            ->groupby('order_products.name')->get();
 
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
             $data['total_count'] = $detail->total_count;
-            $data['percentage'] = round(($detail->total_count / $request->total_count) * 100, 2);
+            $data['percentage'] = ($detail->total_count / $request->total_count) * 100;
             array_push($array, $data);
         }
         return response()->json(['status' => true, 'data' => $array]);

@@ -244,6 +244,8 @@ class ProspectController extends Controller
     }
     public function pull_prospects()
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
         // $db_prospect_ids = DB::table('prospects')->pluck('prospect_id')->toArray();
@@ -253,8 +255,8 @@ class ProspectController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $model = new Prospect();
 
-        $startDate = Carbon::createFromFormat('Y-m-d', '2022-02-04');
-        $endDate = Carbon::createFromFormat('Y-m-d', '2022-02-28');
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-03-27');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-04-20');
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
 

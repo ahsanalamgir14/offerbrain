@@ -25,6 +25,9 @@ export class Mid {
     checked: boolean;
     approved_per: number;
     decline_count: number;
+    refund_per: number;
+    chargeback_per: number;
+    refund_count: number;
 
     constructor(mid) {
         this.id = mid.id;
@@ -47,6 +50,9 @@ export class Mid {
         this.current_monthly_amount = mid.current_monthly_amount;
         this.processing_percent = mid.processing_percent + '%';
         this.decline_count = mid.decline_per;
+        this.refund_count = mid.refund_per;
+        this.refund_per = (mid.refund_per / mid.total_count)*100;
+        this.chargeback_per = (mid.chargeback_per / mid.total_count)*100;
         this.decline_per = (mid.decline_per / mid.total_count)*100;
         this.approved_per = 100 - (mid.decline_per / mid.total_count)*100;
         this.decline_orders = mid.decline_orders;

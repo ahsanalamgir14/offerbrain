@@ -90,6 +90,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   toolTipDeclines = [];
   toolTipMidCount = [];
+  timer = null;
   // pageSize = 20000;
   dataSource: MatTableDataSource<Mid> | null;
 
@@ -109,7 +110,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
-    this.selectDate('thisMonth');
+    this.selectDate('lastThreeMonths');
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -223,10 +224,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     return midCountArray;
   }
   openDialog(id, gateway_id, evt: MouseEvent, total_count, status){
-    const target = new ElementRef(evt.currentTarget);
-    const dialogRef = this.dialog.open(MidDetailDialogComponent, {
-      data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status }
-    });    
+    clearTimeout(this.timer); 
+    this.timer = setTimeout(() =>{
+        const target = new ElementRef(evt.currentTarget);
+        const dialogRef = this.dialog.open(MidDetailDialogComponent, {
+          data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status }
+        });
+    },500)
   }
 
   countContent() {

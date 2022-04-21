@@ -814,7 +814,9 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public function pull_cron_orders(){
+    public static function pull_cron_orders(){
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
         $new_orders = 0;
         $updated_orders = 0;
         $start = Carbon::today();

@@ -242,7 +242,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       if (mid.current_monthly_amount == '0.00') {
         this.unInitializedMids++;
       }
-      else if (!mid.mid_group_name) {
+      else if (!mid.mid_group) {
         this.unAssignedMids++;
       } else {
         this.assignedMids++;

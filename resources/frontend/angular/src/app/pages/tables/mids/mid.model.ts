@@ -5,7 +5,7 @@ let nf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
 export class Mid {
     id: number;
     router_id: number;
-    mid_group_name: string;
+    mid_group: string;
     mid_count: number;
     router_date_in: string;
     router_desc: string;
@@ -27,13 +27,14 @@ export class Mid {
     decline_count: number;
     refund_per: number;
     chargeback_per: number;
+    chargeback_count: number;
     refund_count: number;
 
     constructor(mid) {
         this.id = mid.id;
         this.router_id = mid.router_id;
         
-        this.mid_group_name = mid.group_name;
+        this.mid_group = mid.group_name;
         this.mid_count = mid.mid_count;
         
         this.router_date_in = datePipe.transform(mid.router_date_in, 'MM-dd-yyyy');
@@ -52,6 +53,7 @@ export class Mid {
         this.decline_count = mid.decline_per;
         this.refund_count = mid.refund_per;
         this.refund_per = (mid.refund_per / mid.total_count)*100;
+        this.chargeback_count = mid.chargeback_per;
         this.chargeback_per = (mid.chargeback_per / mid.total_count)*100;
         this.decline_per = (mid.decline_per / mid.total_count)*100;
         this.approved_per = 100 - (mid.decline_per / mid.total_count)*100;

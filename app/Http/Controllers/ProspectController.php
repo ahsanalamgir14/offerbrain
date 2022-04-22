@@ -253,8 +253,8 @@ class ProspectController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $model = new Prospect();
 
-        $startDate = Carbon::createFromFormat('Y-m-d', '2022-02-04');
-        $endDate = Carbon::createFromFormat('Y-m-d', '2022-02-28');
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-04-01');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-04-20'); 
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
 

@@ -132,11 +132,14 @@ export class SidenavService implements OnDestroy {
 
   toggleItemOpen(item: SidenavItem) {
     let currentlyOpen = this.currentlyOpen;
+    
 
     if (this.isOpen(item)) {
       if (currentlyOpen.length > 1) {
+        // console.log('currentlyOpen.indexOf(item); :', currentlyOpen.indexOf(item));
         currentlyOpen.length = currentlyOpen.indexOf(item);
-      } else {
+      }
+       else {
         currentlyOpen = [];
       }
     } else {
@@ -144,6 +147,7 @@ export class SidenavService implements OnDestroy {
     }
 
     this.currentlyOpen = currentlyOpen;
+    // console.log('this.currentlyOpen :', this.currentlyOpen);
   }
 
   sortRecursive(array: SidenavItem[], propertyName: string): SidenavItem[] {

@@ -116,7 +116,7 @@ class CustomerController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v2/contacts';
-        $page = 16053;
+        $page = 16235;
 
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
         $response['customers'] = $api_data['data'];
@@ -125,7 +125,6 @@ class CustomerController extends Controller
         // dd($last_page);
         if ($response['customers']) {
             foreach ($response['customers'] as $result) {
-                $customer = new Customer();
 
                 $result['customer_id'] = $result['id'];
                 $result['custom_fields'] = json_encode($result['custom_fields']);
@@ -138,7 +137,7 @@ class CustomerController extends Controller
                     $customer->update($result);
                 } else {
                     $created++;
-                    $customer->create($result);
+                    Customer::create($result);
                 }
             }
             if ($last_page > 1) {
@@ -148,7 +147,7 @@ class CustomerController extends Controller
                     $response['customers'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page])['data'];
 
                     foreach ($response['customers'] as $result) {
-                        $customer = new Customer();
+
                         $result['customer_id'] = $result['id'];
                         $result['custom_fields'] = json_encode($result['custom_fields']);
                         $result['addresses'] = json_encode($result['addresses']);
@@ -160,7 +159,7 @@ class CustomerController extends Controller
                             $customer->update($result);
                         } else {
                             $created++;
-                            $customer->create($result);
+                            Customer::create($result);
                         }
                         $response = null;
                     }

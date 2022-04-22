@@ -5,7 +5,7 @@ let nf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
 export class Mid {
     id: number;
     router_id: number;
-    mid_group_name: string;
+    mid_group: string;
     mid_count: number;
     router_date_in: string;
     router_desc: string;
@@ -30,7 +30,7 @@ export class Mid {
         this.id = mid.id;
         this.router_id = mid.router_id;
         
-        this.mid_group_name = mid.group_name;
+        this.mid_group = mid.mid_group;
         this.mid_count = mid.mid_count;
         
         this.router_date_in = datePipe.transform(mid.router_date_in, 'MM-dd-yyyy');

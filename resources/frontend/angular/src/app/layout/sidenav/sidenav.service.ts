@@ -136,7 +136,6 @@ export class SidenavService implements OnDestroy {
 
     if (this.isOpen(item)) {
       if (currentlyOpen.length > 1) {
-        // console.log('currentlyOpen.indexOf(item); :', currentlyOpen.indexOf(item));
         currentlyOpen.length = currentlyOpen.indexOf(item);
       }
        else {
@@ -144,6 +143,8 @@ export class SidenavService implements OnDestroy {
       }
     } else {
       currentlyOpen = this.getParents(item);
+      console.log('currentlyOpen :', currentlyOpen);
+      
     }
 
     this.currentlyOpen = currentlyOpen;

@@ -97,7 +97,7 @@ class OrdersController extends Controller
 
     public function show($id)
     {
-        $order = Order::where(['order_id'=>$id])->first();
+        $order = Order::where(['order_id' => $id])->first();
         return $order;
         return Carbon::parse($order->updated_at)->format('Y-m-d');
 
@@ -814,7 +814,8 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public function pull_cron_orders(){
+    public function pull_cron_orders()
+    {
         $new_orders = 0;
         $updated_orders = 0;
         $start = Carbon::today();
@@ -828,13 +829,13 @@ class OrdersController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/order_find';
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
-        $url,
-        [
-        'start_date' => $start_date,
-        'end_date' => $end_date,
-        'campaign_id' => 'all',
-        'criteria' => 'all'
-        ]
+            $url,
+            [
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'campaign_id' => 'all',
+                'criteria' => 'all'
+            ]
         )->getBody()->getContents());
 
         $order_ids = $api_data->order_id;
@@ -885,7 +886,7 @@ class OrdersController extends Controller
                 }
                 $data = null;
                 $results = null;
-         }
+            }
             return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
         } else {
             return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
@@ -1106,8 +1107,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-02-15';
-        $ending_day = '2022-02-15';
+        $starting_day = '2022-03-21';
+        $ending_day = '2022-03-31';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);
@@ -1173,7 +1174,7 @@ class OrdersController extends Controller
                             }
                             $result->systemNotes = serialize($result->systemNotes);
                             $result->totals_breakdown = serialize($result->totals_breakdown);
-                    //update
+                            //update
                             $updated_orders++;
                             $db_order = Order::where(['order_id' => $result->order_id])->first();
                             $db_order->update((array)$result);
@@ -1184,6 +1185,7 @@ class OrdersController extends Controller
                         }
                         $data = null;
                         $results = null;
+                        $order_ids = [];
                     }
                 } else {
                     return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);

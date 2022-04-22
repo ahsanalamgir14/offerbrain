@@ -153,10 +153,10 @@
                     </ng-container>
 
                     <!-- Group name column -->
-                    <ng-container matColumnDef="mid_group_name">
+                    <ng-container matColumnDef="mid_group">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Group Name</th>
-                        <td *matCellDef="let row" (click)="openAssignDialog(row.gateway_alias)" mat-cell [ngClass]="{'highlight-group': !row.mid_group_name}">
-                            {{ row.mid_group_name? row.mid_group_name : 'Unassigned' }}
+                        <td *matCellDef="let row" (click)="openAssignDialog(row.gateway_alias)" mat-cell [ngClass]="{'highlight-group': !row.mid_group}">
+                            {{ row.mid_group? row.mid_group : 'Unassigned' }}
                         </td>
                     </ng-container>
 

@@ -17,7 +17,8 @@ class CreateMidsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('router_id')->nullable()->default(null);
             $table->string('router_name')->nullable()->default(null);
-            $table->Integer('mid_count')->nullable()->default(0);
+            $table->string('mid_group')->nullable()->default(null);
+            // $table->Integer('mid_count')->nullable()->default(0);
             $table->timestamp('router_date_in')->nullable()->default(null);
             $table->string('router_desc')->nullable()->default(null);
             $table->string('mid_group_setting_id')->nullable()->default(null);
@@ -31,7 +32,7 @@ class CreateMidsTable extends Migration
             $table->string('global_monthly_cap')->nullable()->default(null);
             $table->string('current_monthly_amount')->nullable()->default(null);
             $table->string('processing_percent')->nullable()->default(null);
-            $table->string('decline_per')->nullable()->default(0);
+            // $table->string('decline_per')->nullable()->default(0);
             $table->unique(['gateway_id','gateway_alias']);
             // $table->unsignedBigInteger('decline_id')->nullable()->default(null);
             // $table->unsignedBigInteger('mid_count_id')->nullable()->default(null);

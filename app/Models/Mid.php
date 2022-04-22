@@ -31,7 +31,8 @@ class Mid extends Model
     protected $fillable = [
         'router_id',
         'router_name',
-        'mid_count',
+        // 'mid_count',
+        'mid_group',
         'router_date_in',
         'router_desc',
         'mid_group_setting_id',
@@ -57,10 +58,10 @@ class Mid extends Model
         'gateway_descriptor',
         'customer_service_number',
         'gateway_currency',
-        'decline_per',
-        'decline_id',
-        'decline_orders',
-        'mid_group',
+        // 'decline_per',
+        // 'decline_id',
+        // 'decline_orders',
+        // 'mid_group',
     ];
 
     function orders()

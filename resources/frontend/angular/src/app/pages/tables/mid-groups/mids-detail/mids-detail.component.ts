@@ -50,7 +50,7 @@ export class MidsDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     // { name: 'router_id', property: 'router_id', visible: true, isModelProperty: true },
     { name: 'Gateway Id', property: 'gateway_id', visible: true, isModelProperty: true },
     { name: 'Gateway Alias', property: 'gateway_alias', visible: true, isModelProperty: true },
-    // { name: 'Group Name', property: 'mid_group_name', visible: true, isModelProperty: false },
+    // { name: 'Group Name', property: 'mid_group', visible: true, isModelProperty: false },
     { name: 'Router Date In', property: 'router_date_in', visible: false, isModelProperty: true },
     { name: 'Router Desc', property: 'router_desc', visible: false, isModelProperty: true },
     { name: 'Mid Group Setting Id', property: 'mid_group_setting_id', visible: false, isModelProperty: true },

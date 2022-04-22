@@ -28,14 +28,17 @@ export class SidenavItemComponent implements OnInit {
   @Input('item') item: SidenavItem;
   @Input('level') level: number;
 
+  isCollapsed$ = this.sidenavService.collapsed$;
   dropdownOpen$: Observable<boolean>;
-  
+
   constructor(private sidenavService: SidenavService, private router: Router) {
+
     this.dropdownOpen$ = this.sidenavService.currentlyOpen$.pipe(
       map(currentlyOpen => this.item.subItems && this.item.subItems.length > 0 && currentlyOpen.indexOf(this.item) > -1)
-      );
-    }
-  isCollapsed$ = this.sidenavService.collapsed$;
+    );
+    // console.log('this.dropdownOpen :', this.dropdownOpen$);
+  }
+   
 
   get levelClass() {
     return `level-${this.level}`;
@@ -51,6 +54,8 @@ export class SidenavItemComponent implements OnInit {
   handleClick() {
     if (this.item.subItems && this.item.subItems.length > 0) {
       this.sidenavService.toggleItemOpen(this.item);
+      console.log('this.item :', this.item);
+
     } else if (typeof this.item.routeOrFunction === 'string' || this.item.routeOrFunction instanceof String) {
       this.router.navigate([this.item.routeOrFunction]);
     } else if (typeof this.item.routeOrFunction === 'function' || this.item.routeOrFunction instanceof Function) {

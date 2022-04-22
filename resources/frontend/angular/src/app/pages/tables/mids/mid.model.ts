@@ -34,7 +34,7 @@ export class Mid {
         this.id = mid.id;
         this.router_id = mid.router_id;
         
-        this.mid_group = mid.group_name;
+        this.mid_group = mid.mid_group;
         this.mid_count = mid.mid_count;
         
         this.router_date_in = datePipe.transform(mid.router_date_in, 'MM-dd-yyyy');

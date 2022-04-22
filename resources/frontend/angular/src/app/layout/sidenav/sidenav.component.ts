@@ -17,10 +17,10 @@ export class SidenavComponent implements OnInit, OnDestroy {
   userName: string;
   userEmail: string;
   userDetailsSubscription: Subscription;
+  sidenavUserVisible$ = this.themeService.config$.pipe(map(config => config.sidenavUserVisible));
 
   constructor(private router: Router, private sidenavService: SidenavService, private themeService: ThemeService, private toolbarService: ToolbarService) { }
 
-  sidenavUserVisible$ = this.themeService.config$.pipe(map(config => config.sidenavUserVisible));
 
   // @Input()
   // @HostBinding('class.collapsed')

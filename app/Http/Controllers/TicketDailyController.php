@@ -25,7 +25,7 @@ class TicketDailyController extends Controller
 
         
             // ?previous two month records insert query 
-/*         for ($i = 127; $i > 0; $i--) {
+        /* for ($i = 142 ; $i > 0; $i--) {
             $model = new TicketDaily();
             $date_of_the_day = Carbon::now()->subDays($i)->format('Y-m-d');
             if (in_array($date_of_the_day, $db_dates) == false) {
@@ -273,10 +273,10 @@ class TicketDailyController extends Controller
             $EOT_per = 0;
             // $start_day = '2022-04-13 00:00:00';
             // $end_day = '2022-04-13 23:59:59';
-            $start_day = Carbon::parse('2022-01-05')->startOfDay();
-            $end_day = Carbon::parse('2022-01-05')->endOfDay();
-            // $start_day = Carbon::parse($day->date)->startOfDay();
-            // $end_day = Carbon::parse($day->date)->endOfDay();
+            // $start_day = Carbon::parse('2022-01-06')->startOfDay();
+            // $end_day = Carbon::parse('2022-01-06')->endOfDay();
+            $start_day = Carbon::parse($day->date)->startOfDay();
+            $end_day = Carbon::parse($day->date)->endOfDay();
             // dd($end_day);
 
 
@@ -286,7 +286,7 @@ class TicketDailyController extends Controller
                 ->select('order_id')->get()->count();
             // dd($initials);
 
-            $declines = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
+            $decline = Order::where(['order_status' => 7, 'campaign_id' => 2])
                 ->where('orders.time_stamp', '>=', $start_day)
                 ->where('orders.time_stamp', '<=', $end_day)
                 ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year', 'orders.order_status')
@@ -302,12 +302,12 @@ class TicketDailyController extends Controller
             // $initials = $join->where(['orders.order_status' => 2])->where(['order_products.offer_name' => 'Golden Ticket Offer'])->where('order_products.name', 'LIKE', '%(c)%')->get()->count();
             // $initials = $orders->where(['orders.billing_cycle' => 0])->get()->count();
             // $initials = $orders->where(['orders.order_status' => 2])->get()->count();
-            dd($declines);
-            $EOT_approved = $join->where(['order_products.offer_name' => 'EssentialSweep'])->where('order_products.name', 'LIKE', '%(CR1)%')->get()->count();
+            // dd($initials);
+            // $EOT_approved = $join->where(['order_products.offer_name' => 'EssentialSweep'])->where('order_products.name', 'LIKE', '%(CR1)%')->get()->count();
 
 
             if ($initials != 0) {
-                $decline_per = ($decline / $initials) * 100;
+                $decline_per = $decline / ($initials + $decline) * 100;
                 $EOT_per = $EOT_approved / $initials;
             }
 

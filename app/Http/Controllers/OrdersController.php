@@ -1103,11 +1103,12 @@ class OrdersController extends Controller
         $new_orders = 0;
         $updated_orders = 0;
         $order_ids = [];
+        $missing_orders = [];
 
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-03-21';
+        $starting_day = '2022-03-31';
         $ending_day = '2022-03-31';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
@@ -1177,22 +1178,27 @@ class OrdersController extends Controller
                             //update
                             $updated_orders++;
                             $db_order = Order::where(['order_id' => $result->order_id])->first();
-                            $db_order->update((array)$result);
+                            if ($db_order) {
+                                $db_order->update((array)$result);
+                                $mass_assignment = $this->get_order_product_mass($result);
+                                $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+                            } else {
+                                array_push($missing_orders, $result->order_id);
+                            }
                             // dd('die');
 
-                            $mass_assignment = $this->get_order_product_mass($result);
-                            $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
                         }
                         $data = null;
                         $results = null;
                         $order_ids = [];
+                        $missing_orders = [];
                     }
                 } else {
                     return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
                 }
             }
         }
-        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders, 'Missing Orders: ', $missing_orders]);
     }
     public function daily_order_history()
     {

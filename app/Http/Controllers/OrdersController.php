@@ -712,8 +712,8 @@ class OrdersController extends Controller
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
             $url,
             [
-                'start_date' => '04/14/2022',
-                'end_date' => '04/19/2022',
+                'start_date' => '04/15/2022',
+                'end_date' => '04/15/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -1108,8 +1108,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-03-31';
-        $ending_day = '2022-03-31';
+        $starting_day = '2022-04-15';
+        $ending_day = '2022-04-15';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);
@@ -1191,14 +1191,14 @@ class OrdersController extends Controller
                         $data = null;
                         $results = null;
                         $order_ids = [];
-                        $missing_orders = [];
+                        // $missing_orders = [];
                     }
                 } else {
                     return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
                 }
             }
         }
-        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders, 'Missing Orders: ', $missing_orders]);
+        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders, 'Missing Orders: ' => $missing_orders]);
     }
     public function daily_order_history()
     {

@@ -20,6 +20,7 @@ class OrdersController extends Controller
      */
     public function index(Request $request)
     {
+        // dd(OrderProduct::count());
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         $pageno = isset($request->pageno) ? $request->pageno : 0;
@@ -712,8 +713,8 @@ class OrdersController extends Controller
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
             $url,
             [
-                'start_date' => '04/15/2022',
-                'end_date' => '04/15/2022',
+                'start_date' => '04/25/2022',
+                'end_date' => '04/25/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -1108,8 +1109,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-04-15';
-        $ending_day = '2022-04-15';
+        $starting_day = '2022-04-16';
+        $ending_day = '2022-04-24';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);

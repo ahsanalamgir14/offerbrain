@@ -102,7 +102,13 @@
                     </ng-container>
                 </ng-container>
 
-                <!-- important comment -->
+                <ng-container matColumnDef="group_name">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>Group Name</th>
+                    <td (click)="showMidDialogData(row.group_name)" mat-cell *matCellDef="let row">
+                        <a routerLink="#">{{ row.group_name }}</a>
+                    </td>
+                </ng-container>
+                
                 <ng-container matColumnDef="assigned_mids">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Assigned Mids</th>
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"

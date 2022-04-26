@@ -34,13 +34,18 @@ class MidController extends Controller
 
         $data = DB::table('mids')
         ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
+        // ->join('profiles','mids.gateway_alias', '=', 'profiles.alias')
         ->where('orders.time_stamp', '>=', $start_date)
         ->where('orders.time_stamp', '<=', $end_date)
         ->select(DB::raw('mids.*'))
         ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
         ->addSelect(DB::raw('SUM(orders.order_total) as sum'))
-        ->selectRaw("count(case when orders.order_status = '2' then 1 end) as mid_count")
-        ->selectRaw("count(case when orders.order_status = '7' then 1 end) as decline_per")
+        ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
+        ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
+        ->selectRaw("count(case when orders.order_status = 6 then 1 end) as refund_per")
+        ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
+        ->addSelect('mids.mid_group as group_name')
+        // ->addSelect('profiles.global_fields->mid_group as group_name')
         ->groupBy('mids.id')
         ->get();
 
@@ -51,19 +56,27 @@ class MidController extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        if ($start_date != null && $end_date != null) {
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+        }
         $gateway_id = $request->gateway_id;
         $status = $request->status;
 
         $array = [];
-        $details = DB::table('orders')
+        $query = DB::table('orders')
             ->where('orders.gateway_id', $gateway_id)
-            ->where('orders.acquisition_date', '>=', $start_date)
-            ->where('orders.acquisition_date', '<=', $end_date)
-            ->where('orders.order_status', $status)
+            ->where('orders.time_stamp', '>=', $start_date)
+            ->where('orders.time_stamp', '<=', $end_date)
             ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
             ->select('order_products.name as name')
-            ->addSelect(DB::raw('COUNT(order_products.name) as total_count'))
-            ->groupBy('order_products.name')->distinct()->get();
+            ->addSelect(DB::raw('COUNT(order_products.name) as total_count'));
+            if($status == 'chargeback'){
+                $query->where('orders.is_chargeback', 1);
+            } else {
+                $query->where('orders.order_status', $status);
+            }
+            $details = $query->groupBy('order_products.name')->get();
 
         foreach ($details as $detail) {
             $data['name'] = $detail->name;

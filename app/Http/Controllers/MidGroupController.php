@@ -51,6 +51,7 @@ class MidGroupController extends Controller
                 $group['gross_revenue'] = round($orders,2);
             }
         }
+
         // $start_date = $request->start_date;
         // $end_date = $request->end_date;
         // if ($start_date != null && $end_date != null) {
@@ -64,6 +65,18 @@ class MidGroupController extends Controller
         // ->where('deleted_at',null)
         // ->get();
 
+        return response()->json(['status' => true, 'data' => $data]);
+    }
+    public function getMidDetail(Request $request){
+        $group_name = $request->group_name;
+        $data = Profile::select('global_fields', 'alias', 'profile_id')->where('global_fields->mid_group', '=', $group_name)->get('alias');
+        return response()->json(['status' => true, 'data' => $data]);
+    }
+    public function getProductDetail(Request $request){
+        $id = $request->id;
+        $query = DB::table('orders')->select('id','main_product_id','gateway_id','order_status')->where('gateway_id',$id)->where('order_status',7);
+        $data['product_id'] = $query->get('main_product_id');
+        $data['total_count'] = $query->count('id');
         return response()->json(['status' => true, 'data' => $data]);
     }
     public function get_assigned_mids(Request $request)

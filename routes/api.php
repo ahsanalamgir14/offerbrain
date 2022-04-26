@@ -89,6 +89,8 @@ Route::get('pull_profiles', [ProfileController::class, 'pull_profiles']);
 Route::get('get_gateway_ids', [MidController::class, 'get_gateway_ids']);
 Route::get('refresh_mids_groups', [MidGroupController::class, 'refresh_mids_groups']);
 Route::get('mid_group_names', [MidGroupController::class, 'mid_group_names']);
+Route::get('getMidDetail', [MidGroupController::class, 'getMidDetail']);
+Route::get('getProductDetail', [MidGroupController::class, 'getProductDetail']);
 Route::get('assign_mid_group', [MidController::class, 'assign_mid_group']);
 Route::get('get_first_mid', [MidController::class, 'get_first_mid']);
 Route::get('refresh_mid_count', [MidController::class, 'refresh_mid_count']);

@@ -95,6 +95,16 @@
                   </mat-form-field>
                   <!-- <p>You selected: {{product}}</p> -->
                 </div>
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Chargeback</mat-label>
+                    <mat-select [(value)]="is_chargeback" (selectionChange)="commonFilter($event.value, 'is_chargeback')">
+                      <mat-option [value]="">All</mat-option>
+                      <mat-option [value]="1">Yes</mat-option>
+                      <mat-option [value]="0">No</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
                 <!-- product Category -->
                 <!-- <div>
                   <mat-form-field appearance="fill">
@@ -202,6 +212,16 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Refund</mat-label>
+                    <mat-select [(value)]="is_refund" (selectionChange)="commonFilter($event.value, 'is_refund')">
+                      <mat-option [value]="">All</mat-option>
+                      <mat-option value="yes">Yes</mat-option>
+                      <mat-option value="no">No</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
                 <!-- <p>You selected: {{campaignProduct}}</p> -->
                 <!-- Country -->
                 <!-- <div>
@@ -288,8 +308,8 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <!-- <p>You selected: {{threeDSecure}}</p> -->
               </div>
+              
               <div fxLayout="column" fxLayoutGap="0px">
                 <!-- state -->
                 <div>
@@ -303,7 +323,19 @@
                   </mat-form-field>
                   <!-- <p>You selected: {{callCenter}}</p> -->
                 </div>
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(value)]="status" (selectionChange)="commonFilter($event.value, 'order_status')">
+                      <mat-option [value]="">All Status</mat-option>
+                      <mat-option [value]="7">Approved</mat-option>
+                      <mat-option [value]="6">Declined</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
               </div>
+
+
             </div>
             <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{
                   height: '50px',

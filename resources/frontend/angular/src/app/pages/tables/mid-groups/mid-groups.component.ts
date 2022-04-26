@@ -21,6 +21,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Notyf } from 'notyf';
 import { ListService } from 'src/@fury/shared/list/list.service';
 import { ListComponent } from 'src/@fury/shared/list/list.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
 
 @Pipe({ name: 'tooltipList' })
 export class TooltipListPipe implements PipeTransform {
@@ -78,7 +79,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     // { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'router_id', property: 'router_id', visible: true, isModelProperty: true },
     { name: 'Id', property: 'id', visible: true, isModelProperty: true },
-    { name: 'Group Name', property: 'group_name', visible: true, isModelProperty: true },
+    { name: 'Group Name', property: 'group_name', visible: true, isModelProperty: false },
     { name: 'Assigned Mids', property: 'assigned_mids', visible: true, isModelProperty: false },
     { name: 'Gross Revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'Bank %', property: 'bank_per', visible: true, isModelProperty: true },
@@ -296,7 +297,6 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   }
 
   openDialog(data) {
-    console.log(data);
     if (data.assigned_mids != 0) {
       const dialogRef = this.dialog.open(MidsDetailComponent, {
         disableClose: true,
@@ -305,10 +305,19 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
           mids: data.mids_data
         }
       });
-      // dialogRef.updateSize('', '600px');
       dialogRef.afterClosed().subscribe(result => {
       });
     }
+  }
+
+  showMidDialogData(group_name) {
+    const dialogRef = this.dialog.open(ProductDetailComponent, {
+      disableClose: true,
+      data: { group_name: group_name }
+    });
+    dialogRef.updateSize('1000px');
+    dialogRef.afterClosed().subscribe(result => {
+    });
   }
 
   selectDate(param) {

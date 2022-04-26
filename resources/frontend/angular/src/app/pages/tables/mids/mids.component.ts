@@ -222,11 +222,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return midCountArray;
   }
-  openDialog(id, gateway_id, evt: MouseEvent, total_count, status){
+  openDialog(id, gateway_id, evt: MouseEvent, total_count, status) {
     const target = new ElementRef(evt.currentTarget);
     const dialogRef = this.dialog.open(MidDetailDialogComponent, {
-      data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status }
-    });    
+      data: { trigger: target, id: id, gateway_id: gateway_id, start_date: this.start_date, end_date: this.end_date, total_count: total_count, status: status }
+    });
   }
 
   countContent() {
@@ -243,15 +243,15 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.assignedMids++;
       }
-      
-      if(mid.gateway_alias.indexOf("CLOSED") !== -1){
+
+      if (mid.gateway_alias.indexOf("CLOSED") !== -1) {
         this.totalClosed++;
       }
       // if(mid.gateway_alias.indexOf("CLOSING") !== -1){
       //   this.totalPaused++;
       // }
-      
-      if(mid.current_monthly_amount == '0.00'){
+
+      if (mid.current_monthly_amount == '0.00') {
         this.totalPaused++;
       }
     });

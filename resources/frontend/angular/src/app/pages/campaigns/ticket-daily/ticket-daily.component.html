@@ -31,7 +31,7 @@
   <fury-page-layout-content [@fadeInUp]>
     <button class="mb" mat-raised-button color="accent" (click)="refreshToday()">Refresh Today</button>
     <button class="mb ml" mat-raised-button color="accent" (click)="refreshAll()">Refresh All</button>
-    <fury-list name="Golden STicket (Daily)" [columns]="columns" (filterChange)="onFilterChange($event)">
+    <fury-list name="Golden Ticket (Daily)" [columns]="columns" (filterChange)="onFilterChange($event)">
       <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
       <table [dataSource]="dataSource" mat-table matSort>
 

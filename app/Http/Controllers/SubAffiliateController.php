@@ -19,7 +19,7 @@ class SubAffiliateController extends Controller
         $key = "X-Eflow-API-Key";
         $value = "nH43mlvTSCuYUOgOXrRA";
         $url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
-        $api_data = array_map('json_decode', Http::withHeaders([$key => $value])->accept('application/json')->post(
+        $api_data = Http::withHeaders([$key => $value])->accept('application/json')->post(
             $url,
             [
                 "from" => "2022-03-01",
@@ -42,7 +42,7 @@ class SubAffiliateController extends Controller
                     ]
                 ]
             ]
-        )->body());
+        )->body();
         return $api_data;
         array_push($data, $api_data);
     }

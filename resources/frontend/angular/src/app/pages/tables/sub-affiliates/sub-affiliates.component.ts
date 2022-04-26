@@ -155,7 +155,7 @@ export class SubAffiliatesComponent implements OnInit {
     const body =
     {
       "from": "2022-03-01",
-      "to": "2022-03-03",
+      "to": "2022-03-01",
       "timezone_id": 67,
       "currency_id": "USD",
       "columns": [
@@ -177,45 +177,56 @@ export class SubAffiliatesComponent implements OnInit {
     };
     // this.http.post(url, body, { headers }).subscribe(res => {
     // console.log('res :', res);
-      // console.log(JSON.stringify(res));
-      // console.log(res.json());
-      // this.isLoading = false;
-      // this.subAffiliates = subAffiliates.data;
-      // this.dataSource.data = subAffiliates.data;
-      // this.mapData().subscribe(subAffiliates => {
-      //   this.subject$.next(subAffiliates);
-      // });
+    // console.log(JSON.stringify(res));
+    // console.log(res.json());
+    // this.isLoading = false;
+    // this.subAffiliates = subAffiliates.data;
+    // this.dataSource.data = subAffiliates.data;
+    // this.mapData().subscribe(subAffiliates => {
+    //   this.subject$.next(subAffiliates);
     // });
-
-    // const response = fetch(url, {
-    //   method: 'POST',
-    //   body: JSON.stringify(body),
-    //   headers: { 
-    //     "Content-type": "application/json; charset=UTF-8",
-    //     'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA'
-    //    },
-    //   credentials: 'same-origin'
-    // }).then(res => res.text()).then((data) => {
-    //   var data2 = {data: data};
-    //   console.log(data2);
-      
     // });
-
-    await this.affiliatesService.getSubAffiliates()
-      .then(subAffiliates => {
-        this.subAffiliates = subAffiliates.data;
-        this.dataSource.data = subAffiliates.data;
-        this.mapData().subscribe(subAffiliates => {
-          this.subject$.next(subAffiliates);
-        });
-        setTimeout(() => {
-          // this.paginator.pageIndex = this.currentPage;
-          // this.paginator.length = subAffiliates.pag.count;
-        });
-        this.isLoading = false;
-      }, error => {
-        this.isLoading = false;
+    let jsonData = [];
+    const response = fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA'
+      },
+      credentials: 'same-origin'
+    }).then(res => res.text()).then((ndjson: any) => {
+      ndjson = ndjson.split("\n");
+      ndjson.forEach(el => {
+        if (el.length !== 0) {
+          jsonData.push(JSON.parse(el));
+        }
       });
+      // Process array of JSON data here.
+      console.log(jsonData);
+      this.subAffiliates = jsonData;
+      this.dataSource.data = jsonData;
+      this.mapData().subscribe(subAffiliates => {
+        this.subject$.next(subAffiliates);
+      });
+      this.isLoading = false;
+    });
+
+    // await this.affiliatesService.getSubAffiliates()
+    //   .then(subAffiliates => {
+    //     this.subAffiliates = subAffiliates.data;
+    //     this.dataSource.data = subAffiliates.data;
+    //     this.mapData().subscribe(subAffiliates => {
+    //       this.subject$.next(subAffiliates);
+    //     });
+    //     setTimeout(() => {
+    //       // this.paginator.pageIndex = this.currentPage;
+    //       // this.paginator.length = subAffiliates.pag.count;
+    //     });
+    //     this.isLoading = false;
+    //   }, error => {
+    //     this.isLoading = false;
+    //   });
   }
 
   onFilterChange(value) {

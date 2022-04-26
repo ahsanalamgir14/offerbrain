@@ -30,7 +30,7 @@ export class OrdersService {
 
   async getOrders(filters): Promise<any> {
     await this.apiService.getData(`orders?pageno=${filters.currentPage}&per_page=${filters.pageSize}
-    &start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&search=${filters.search}`)
+    &start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&search=${filters.search}&gateway_id=${filters.gateway_id}`)
       .then(res => res.json()).then((data) => {
         this.orders = data;
         this.ordersGetResponse.next(data);

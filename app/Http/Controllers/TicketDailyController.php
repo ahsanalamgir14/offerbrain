@@ -18,6 +18,7 @@ class TicketDailyController extends Controller
      */
     public function index()
     {
+        DB::statement("SET SQL_MODE=''");
         // DB::table('sticket_daily')->truncate();
         // return ;
         $db_dates = TicketDaily::pluck('date')->toArray();

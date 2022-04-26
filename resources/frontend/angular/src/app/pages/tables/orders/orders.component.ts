@@ -4,6 +4,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, of, ReplaySubject } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { Order } from './order.model';
@@ -76,7 +77,11 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   gatewayType = "all";
   creditOrDebit = "all";
   start_date = '';
+  status = '';
+  is_chargeback = '';
+  is_refund = '';
   end_date = '';
+  gateway_id = '';
 
   campaignOptions: [];
   productOptions: [];
@@ -209,8 +214,19 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private ordersService: OrdersService, private apiService: ApiService) {
+  constructor(private dialog: MatDialog, private ordersService: OrdersService, private apiService: ApiService, private route: ActivatedRoute) {
     this.endPoint = environment.endpoint;
+    this.route.queryParams.subscribe(params => {
+      if(params){
+        
+        const mapped = Object.entries(params).map(([key, value]) => ({key, value}));
+        this.gateway_id = mapped[0].value;
+        this.is_chargeback = mapped[1].value;
+        this.start_date = mapped[2].value;
+        this.end_date = mapped[3].value;
+        this.commonFilter(mapped[1].value, mapped[1].key);
+      }
+  });
   }
 
   get visibleColumns() {
@@ -261,7 +277,8 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       "end": this.end_date,
       'all_fields': this.all_fields,
       'all_values': this.all_values,
-      'search': this.search
+      'search': this.search,
+      'gateway_id': this.gateway_id
     }
     this.ordersService.getOrders(this.filters)
       .then(orders => {

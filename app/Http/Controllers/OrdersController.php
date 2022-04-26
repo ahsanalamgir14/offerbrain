@@ -25,13 +25,60 @@ class OrdersController extends Controller
         $pageno = isset($request->pageno) ? $request->pageno : 0;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
 
-        $query = DB::table('orders')->select('id', 'order_id', 'created_by_employee_name', 'billing_first_name', 'billing_last_name', 'billing_street_address', 'order_total', 'acquisition_month', 'acquisition_year', 'c1', 'affid', 'trx_month', 'order_sales_tax_amount', 'decline_reason', 'is_cascaded', 'decline_reason_details', 'is_fraud', 'is_chargeback', 'chargeback_date', 'is_rma', 'rma_number', 'rma_reason', 'is_recurring', 'is_void', 'void_amount', 'void_date', 'is_refund', 'refund_amount', 'refund_date', 'order_confirmed', 'order_confirmed_date', 'acquisition_date', 'is_blacklisted', 'coupon_id', 'created_by_user_name', 'order_sales_tax', 'order_status', 'promo_code', 'recurring_date', 'response_code', 'return_reason');
-        
-        // $total_rows = 30000;
+        $query = DB::table('orders')->select(
+            'id', 
+            'order_id', 
+            'created_by_employee_name', 
+            'billing_first_name', 
+            'billing_last_name', 
+            'billing_street_address', 
+            'order_total', 
+            'acquisition_month', 
+            'acquisition_year', 
+            'c1', 
+            'affid', 
+            'trx_month', 
+            'order_sales_tax_amount', 
+            'decline_reason', 
+            'is_cascaded', 
+            'decline_reason_details', 
+            'is_fraud', 
+            'is_chargeback', 
+            'chargeback_date', 
+            'is_rma', 
+            'rma_number', 
+            'rma_reason', 
+            'is_recurring', 
+            'is_void', 
+            'void_amount', 
+            'void_date', 
+            'is_refund', 
+            'refund_amount', 
+            'refund_date', 
+            'order_confirmed', 
+            'order_confirmed_date', 
+            'acquisition_date', 
+            'is_blacklisted', 
+            'coupon_id', 
+            'created_by_user_name', 
+            'order_sales_tax', 
+            'order_status', 
+            'promo_code', 
+            'recurring_date', 
+            'response_code', 
+            'return_reason',
+            'time_stamp');
+
+            // $total_rows = 30000;
         if ($start_date != null && $end_date != null) {
-            $start_date = date('Y-m-d', strtotime($request->start_date));
-            $end_date = date('Y-m-d', strtotime($request->start_date));
-            $query->whereBetween('acquisition_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+            // $query->whereBetween('acquisition_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+            $query->where('time_stamp', '>', $start_date);
+            $query->where('time_stamp', '<', $end_date);
+        }
+        if($request->gateway_id != ''){
+            $query->where('gateway_id',$request->gateway_id);
         }
 
         if ($request->fields != null) {

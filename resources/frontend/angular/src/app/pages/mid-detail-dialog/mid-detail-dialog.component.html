@@ -20,7 +20,7 @@
                 <tfoot>
                     <tr>
                         <td><b>Total</b></td>
-                        <td><b>{{ count_sum }}</b></td>
+                        <td><a [routerLink]="['orders']"  [queryParams]="{gateway_id:this.gateway_id, is_chargeback:1, start_date:this.start_date, end_date:this.end_date}"><b>{{ count_sum }}</b></a></td>
                         <td><b>{{ percentage_sum }}%</b></td>
                     </tr>
                 </tfoot>

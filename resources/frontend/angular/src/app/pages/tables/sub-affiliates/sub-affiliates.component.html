@@ -1,6 +1,6 @@
 <fury-page-layout mode="simple">
     <fury-page-layout-content @fadeInRight]>
-        <fury-list name="Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)">
+        <fury-list name="Sub-Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)">
             <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
             <table [dataSource]="dataSource" mat-table matSort>
 

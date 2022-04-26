@@ -46,10 +46,10 @@ const routes: Routes = [
         path: 'affiliates-network',
         loadChildren: () => import('./pages/tables/affiliates-network/affiliates-network.module').then(m => m.AffiliatesNetworkModule),
       },
-      // {
-      //   path: 'affiliates',
-      //   loadChildren: () => import('./pages/tables/affiliates/affiliates.module').then(m => m.AffiliatesModule),
-      // },
+      {
+        path: 'sub-affiliates',
+        loadChildren: () => import('./pages/tables/sub-affiliates/sub-affiliates.module').then(m => m.SubAffiliatesModule),
+      },
       {
         path: 'campaigns-network',
         loadChildren: () => import('./pages/tables/campaigns/campaigns.module').then(m => m.CampaignsModule),

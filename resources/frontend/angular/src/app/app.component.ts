@@ -103,11 +103,11 @@ export class AppComponent {
             routeOrFunction: '/affiliates-network',
             position: 11
           },
-          // {
-          //   name: 'Affiliates',
-          //   routeOrFunction: '/affiliates',
-          //   position: 12
-          // }
+          {
+            name: 'Sub-Affiliates',
+            routeOrFunction: '/sub-affiliates',
+            position: 12
+          }
         ]
       },
       {

@@ -17,8 +17,8 @@ export class AffiliatesService {
 
   constructor(private apiService: ApiService) { }
 
-  async getAffiliates(): Promise<any> {
-    await this.apiService.getData(`affiliates`).then(res => res.json()).then((data) => {
+  async getSubAffiliates(): Promise<any> {
+    await this.apiService.getData(`sub-affiliates`).then(res => res.json()).then((data) => {
       this.affiliates = data;
       // this.affiliatesGetResponse.next(data);
     });

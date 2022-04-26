@@ -18,8 +18,8 @@ use App\Http\Controllers\MidController;
 use App\Http\Controllers\MidGroupController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ColumnController;
-// use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\NetworkController;
+use App\Http\Controllers\SubAffiliateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ Route::resource('mids', MidController::class);
 Route::resource('mid-groups', MidGroupController::class);
 Route::resource('profiles', ProfileController::class);
 Route::resource('columns', ColumnController::class);
-// Route::resource('affiliates', NetworkController::class);
+Route::resource('sub-affiliates', SubAffiliateController::class);
 Route::resource('networks', NetworkController::class);
 Route::get('golden-ticket/create/{month}/{year}', [GoldenTicketController::class, 'create']);
 Route::get('get_campaigns', [CampaignsController::class, 'get_campaigns']);

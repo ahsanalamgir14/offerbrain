@@ -223,6 +223,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return midCountArray;
   }
+
   openDialog(id, gateway_id, evt: MouseEvent, total_count, status){
     clearTimeout(this.timer); 
     this.timer = setTimeout(() =>{
@@ -247,15 +248,15 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.assignedMids++;
       }
-      
-      if(mid.gateway_alias.indexOf("CLOSED") !== -1){
+
+      if (mid.gateway_alias.indexOf("CLOSED") !== -1) {
         this.totalClosed++;
       }
       // if(mid.gateway_alias.indexOf("CLOSING") !== -1){
       //   this.totalPaused++;
       // }
-      
-      if(mid.current_monthly_amount == '0.00'){
+
+      if (mid.current_monthly_amount == '0.00') {
         this.totalPaused++;
       }
     });

@@ -46,7 +46,7 @@ class TicketMonthlyController extends Controller
          /* 
             ?previous two month records insert query
          */
-        for ($i = 2; $i > 0; $i--) {
+        /*for ($i = 2; $i > 0; $i--) {
             $model = new TicketMonthly();
             $previous_month_date = Carbon::now()->subMonths($i)->format('Y-m-d');
             $previous_month = Carbon::parse($previous_month_date)->format('F');
@@ -56,7 +56,7 @@ class TicketMonthlyController extends Controller
                 $model->year = $previous_year;
                 $model->save();
             }
-        }
+        } */
         $latest = TicketMonthly::orderBy('id', 'desc')->first();
         // dd($latest);
         if (isset($latest)) {
@@ -270,15 +270,11 @@ class TicketMonthlyController extends Controller
     public function refresh_monthly()
     {
         $db_months = TicketMonthly::pluck('month')->toArray();
-        // $data = TicketMonthly::all();
-        // dd($data);
         $date_today = Carbon::now()->format('Y-m-d');
         $current_month = Carbon::now()->format('F');
         $current_year = Carbon::now()->format('Y');
-        // $end_of_this_week = Carbon::now()->endOfWeek()->format('Y-m-d');
-
         $latest = TicketMonthly::orderBy('id', 'desc')->first();
-        // dd($latest);
+
         if (isset($latest)) {
             if ($latest->month != $current_month) {
                 $model = new TicketMonthly();
@@ -287,27 +283,8 @@ class TicketMonthlyController extends Controller
                 $model->save();
             }
         }
-        // dd('die');
-        /* 
-            ?implementation of the formulas
-         */
-        $initial_condition_1 = 0;
-        Order::where(['prepaid_match' => 'NO', 'is_test_cc' => 0, 'order_status' => 7])->whereDate('acquisition_date', '>=', '2021-07-01 00:00:00')->whereDate('acquisition_date', '<=', '2022-01-31 00:00:00')->chunk(1000, function ($orders) use ($initial_condition_1) {
-            // dd($orders);
-            foreach ($orders as $key => $order) {
-                $order->products = isset($order->products) && $order->products != [] && $order->products != '' ? unserialize($order->products) : null;
-                    // var_dump($order);
-                    // $order->totals_breakdown = unserialize($order->totals_breakdown);
-                    // dd('die');
-                if (isset($order->products) == true && $order->products != null) {
-                    if (Str::contains($order->products[0]->name, ['(I)']) && $order->products[0]->offer->name == 'Gizmo') {
-                        $initial_condition_1++;
-                    }
-                }
-            }
-        });
-
         $initials = 0;
+        $initial_condition_1 = 0;
         $initial_condition_2 = 0;
         $rebills = 0;
         $cycle_1_condition_1 = 0;
@@ -328,58 +305,74 @@ class TicketMonthlyController extends Controller
         $cpa_avg = 0;
         $net = 0;
         $clv = 0;
-        // dd($ticket->month);
-        /* 
-            !remove time limit that is added to remove the error in products in the array
-         */
-        $start_of_month = $latest->year . '-' . $latest->month . '-01';
-        $end_of_month = Carbon::parse($start_of_month)->endOfMonth()->format('Y-m-d');
-        // dd($end_of_month);
 
-        Order::where(['prepaid_match' => 'NO', 'is_test_cc' => 0])->whereDate('acquisition_date', '>=', $start_of_month)->whereDate('acquisition_date', '<=', $end_of_month)->chunk(100, function ($orders) {
-            foreach ($orders as $order) {
-                $order->products = unserialize($order->products);
-                if (isset($order->products) && $order->products != null) {
-                    /*
-                        !Calculation of initials, rebills, cycle_2, cycle_3 plus in golden ticket with order-status == "Declined"
-                     */
-                    if (Str::contains($order->products[0]->name, ['(C)']) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
-                        $initial_condition_2++;
-                    }
-                    if (Str::contains($order->products[0]->name, ['(R']) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
-                        $rebills++;
-                    }
-                    if (isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
-                        if (Str::contains($order->products[0]->name, ['(R'])) {
-                            $cycle_1_condition_1++;
-                        } else if (Str::contains($order->products[0]->name, ['(I'])) {
-                            $cycle_1_condition_2++;
-                        }
-                    }
-                    if ($order->is_chargeback == 1 && isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
-                        $CBs++;
-                    }
-                    /*
-                        !Calculation of Revenue
-                     */
-                    if ($order->order_total != null && isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo') {
-                        if ($order->order_status == 7) {
-                            $revenue += $order->order_total;
-                            if ($order->is_chargeback == 1) {
-                                $CB_currency++;
-                            }
-                        }
-                        if ($order->order_status == 6) {
-                        /* 
-                            !calculation of refund with order-status == "void/refunded"
-                             */
-                            $refund += $order->order_total;
-                        }
-                    }
-                }
-            }
-        });
-        $initials = $initial_condition_1 + $initial_condition_2;
+        $start_of_month = $latest->year . '-' . $latest->month . '-01';
+        $start_of_month = Carbon::parse($start_of_month)->startOfMonth();
+        $end_of_month = Carbon::parse($start_of_month)->endOfMonth();
+
+        $initials = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 2, 'campaign_id' => 2])
+            ->where('time_stamp', '>=', $start_of_month)
+            ->where('time_stamp', '<=', $end_of_month)
+            ->select('order_id')->get()->count();
+
+// $rebills = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'is_rebill' => 'yes', 'campaign_id' => 2])
+//     ->where('time_stamp', '>=', $start_of_month)
+//     ->where('time_stamp', '<=', $end_of_month)
+//     ->select('order_id')->get()->count();
+// dd($initials);
+
+// $decline = Order::where(['order_status' => 7, 'campaign_id' => 2])
+//     ->where('orders.time_stamp', '>=', $start_of_month)
+//     ->where('orders.time_stamp', '<=', $end_of_month)
+//     ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year', 'orders.order_status')
+//     ->get()->count();
+
+// dd($decline);
+
+        // Order::where(['prepaid_match' => 'NO', 'is_test_cc' => 0])->whereDate('acquisition_date', '>=', $start_of_month)->whereDate('acquisition_date', '<=', $end_of_month)->chunk(100, function ($orders) {
+        //     foreach ($orders as $order) {
+        //         // $order->products = unserialize($order->products);
+        //         if (isset($order->products) && $order->products != null) {
+        //             /*
+        //                 !Calculation of initials, rebills, cycle_2, cycle_3 plus in golden ticket with order-status == "Declined"
+        //              */
+        //             if (Str::contains($order->products[0]->name, ['(C)']) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
+        //                 $initial_condition_2++;
+        //             }
+        //             if (Str::contains($order->products[0]->name, ['(R']) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
+        //                 $rebills++;
+        //             }
+        //             if (isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
+        //                 if (Str::contains($order->products[0]->name, ['(R'])) {
+        //                     $cycle_1_condition_1++;
+        //                 } else if (Str::contains($order->products[0]->name, ['(I'])) {
+        //                     $cycle_1_condition_2++;
+        //                 }
+        //             }
+        //             if ($order->is_chargeback == 1 && isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo' && $order->order_status == 7) {
+        //                 $CBs++;
+        //             }
+        //             /*
+        //                 !Calculation of Revenue
+        //              */
+        //             if ($order->order_total != null && isset($order->products[0]->offer) && $order->products[0]->offer->name == 'Gizmo') {
+        //                 if ($order->order_status == 7) {
+        //                     $revenue += $order->order_total;
+        //                     if ($order->is_chargeback == 1) {
+        //                         $CB_currency++;
+        //                     }
+        //                 }
+        //                 if ($order->order_status == 6) {
+        //                 /* 
+        //                     !calculation of refund with order-status == "void/refunded"
+        //                      */
+        //                     $refund += $order->order_total;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+        // $initials = $initial_condition_1 + $initial_condition_2;
         $net = $revenue + $refund + $CBs + $fulfillment + $processing + $cpa;
         $fulfillment = $initials * -18;
         if ($rebills != 0) {
@@ -414,9 +407,8 @@ class TicketMonthlyController extends Controller
         $latest->net = $net;
         $latest->clv = $clv;
         $latest->save();
-        
-        // die;
-        $data = TicketMonthly::orderBy('id', 'desc')->take(10)->get();
+
+        $data = TicketMonthly::orderBy('id', 'desc')->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
 }

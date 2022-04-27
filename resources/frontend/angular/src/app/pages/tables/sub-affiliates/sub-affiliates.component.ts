@@ -10,7 +10,7 @@ import { fadeInRightAnimation } from 'src/@fury/animations/fade-in-right.animati
 import { fadeInUpAnimation } from 'src/@fury/animations/fade-in-up.animation';
 import { FormGroup, FormControl } from '@angular/forms';
 import { SubAffiliate } from './sub-affiliates.model';
-import { AffiliatesService } from './sub-affiliates.service';
+import { SubAffiliatesService } from './sub-affiliates.service';
 import { Subscription } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { formatDate } from '@angular/common';
@@ -19,6 +19,7 @@ import { ApiService } from 'src/app/api.service';
 import { Pipe, PipeTransform } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Notyf } from 'notyf';
+const ndjsonParser = require('ndjson-parse');
 
 @Component({
   selector: 'fury-sub-affiliates',
@@ -32,32 +33,44 @@ export class SubAffiliatesComponent implements OnInit {
   data$: Observable<SubAffiliate[]> = this.subject$.asObservable();
 
   subAffiliates: SubAffiliate[];
-  getSubscription: Subscription;
+  AffOptionsSubscription: Subscription;
   deleteSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
-  pageSize = 25;
+  pageSize = 100;
   currentPage = 1;
-  pageSizeOptions: number[] = [5, 10, 25, 100];
+  pageSizeOptions: number[] = [25, 50, 100, 500];
   filters = {};
   address = [];
+  all_fields = [];
+  all_values = [];
   search = '';
+  filterData: any = [];
   notyf = new Notyf();
   name: string;
   id: number;
   idArray = [];
-  allIdArray = [];
   timer: any;
   isChecked = false;
   endPoint = '';
+  start_date = '';
+  end_date = '';
+
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
+
+  affiliateOptions = [];
+  affiliate: '';
 
   @Input()
   columns: ListColumn[] = [
     { name: 'sub1', property: 'sub1', visible: true, isModelProperty: true },
     { name: 'sub2', property: 'sub2', visible: true, isModelProperty: true },
     { name: 'sub3', property: 'sub3', visible: true, isModelProperty: true },
-    { name: 'sub4', property: 'sub4', visible: true, isModelProperty: true },
-    { name: 'sub5', property: 'sub5', visible: true, isModelProperty: true },
+    // { name: 'sub4', property: 'sub4', visible: true, isModelProperty: true },
+    // { name: 'sub5', property: 'sub5', visible: true, isModelProperty: true },
     { name: 'impressions', property: 'impressions', visible: true, isModelProperty: true },
     { name: 'gross_clicks', property: 'gross_clicks', visible: true, isModelProperty: true },
     { name: 'total_clicks', property: 'total_clicks', visible: true, isModelProperty: true },
@@ -96,7 +109,7 @@ export class SubAffiliatesComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private affiliatesService: AffiliatesService, private http: HttpClient) {
+  constructor(private dialog: MatDialog, private subAffiliatesService: SubAffiliatesService, private http: HttpClient) {
     this.endPoint = environment.endpoint;
   }
 
@@ -109,7 +122,9 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.AffOptionsSubscription = this.subAffiliatesService.affOptionsResponse$.subscribe(data => this.manageAffOptionsResponse(data))
+    this.subAffiliatesService.getAffiliateOptions();
+    this.selectDate('today');
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -130,10 +145,20 @@ export class SubAffiliatesComponent implements OnInit {
     this.currentPage = event.pageIndex;
     this.getData();
   }
+  manageAffOptionsResponse(data) {
+    if (data.status) {
+      this.affiliateOptions = data.data.affiliates;
+    }
+  }
 
   async getData() {
     this.isLoading = true;
     this.isChecked = false;
+    this.start_date = formatDate(this.range.get('start').value, 'yyyy-MM-dd', 'en');
+    console.log('this.start_date :', this.start_date);
+    this.end_date = formatDate(this.range.get('end').value, 'yyyy-MM-dd', 'en');
+    console.log(' this.end_date  :',  this.end_date );
+
     // this.filters = {
     //   "currentPage": this.currentPage,
     //   "pageSize": this.pageSize,
@@ -141,34 +166,24 @@ export class SubAffiliatesComponent implements OnInit {
     // }
 
     const headers = { 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA' };
-    // const options: {
-    //   headers: { 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA', 'Content-Type': 'application/json' },
-    //   // context?: HttpContext,
-    //   observe: 'response',
-    //   // params?: HttpParams|
-    //   // {[param:/ string]: string | number | boolean | ReadonlyArray<string|number|boolean>},
-    //   // reportProgress?: boolean,
-    //   // responseType: 'json',
-    //   // withCredentials?: true,
-    // }
     const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
     const body =
     {
-      "from": "2022-03-01",
-      "to": "2022-03-01",
+      "from": this.start_date,
+      "to": this.end_date,
       "timezone_id": 67,
       "currency_id": "USD",
       "columns": [
         { "column": "sub1" },
         { "column": "sub2" },
         { "column": "sub3" },
-        { "column": "sub4" },
-        { "column": "sub5" }
+        // { "column": "sub4" },
+        // { "column": "sub5" }
       ],
       "query": {
         "filters": [
           {
-            "filter_id_value": "1",
+            "filter_id_value": this.affiliate,
             "resource_type": "affiliate"
           }
         ]
@@ -196,14 +211,13 @@ export class SubAffiliatesComponent implements OnInit {
       },
       credentials: 'same-origin'
     }).then(res => res.text()).then((ndjson: any) => {
-      ndjson = ndjson.split("\n");
-      ndjson.forEach(el => {
-        if (el.length !== 0) {
-          jsonData.push(JSON.parse(el));
-        }
-      });
-      // Process array of JSON data here.
-      console.log(jsonData);
+      // ndjson = ndjson.split("\n");
+      // ndjson.forEach(el => {
+      //   if (el.length !== 0) {
+      //     jsonData.push(JSON.parse(el));
+      //   }
+      // });
+      jsonData = ndjsonParser(ndjson);
       this.subAffiliates = jsonData;
       this.dataSource.data = jsonData;
       this.mapData().subscribe(subAffiliates => {
@@ -246,9 +260,51 @@ export class SubAffiliatesComponent implements OnInit {
     console.log(id);
   }
 
+  commonFilter(value, field) {
+    console.log(value);
+    console.log(this.affiliate);
+    if (this.all_fields.indexOf(field) === -1) {
+      this.all_fields.push(field);
+      this.all_values.push(value);
+    } else {
+      let index = this.all_fields.indexOf(field);
+      this.all_values[index] = value;
+    }
+  }
+
+  selectDate(param) {
+    var startDate = new Date();
+    var endDate = new Date();
+    if (param == 'today') {
+      this.range.get('start').setValue(new Date());
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'yesterday') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
+      this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
+    } else if (param == 'thisMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
+    } else if (param == 'pastWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'pastTwoWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'lastMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastThreeMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastSixMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.deleteSubscription) {
-      // this.affiliateservice.deleteResponse.next([]);
+      // this.affiliateService.deleteResponse.next([]);
       // this.deleteSubscription.unsubscribe();
     }
   }

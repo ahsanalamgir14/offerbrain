@@ -5,15 +5,15 @@ import { ApiService } from 'src/app/api.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AffiliatesService {
+export class SubAffiliatesService {
 
   affiliates: any;
   gateway: any;
   public affiliatesGetResponse = new BehaviorSubject([]);
-  public deleteResponse = new BehaviorSubject([]);
+  public affOptionsResponse = new BehaviorSubject([]);
 
   affiliatesGetResponse$ = this.affiliatesGetResponse.asObservable();
-  deleteResponse$ = this.deleteResponse.asObservable();
+  affOptionsResponse$ = this.affOptionsResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -24,9 +24,10 @@ export class AffiliatesService {
     });
     return this.affiliates;
   }
-  async deleteData(id): Promise<any> {
-    await this.apiService.getData(`destroy_affiliates?id=${id}`).then(res => res.json()).then((data) => {
-      this.deleteResponse.next(data);
+  async getAffiliateOptions(): Promise<any> {
+    await this.apiService.getData(`networks`).then(res => res.json()).then((data) => {
+      console.log(data);
+      this.affOptionsResponse.next(data);
     });
   }
 }

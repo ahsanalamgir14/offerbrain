@@ -4,13 +4,26 @@
 .delete-link {
   color: #f62217;
 }
+.no-bottom-padding{
+  padding-bottom: 0px;
+}
 
 // :host ::ng-deep .mat-sort-header-container {
-//     display: flex;
-//     justify-content: center;
-//   }
+//   display: flex;
+//   justify-content: center;
+//   text-overflow: ellipsis;
+//   white-space: nowrap;
+//   overflow: hidden;
+// }
 
-//   th.mat-header-cell,
-//   td.mat-cell {
-//     text-align: center;
-//   }
+// th.mat-header-cell,
+// td.mat-cell {
+//   text-align: center;
+//   text-overflow: ellipsis;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   width: 20%;
+// }
+// table {
+//   border-color: none !important;
+// }

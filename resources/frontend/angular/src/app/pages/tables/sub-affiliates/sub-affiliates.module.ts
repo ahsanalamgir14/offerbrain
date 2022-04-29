@@ -22,6 +22,9 @@ import { MaterialModule } from '../../../../@fury/shared/material-components.mod
 import { SubAffiliatesRoutingModule } from './sub-affiliates-routing.module';
 import { SubAffiliatesComponent } from './sub-affiliates.component';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 @NgModule({
   imports: [
@@ -47,7 +50,9 @@ import { HttpClientModule } from '@angular/common/http';
     MatTableModule,
     MatPaginatorModule,
     MatProgressBarModule,
-    HttpClientModule
+    HttpClientModule,
+    NgxSkeletonLoaderModule,
+    MatProgressSpinnerModule 
   ],
   declarations: [SubAffiliatesComponent],
   exports: [SubAffiliatesComponent],

@@ -4,8 +4,11 @@
 .delete-link {
   color: #f62217;
 }
-.no-bottom-padding{
+.no-bottom-padding {
   padding-bottom: 0px;
+}
+.full-width {
+  width: 100%;
 }
 
 // :host ::ng-deep .mat-sort-header-container {
@@ -27,3 +30,25 @@
 // table {
 //   border-color: none !important;
 // }
+
+// font-weight: bold {
+//   font-weight: bold;
+// }
+
+.summary p {
+  font-size: 12px;
+  font-family: tahoma;
+  text-transform: uppercase;
+}
+
+.summary-row {
+  text-align: center;
+  align-items: center;
+}
+
+.summary p span {
+  display: block;
+  align-items: center;
+  text-align: center;
+  font-weight: bold;
+}

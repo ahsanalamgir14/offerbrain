@@ -41,8 +41,10 @@
                                     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                                     <mat-date-range-picker #picker></mat-date-range-picker>
 
-                                    <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
-                                    <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
+                                    <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid
+                                        start date</mat-error>
+                                    <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end
+                                        date</mat-error>
                                 </mat-form-field>
                             </div>
                         </div>
@@ -58,7 +60,8 @@
                                         <mat-label>Affiliate</mat-label>
                                         <mat-select [(value)]="affiliate" (selectionChange)="commonFilter($event.value, 'affiliate_id')">
                                             <mat-option [value]="">All Affiliates</mat-option>
-                                            <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name'] }} ({{ affiliate['network_affiliate_id'] }})</mat-option>
+                                            <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']
+                                                }} ({{ affiliate['network_affiliate_id'] }})</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -77,8 +80,71 @@
         </div>
     </fury-page-layout-content>
     <!-- Filters ends here -->
-    <fury-page-layout-content @fadeInRight]>
-        <fury-list name="Sub-Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)">
+
+    <!-- Summary -->
+
+    <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
+        <div class="content" layout="column" class="full-width" *ngIf="!skeletonloader">
+            <mat-expansion-panel [expanded]="0" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Summary
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div fxLayoutGap="50px">
+                    <div fxLayout="column" class="summary">
+                        <div fxLayout="column" layout-wrap fxLayoutGap="10px">
+                            <div fxLayout="row" layout-wrap fxLayoutGap="40px" class="summary-row">
+                                <p>Gross Click <span>{{summary.gross_click}}</span></p>
+                                <p>Total Click <span>{{summary.total_click}}</span></p>
+                                <p>Total cv <span>{{summary.total_cv}}</span></p>
+                                <p>CTR <span>{{summary.ctr}}</span></p>
+                                <p>CPC <span>{{summary.cpc}}</span></p>
+                                <p>Event <span>{{summary.event}}</span></p>
+                                <p>CPA <span>{{summary.cpa}}</span></p>
+                                <p>CPM <span>{{summary.cpm}}</span></p>
+                                <p>RPC <span>{{summary.rpc}}</span></p>
+                                <p>RPA <span>{{summary.rpa}}</span></p>
+                                <p>Payout <span>{{summary.payout}}</span></p>
+                                <p>Revenue <span>{{summary.revenue}}</span></p>
+                                <p>Profit <span>{{summary.profit}}</span></p>
+                                <p>Margin <span>{{summary.margin}}</span></p>
+
+                                <!-- <p>rpm: {{summary.rpm}}</p> -->
+                                <!-- <p>cv: {{summary.cv}}</p> -->
+                                <!-- <p>imp: {{summary.imp}}</p>
+                                <p>unique_click: {{summary.unique_click}}</p>
+                                <p>invalid_click: {{summary.invalid_click}}</p>
+                                <p>duplicate_click: {{summary.duplicate_click}}</p>
+                                <p>invalid_cv_scrub: {{summary.invalid_cv_scrub}}</p>
+                                <p>view_through_cv: {{summary.view_through_cv}}</p>
+                                <p>cvr: {{summary.cvr}}</p> -->
+                                <!-- <p>evr: {{summary.evr}}</p>
+                                <p>epc: {{summary.epc}}</p>
+                                <p>event_revenue: {{summary.event_revenue}}</p>
+                                <p>roas: {{summary.roas}}</p> -->
+                            </div>
+                            <div fxLayout="row" layout-wrap fxLayoutGap="40px" class="summary-row">
+                                <p>Avg Sale Value <span>{{summary.avg_sale_value}}</span></p>
+                                <p>Gross Sales <span>{{summary.gross_sales}}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </div>
+        <ngx-skeleton-loader count="2" appearance="pulse" *ngIf="skeletonloader && isLoading" animation="progress"
+            [theme]="{
+            height: '60px',
+            width: '1500px',
+            maxWidth: '1280px',
+            'border-radius': 0
+        }">
+        </ngx-skeleton-loader>
+    </fury-page-layout-content>
+    <!-- End Summary -->
+    <fury-page-layout-content [@fadeInRight]>
+        <fury-list name="Sub-Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)" *ngIf="!skeletonloader">
             <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
             <table [dataSource]="dataSource" mat-table matSort>
 
@@ -122,5 +188,9 @@
             </mat-paginator>
 
         </fury-list>
+        <div fxLayoutAlign="center center">
+            <mat-spinner *ngIf="skeletonloader && isLoading"></mat-spinner>
+        </div>
+
     </fury-page-layout-content>
 </fury-page-layout>

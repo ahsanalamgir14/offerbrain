@@ -55,6 +55,7 @@ export class SubAffiliatesComponent implements OnInit {
   endPoint = '';
   start_date = '';
   end_date = '';
+  summary: any;
 
   range = new FormGroup({
     start: new FormControl(),
@@ -63,6 +64,7 @@ export class SubAffiliatesComponent implements OnInit {
 
   affiliateOptions = [];
   affiliate: '';
+  skeletonloader = true;
 
   @Input()
   columns: ListColumn[] = [
@@ -125,7 +127,7 @@ export class SubAffiliatesComponent implements OnInit {
     this.AffOptionsSubscription = this.subAffiliatesService.affOptionsResponse$.subscribe(data => this.manageAffOptionsResponse(data))
     this.subAffiliatesService.getAffiliateOptions();
     this.selectDate('today');
-    this.getData();
+    // this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -152,20 +154,41 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   async getData() {
+    this.skeletonloader = true;
     this.isLoading = true;
-    this.isChecked = false;
+    // this.isChecked = false;
     this.start_date = formatDate(this.range.get('start').value, 'yyyy-MM-dd', 'en');
     console.log('this.start_date :', this.start_date);
     this.end_date = formatDate(this.range.get('end').value, 'yyyy-MM-dd', 'en');
-    console.log(' this.end_date  :',  this.end_date );
+    console.log(' this.end_date  :', this.end_date);
 
-    // this.filters = {
-    //   "currentPage": this.currentPage,
-    //   "pageSize": this.pageSize,
-    //   "search": this.search,
-    // }
+    const headers = { "Content-type": "application/json; charset=UTF-8", 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA' };
+    const summaryURL = 'https://api.eflow.team/v1/networks/reporting/entity/summary';
+    const summaryBody = {
+      "from": this.start_date,
+      "to": this.end_date,
+      "timezone_id": 67,
+      "currency_id": "USD",
+      "columns": [
+        {
+          "column": "affiliate"
+        }
+      ],
+      "query": {
+        "filters": []
+      }
+    }
 
-    const headers = { 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA' };
+    const response = fetch(summaryURL, {
+      method: 'POST',
+      body: JSON.stringify(summaryBody),
+      headers: headers,
+      credentials: 'same-origin'
+    }).then(res => res.json()).then((res: any) => {
+      this.summary = res;
+      // this.isLoading = false;
+    });
+
     const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
     const body =
     {
@@ -190,57 +213,22 @@ export class SubAffiliatesComponent implements OnInit {
       },
       "format": "json"
     };
-    // this.http.post(url, body, { headers }).subscribe(res => {
-    // console.log('res :', res);
-    // console.log(JSON.stringify(res));
-    // console.log(res.json());
-    // this.isLoading = false;
-    // this.subAffiliates = subAffiliates.data;
-    // this.dataSource.data = subAffiliates.data;
-    // this.mapData().subscribe(subAffiliates => {
-    //   this.subject$.next(subAffiliates);
-    // });
-    // });
     let jsonData = [];
-    const response = fetch(url, {
+    const response2 = fetch(url, {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA'
-      },
+      headers: headers,
       credentials: 'same-origin'
-    }).then(res => res.text()).then((ndjson: any) => {
-      // ndjson = ndjson.split("\n");
-      // ndjson.forEach(el => {
-      //   if (el.length !== 0) {
-      //     jsonData.push(JSON.parse(el));
-      //   }
-      // });
-      jsonData = ndjsonParser(ndjson);
+    }).then(res => res.text()).then((res: any) => {
+      jsonData = ndjsonParser(res);
       this.subAffiliates = jsonData;
       this.dataSource.data = jsonData;
       this.mapData().subscribe(subAffiliates => {
         this.subject$.next(subAffiliates);
       });
       this.isLoading = false;
+      this.skeletonloader = false;
     });
-
-    // await this.affiliatesService.getSubAffiliates()
-    //   .then(subAffiliates => {
-    //     this.subAffiliates = subAffiliates.data;
-    //     this.dataSource.data = subAffiliates.data;
-    //     this.mapData().subscribe(subAffiliates => {
-    //       this.subject$.next(subAffiliates);
-    //     });
-    //     setTimeout(() => {
-    //       // this.paginator.pageIndex = this.currentPage;
-    //       // this.paginator.length = subAffiliates.pag.count;
-    //     });
-    //     this.isLoading = false;
-    //   }, error => {
-    //     this.isLoading = false;
-    //   });
   }
 
   onFilterChange(value) {

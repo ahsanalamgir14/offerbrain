@@ -335,6 +335,22 @@
                 </div>
               </div>
 
+              <div fxLayout="column" fxLayoutGap="0px">
+                <!-- affiliate -->
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Affiliate ID</mat-label>
+                    <input matInput placeholder="Enter Affiliate ID" [(ngModel)]="affiliate">
+                  </mat-form-field>
+                </div>
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Sub Affiliate ID</mat-label>
+                    <input matInput placeholder="Enter Sub Affiliate ID" [(ngModel)]="subAffiliate">
+                  </mat-form-field>
+                </div>
+              </div>
+
 
             </div>
             <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{

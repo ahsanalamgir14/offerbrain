@@ -27,48 +27,49 @@ class OrdersController extends Controller
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
 
         $query = DB::table('orders')->select(
-            'id', 
-            'order_id', 
-            'created_by_employee_name', 
-            'billing_first_name', 
-            'billing_last_name', 
-            'billing_street_address', 
-            'order_total', 
-            'acquisition_month', 
-            'acquisition_year', 
-            'c1', 
-            'affid', 
-            'trx_month', 
-            'order_sales_tax_amount', 
-            'decline_reason', 
-            'is_cascaded', 
-            'decline_reason_details', 
-            'is_fraud', 
-            'is_chargeback', 
-            'chargeback_date', 
-            'is_rma', 
-            'rma_number', 
-            'rma_reason', 
-            'is_recurring', 
-            'is_void', 
-            'void_amount', 
-            'void_date', 
-            'is_refund', 
-            'refund_amount', 
-            'refund_date', 
-            'order_confirmed', 
-            'order_confirmed_date', 
-            'acquisition_date', 
-            'is_blacklisted', 
-            'coupon_id', 
-            'created_by_user_name', 
-            'order_sales_tax', 
-            'order_status', 
-            'promo_code', 
-            'recurring_date', 
-            'response_code', 
+            'id',
+            'order_id',
+            'created_by_employee_name',
+            'billing_first_name',
+            'billing_last_name',
+            'billing_street_address',
+            'order_total',
+            'acquisition_month',
+            'acquisition_year',
+            'c1',
+            'affid',
+            'trx_month',
+            'order_sales_tax_amount',
+            'decline_reason',
+            'is_cascaded',
+            'decline_reason_details',
+            'is_fraud',
+            'is_chargeback',
+            'chargeback_date',
+            'is_rma',
+            'rma_number',
+            'rma_reason',
+            'is_recurring',
+            'is_void',
+            'void_amount',
+            'void_date',
+            'is_refund',
+            'refund_amount',
+            'refund_date',
+            'order_confirmed',
+            'order_confirmed_date',
+            'acquisition_date',
+            'is_blacklisted',
+            'coupon_id',
+            'created_by_user_name',
+            'order_sales_tax',
+            'order_status',
+            'promo_code',
+            'recurring_date',
+            'response_code',
             'return_reason',
-            'time_stamp');
+            'time_stamp'
+        );
 
             // $total_rows = 30000;
         if ($start_date != null && $end_date != null) {
@@ -78,8 +79,16 @@ class OrdersController extends Controller
             $query->where('time_stamp', '>', $start_date);
             $query->where('time_stamp', '<', $end_date);
         }
-        if($request->gateway_id != ''){
-            $query->where('gateway_id',$request->gateway_id);
+        if ($request->gateway_id != '') {
+            $query->where('gateway_id', $request->gateway_id);
+        }
+        if ($request->affiliate != '') {
+            $query->where('affiliate', $request->affiliate);
+        }
+        if ($request->sub_affiliate != '') {
+            $query->where('c1', $request->sub_affiliate)
+                ->orWhere('c2', $request->sub_affiliate)
+                ->orWhere('c3', $request->sub_affiliate);
         }
 
         if ($request->fields != null) {
@@ -862,7 +871,8 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public static function pull_cron_orders(){
+    public static function pull_cron_orders()
+    {
         ini_set('memory_limit', '512M');
         set_time_limit(0);
         $new_orders = 0;

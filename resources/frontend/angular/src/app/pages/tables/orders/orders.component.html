@@ -61,7 +61,6 @@
             </div>
             <div fxLayout="row" fxLayoutGap="30px" *ngIf="!skeletonloader">
               <div fxLayout="column" fxLayoutGap="0px">
-                <!-- Campaigns -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Campaign</mat-label>
@@ -71,20 +70,6 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <!-- Campaign Category -->
-                <!-- <div class="md-caption">Campaign</div> -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Campaign Category</mat-label>
-                    <mat-select [(value)]="campaignCategory">
-                      <mat-option [value]="campaignCategory">All Categories</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{campaignCategory}}</p> -->
-                <!-- product -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Product</mat-label>
@@ -93,80 +78,19 @@
                       <mat-option *ngFor="let product of productOptions" [value]="product['name']">{{product['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <!-- <p>You selected: {{product}}</p> -->
                 </div>
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Chargeback</mat-label>
                     <mat-select [(value)]="is_chargeback" (selectionChange)="commonFilter($event.value, 'is_chargeback')">
                       <mat-option [value]="">All</mat-option>
-                      <mat-option [value]="1">Yes</mat-option>
-                      <mat-option [value]="0">No</mat-option>
+                      <mat-option value=1>Yes</mat-option>
+                      <mat-option value=0>No</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <!-- product Category -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Product Category</mat-label>
-                    <mat-select [(value)]="productCategory">
-                      <mat-option [value]="productCategory">All Categories</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{productCategory}}</p> -->
-                <!-- All Campaign Products -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Campaign Product</mat-label>
-                    <mat-select [(value)]="campaignProduct">
-                      <mat-option [value]="campaignProduct">All Campaign Products</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{campaignProduct}}</p> -->
-                <!-- All Affiliates -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Affiliate</mat-label>
-                    <mat-select [(value)]="affiliate">
-                      <mat-option [value]="affiliate">All Affiliates</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{campaignProduct}}</p> -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Call Center</mat-label>
-                    <mat-select [(value)]="callCenter">
-                      <mat-option [value]="callCenter">All Call Centers</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
               </div>
-              <!-- <p>You selected: {{callCenter}}</p> -->
               <div fxLayout="column" fxLayoutGap="0px">
-                <!-- Bill Type -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Bill Type</mat-label>
-                    <mat-select [(value)]="billType">
-                      <mat-option [value]="billType">All Billings</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{campaign}}</p> -->
-                <!-- Billing Cycle -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Billing Cycle</mat-label>
@@ -176,33 +100,7 @@
                       <mat-option value="0">OFF</mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <!-- <p>You selected: {{campaignCategory}}</p> -->
                 </div>
-                <!-- Recycle # -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Recycle#</mat-label>
-                    <mat-select [(value)]="recycleNo">
-                      <mat-option [value]="recycleNo">All</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{product}}</p> -->
-                <!-- Txn Type -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Txn Type</mat-label>
-                    <mat-select [(value)]="txnType">
-                      <mat-option [value]="txnType">All</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{productCategory}}</p> -->
-                <!-- Currency -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Currency</mat-label>
@@ -222,58 +120,8 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <!-- <p>You selected: {{campaignProduct}}</p> -->
-                <!-- Country -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Country</mat-label>
-                    <mat-select [(value)]="country">
-                      <mat-option [value]="country">All Countries</mat-option>
-                      <mat-option value="US">United States</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
               </div>
               <div fxLayout="column" fxLayoutGap="0px">
-                <!-- Gateway -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Gateway</mat-label>
-                    <mat-select [(value)]="gateway">
-                      <mat-option [value]="gateway">All</mat-option>
-                      <ng-container *ngFor="let gateway of filterData.gateways">
-                        <mat-option *ngIf="gateway.gateway_descriptor" [value]="gateway.gateway_descriptor">{{
-                          gateway.gateway_descriptor }}</mat-option>
-                      </ng-container>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{campaign}}</p> -->
-                <!-- Gateway Category -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Gateway Category</mat-label>
-                    <mat-select [(value)]="gatewayCategory">
-                      <mat-option [value]="gatewayCategory">All Gateway categories</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{gatewayCategory}}</p> -->
-                <!-- Gateway Type -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Gateway Type</mat-label>
-                    <mat-select [(value)]="gatewayType">
-                      <mat-option [value]="gatewayType">All</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{gatewayType}}</p> -->
-                <!-- Card Type -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Card Type</mat-label>
@@ -283,20 +131,6 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <!-- <p>You selected: {{ccType}}</p> -->
-                <!-- Credit/Debit -->
-                <!-- <div>
-                  <mat-form-field appearance="fill">
-                    <mat-label>Credit/Debit</mat-label>
-                    <mat-select [(value)]="creditOrDebit">
-                      <mat-option [value]="creditOrDebit">All</mat-option>
-                      <mat-option value="option2">Option 2</mat-option>
-                      <mat-option value="option3">Option 3</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
-                <!-- <p>You selected: {{creditOrDebit}}</p> -->
-                <!-- 3dSecure -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Is 3D Secure</mat-label>
@@ -308,10 +142,19 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Void</mat-label>
+                    <mat-select [(value)]="is_void" (selectionChange)="commonFilter($event.value, 'is_void')">
+                      <mat-option [value]="">All</mat-option>
+                      <mat-option value="yes">Yes</mat-option>
+                      <mat-option value="no">No</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
               </div>
               
               <div fxLayout="column" fxLayoutGap="0px">
-                <!-- state -->
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>State</mat-label>
@@ -321,15 +164,14 @@
                         {{state.abbreviation}}</mat-option>
                     </mat-select>
                   </mat-form-field>
-                  <!-- <p>You selected: {{callCenter}}</p> -->
                 </div>
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Status</mat-label>
                     <mat-select [(value)]="status" (selectionChange)="commonFilter($event.value, 'order_status')">
                       <mat-option [value]="">All Status</mat-option>
-                      <mat-option [value]="7">Approved</mat-option>
-                      <mat-option [value]="6">Declined</mat-option>
+                      <mat-option value="2">Approved</mat-option>
+                      <mat-option value="7">Declined</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>

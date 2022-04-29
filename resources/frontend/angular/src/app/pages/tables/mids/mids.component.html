@@ -163,8 +163,8 @@
                     <!-- mid_count column  -->
                     <ng-container matColumnDef="mid_count">
                         <th *matHeaderCellDef mat-header-cell>Mid Count</th>
-                        <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2)" mat-cell>
-                            <a routerLink="#">{{ row.mid_count | number }}</a>
+                        <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')" mat-cell>
+                            <a routerLink="javascript:void(0)">{{ row.mid_count | number }}</a>
                         </td>
                     </ng-container>
 
@@ -178,7 +178,7 @@
                     <ng-container matColumnDef="decline_per">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7)">{{ row.decline_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{ row.decline_per | number : '1.2-2' }}%</a>
                             <!-- /<a routerLink="#" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2)">{{ row.approved_per | number : '1.2-2' }}</a> % -->
                         </td>
                     </ng-container>
@@ -186,14 +186,14 @@
                     <ng-container matColumnDef="chargeback">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 'chargeback')">{{ row.chargeback_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{ row.chargeback_per | number : '1.2-2' }}%</a>
                         </td>
                     </ng-container>
                     
                     <ng-container matColumnDef="refund">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 6)">{{ row.refund_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{ row.refund_per | number : '1.2-2' }}%</a>
                         </td>
                     </ng-container>
 

@@ -15,6 +15,7 @@ export class MidDetailDialogComponent implements OnInit {
   end_date : string;
   total_count : number;
   status : number;
+  type : string;
   endPoint = '';
   filters = {};
   isLoading = true;
@@ -29,11 +30,12 @@ export class MidDetailDialogComponent implements OnInit {
       this.end_date = data.end_date;
       this.total_count = data.total_count;
       this.status = data.status;
+      this.type = data.type;
       this.endPoint = environment.endpoint;
   }
 
   ngOnInit(): void {
-    const response = fetch(`${this.endPoint}/api/get_mid_count_detail?gateway_id=${this.gateway_id}&start_date=${this.start_date}&end_date=${this.end_date}&total_count=${this.total_count}&status=${this.status}`).then(res => res.json()).then((data) => {
+    const response = fetch(`${this.endPoint}/api/get_mid_count_detail?gateway_id=${this.gateway_id}&start_date=${this.start_date}&end_date=${this.end_date}&total_count=${this.total_count}&status=${this.status}&type=${this.type}`).then(res => res.json()).then((data) => {
       if(data.status){
         data.data.forEach((v)=> { 
           this.percentage_sum = +this.percentage_sum + +v.percentage;

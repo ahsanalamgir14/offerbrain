@@ -42,18 +42,18 @@ class MidController extends Controller
         ->addSelect(DB::raw('SUM(orders.order_total) as sum'))
         ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
         ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
-        ->selectRaw("count(case when orders.order_status = 6 then 1 end) as refund_per")
+        ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
         ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
         ->addSelect('mids.mid_group as group_name')
         // ->addSelect('profiles.global_fields->mid_group as group_name')
         ->groupBy('mids.id')
         ->get();
-
         // $data = Mid::all();
         return response()->json(['status' => true, 'data' => $data]);
     }
     public function get_mid_count_detail(Request $request)
     {
+        // return response()->json(['status' => true, 'data' => $request->type]);
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -71,13 +71,8 @@ class MidController extends Controller
             ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
             ->select('order_products.name as name')
             ->addSelect(DB::raw('COUNT(order_products.name) as total_count'));
-            if($status == 'chargeback'){
-                $query->where('orders.is_chargeback', 1);
-            } else {
-                $query->where('orders.order_status', $status);
-            }
+            $query->where("orders.$request->type", $status);
             $details = $query->groupBy('order_products.name')->get();
-
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
             $data['total_count'] = $detail->total_count;

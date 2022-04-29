@@ -20,7 +20,6 @@ class OrdersController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(OrderProduct::count());
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         $pageno = isset($request->pageno) ? $request->pageno : 0;
@@ -74,6 +73,8 @@ class OrdersController extends Controller
         if ($start_date != null && $end_date != null) {
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
+            // $start_date = date('Y-m-d', strtotime($request->start_date));
+            // $end_date = date('Y-m-d', strtotime($request->start_date));
             // $query->whereBetween('acquisition_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
             $query->where('time_stamp', '>', $start_date);
             $query->where('time_stamp', '<', $end_date);

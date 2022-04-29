@@ -61,7 +61,8 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   product = "allProducts";
   productCategory = "allCategories";
   campaignProduct = "allCampaignProducts";
-  affiliate = "allAffiliates";
+  affiliate = "";
+  subAffiliate = "";
   callCenter = "allCallCenters";
   billType = "allBillings";
   billingCycle = "all";
@@ -263,6 +264,10 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getData() {
+
+    console.log(' affiliate:', this.affiliate );
+    console.log(' sub-affiliate:', this.subAffiliate );
+    // return;
     this.isLoading = true;
     if(this.range.get('start').value != null){
       this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')
@@ -278,7 +283,9 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       'all_fields': this.all_fields,
       'all_values': this.all_values,
       'search': this.search,
-      'gateway_id': this.gateway_id
+      'gateway_id': this.gateway_id,
+      'affiliate': this.affiliate,
+      'sub_affiliate': this.subAffiliate
     }
     this.ordersService.getOrders(this.filters)
       .then(orders => {

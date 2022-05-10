@@ -115,10 +115,20 @@ export class AppComponent {
         icon: 'equalizer',
         position: 12,
         subItems: [
+          // {
+          //   name: 'Campaign Builder',
+          //   routeOrFunction: '/campaigns-network',
+          //   position: 13
+          // },
           {
-            name: 'Campaigns Network',
-            routeOrFunction: '/campaigns-network',
+            name: 'Campaign Builder',
+            routeOrFunction: '/not-implements',
             position: 13
+          },
+          {
+            name: 'My Campaigns',
+            routeOrFunction: '/not-implements',
+            position: 14
           },
         ]
       },

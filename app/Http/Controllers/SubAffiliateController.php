@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Http;
 use App\Models\SubAffiliate;
 use Illuminate\Http\Request;
+use GuzzleHttp\Client;
+use Carbon\Carbon;
+use DB;
 
 class SubAffiliateController extends Controller
 {
@@ -111,5 +114,32 @@ class SubAffiliateController extends Controller
     public function destroy(SubAffiliate $subAffiliate)
     {
         //
+    }
+
+    public function sub_affiliate_gross_revenue(Request $request)
+    {
+        // $response = [];
+        // dd('die');
+        if ($request->start_date != '' && $request->end_date != '') {
+            $sub_affiliates = $request->data;
+            // dd($sub_affiliates);
+            $start_date = Carbon::parse($request->start_date)->startOfDay();
+            $end_date = Carbon::parse($request->end_date)->endOfDay();
+
+            for ($i = 0; $i < count($sub_affiliates); $i++) {
+                $query = DB::table('orders')
+                    ->where('time_stamp', '>=', $start_date)
+                    ->where('time_stamp', '<=', $end_date)
+                    ->where('order_status', '=', 2)
+                    ->where('c1', '=', $sub_affiliates[$i][0])
+                    ->where('c2', '=', $sub_affiliates[$i][1])
+                    ->where('c3', '=', $sub_affiliates[$i][2])
+                    ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
+                $response[] = $query->pluck('gross_revenue')->toArray();
+            }
+            // dd($response);
+            // dd(DB::getQueryLog());
+            return response()->json(['status' => true, 'data' => $response]);
+        }
     }
 }

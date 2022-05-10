@@ -11,9 +11,11 @@ export class SubAffiliatesService {
   gateway: any;
   public affiliatesGetResponse = new BehaviorSubject([]);
   public affOptionsResponse = new BehaviorSubject([]);
+  public grossRevenueResponse = new BehaviorSubject([]);
 
   affiliatesGetResponse$ = this.affiliatesGetResponse.asObservable();
   affOptionsResponse$ = this.affOptionsResponse.asObservable();
+  grossRevenueResponse$ = this.grossRevenueResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -28,6 +30,12 @@ export class SubAffiliatesService {
     await this.apiService.getData(`networks`).then(res => res.json()).then((data) => {
       console.log(data);
       this.affOptionsResponse.next(data);
+    });
+  }
+  async getGrossRevenue(data): Promise<any> {
+    await this.apiService.postData(`sub_affiliate_gross_revenue`, data).then(res => res.json()).then((data) => {
+      console.log(data);
+      this.grossRevenueResponse.next(data);
     });
   }
 }

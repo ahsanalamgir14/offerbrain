@@ -48,6 +48,6 @@
   width: 130px !important;
 }
 
-.mat-form-field-type-mat-date-range-input .mat-form-field-infix {
+::ng-deep .mat-form-field-type-mat-date-range-input .mat-form-field-infix {
   width: 200px !important;
 }

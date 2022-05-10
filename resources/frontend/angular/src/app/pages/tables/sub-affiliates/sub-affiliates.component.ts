@@ -34,11 +34,12 @@ export class SubAffiliatesComponent implements OnInit {
 
   subAffiliates: SubAffiliate[];
   AffOptionsSubscription: Subscription;
+  grossRevenueSubscription: Subscription;
   deleteSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
   pageSize = 100;
-  currentPage = 1;
+  currentPage = 0;
   pageSizeOptions: number[] = [25, 50, 100, 500];
   filters = {};
   address = [];
@@ -56,6 +57,9 @@ export class SubAffiliatesComponent implements OnInit {
   start_date = '';
   end_date = '';
   summary: any;
+  sub1 = "";
+  sub2 = "";
+  sub3 = "";
 
   range = new FormGroup({
     start: new FormControl(),
@@ -63,7 +67,7 @@ export class SubAffiliatesComponent implements OnInit {
   });
 
   affiliateOptions = [];
-  affiliate: '';
+  affiliate: string;
   skeletonloader = true;
 
   @Input()
@@ -73,6 +77,7 @@ export class SubAffiliatesComponent implements OnInit {
     { name: 'sub3', property: 'sub3', visible: true, isModelProperty: true },
     // { name: 'sub4', property: 'sub4', visible: true, isModelProperty: true },
     // { name: 'sub5', property: 'sub5', visible: true, isModelProperty: true },
+    { name: 'gross_revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'impressions', property: 'impressions', visible: true, isModelProperty: true },
     { name: 'gross_clicks', property: 'gross_clicks', visible: true, isModelProperty: true },
     { name: 'total_clicks', property: 'total_clicks', visible: true, isModelProperty: true },
@@ -80,29 +85,29 @@ export class SubAffiliatesComponent implements OnInit {
     { name: 'duplicate_clicks', property: 'duplicate_clicks', visible: true, isModelProperty: true },
     { name: 'invalid_clicks', property: 'invalid_clicks', visible: true, isModelProperty: true },
     { name: 'total_conversions', property: 'total_conversions', visible: true, isModelProperty: true },
-    { name: 'CV', property: 'CV', visible: true, isModelProperty: true },
-    { name: 'invalid_conversions_scrub', property: 'invalid_conversions_scrub', visible: true, isModelProperty: true },
-    { name: 'view_through_conversions', property: 'view_through_conversions', visible: true, isModelProperty: true },
-    { name: 'events', property: 'events', visible: true, isModelProperty: true },
-    { name: 'view_through_events', property: 'view_through_events', visible: true, isModelProperty: true },
-    { name: 'CVR', property: 'CVR', visible: true, isModelProperty: true },
-    { name: 'EVR', property: 'EVR', visible: true, isModelProperty: true },
-    { name: 'CTR', property: 'CTR', visible: true, isModelProperty: true },
-    { name: 'CPC', property: 'CPC', visible: true, isModelProperty: true },
-    { name: 'CPA', property: 'CPA', visible: true, isModelProperty: true },
-    { name: 'EPC', property: 'EPC', visible: true, isModelProperty: true },
-    { name: 'RPC', property: 'RPC', visible: true, isModelProperty: true },
-    { name: 'RPA', property: 'RPA', visible: true, isModelProperty: true },
-    { name: 'payout', property: 'payout', visible: true, isModelProperty: true },
-    { name: 'revenue', property: 'revenue', visible: true, isModelProperty: true },
-    { name: 'margin', property: 'margin', visible: true, isModelProperty: true },
-    { name: 'profit', property: 'profit', visible: true, isModelProperty: true },
-    { name: 'gross_sales', property: 'gross_sales', visible: true, isModelProperty: true },
-    { name: 'ROAS', property: 'ROAS', visible: true, isModelProperty: true },
-    { name: 'gross_sales_vt', property: 'gross_sales_vt', visible: true, isModelProperty: true },
-    { name: 'RPM', property: 'RPM', visible: true, isModelProperty: true },
-    { name: 'CPM', property: 'CPM', visible: true, isModelProperty: true },
-    { name: 'avg_sale_value', property: 'avg_sale_value', visible: true, isModelProperty: true }
+    { name: 'CV', property: 'CV', visible: false, isModelProperty: false },
+    { name: 'invalid_conversions_scrub', property: 'invalid_conversions_scrub', visible: false, isModelProperty: false },
+    { name: 'view_through_conversions', property: 'view_through_conversions', visible: false, isModelProperty: false },
+    { name: 'events', property: 'events', visible: false, isModelProperty: false },
+    { name: 'view_through_events', property: 'view_through_events', visible: false, isModelProperty: false },
+    { name: 'CVR', property: 'CVR', visible: false, isModelProperty: false },
+    { name: 'EVR', property: 'EVR', visible: false, isModelProperty: false },
+    { name: 'CTR', property: 'CTR', visible: false, isModelProperty: false },
+    { name: 'CPC', property: 'CPC', visible: false, isModelProperty: false },
+    { name: 'CPA', property: 'CPA', visible: false, isModelProperty: false },
+    { name: 'EPC', property: 'EPC', visible: false, isModelProperty: false },
+    { name: 'RPC', property: 'RPC', visible: false, isModelProperty: false },
+    { name: 'RPA', property: 'RPA', visible: false, isModelProperty: false },
+    { name: 'payout', property: 'payout', visible: false, isModelProperty: false },
+    { name: 'revenue', property: 'revenue', visible: false, isModelProperty: false },
+    { name: 'margin', property: 'margin', visible: false, isModelProperty: false },
+    { name: 'profit', property: 'profit', visible: false, isModelProperty: false },
+    { name: 'gross_sales', property: 'gross_sales', visible: false, isModelProperty: false },
+    { name: 'ROAS', property: 'ROAS', visible: false, isModelProperty: false },
+    { name: 'gross_sales_vt', property: 'gross_sales_vt', visible: false, isModelProperty: false },
+    { name: 'RPM', property: 'RPM', visible: false, isModelProperty: false },
+    { name: 'CPM', property: 'CPM', visible: false, isModelProperty: false },
+    { name: 'avg_sale_value', property: 'avg_sale_value', visible: false, isModelProperty: false }
   ] as ListColumn[];
 
   dataSource: MatTableDataSource<SubAffiliate>;
@@ -120,11 +125,20 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   mapData() {
-    return of(this.subAffiliates.map(midGroup => new SubAffiliate(midGroup)));
+    return of(this.subAffiliates.map(subAff => new SubAffiliate(subAff)));
+  }
+
+  mapRevenue(data) {
+    this.subAffiliates.map(function (subAff, i) {
+      if (data[i][0] != null && data[i][0] != '') {
+        subAff.gross_revenue = data[i][0];
+      }
+    })
   }
 
   ngOnInit(): void {
     this.AffOptionsSubscription = this.subAffiliatesService.affOptionsResponse$.subscribe(data => this.manageAffOptionsResponse(data))
+    this.grossRevenueSubscription = this.subAffiliatesService.grossRevenueResponse$.subscribe(data => this.manageRevenueResponse(data))
     this.subAffiliatesService.getAffiliateOptions();
     this.selectDate('today');
     // this.getData();
@@ -132,7 +146,7 @@ export class SubAffiliatesComponent implements OnInit {
     this.data$.pipe(
       filter(data => !!data)
     ).subscribe((subAffiliates) => {
-      this.subAffiliates = subAffiliates;
+      // this.subAffiliates = subAffiliates;
       this.dataSource.data = subAffiliates;
     });
   }
@@ -145,24 +159,48 @@ export class SubAffiliatesComponent implements OnInit {
   pageChanged(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
-    this.getData();
+    // this.getData();
   }
+
   manageAffOptionsResponse(data) {
     if (data.status) {
       this.affiliateOptions = data.data.affiliates;
     }
   }
 
+  manageRevenueResponse(data) {
+    if (data.status) {
+      this.mapRevenue(data.data);
+      this.subject$.next(this.subAffiliates);
+    }
+  }
+
   async getData() {
+    if (!this.affiliate) {
+      this.notyf.error('Please select network to get data');
+      return;
+    }
+    let result = [];
     this.skeletonloader = true;
     this.isLoading = true;
     // this.isChecked = false;
     this.start_date = formatDate(this.range.get('start').value, 'yyyy-MM-dd', 'en');
-    console.log('this.start_date :', this.start_date);
     this.end_date = formatDate(this.range.get('end').value, 'yyyy-MM-dd', 'en');
-    console.log(' this.end_date  :', this.end_date);
-
     const headers = { "Content-type": "application/json; charset=UTF-8", 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA' };
+    this.getSummary(headers);
+    result = await this.getSubAffiliates(headers);
+    console.log('result :', result);
+
+    let affiliatesArray = result.map(a => [a.sub1, a.sub2, a.sub3]);
+    let filter = {
+      'data': affiliatesArray,
+      'start_date': this.start_date,
+      'end_date': this.end_date,
+    };
+    this.subAffiliatesService.getGrossRevenue(filter);
+  }
+
+  getSummary(headers) {
     const summaryURL = 'https://api.eflow.team/v1/networks/reporting/entity/summary';
     const summaryBody = {
       "from": this.start_date,
@@ -189,6 +227,9 @@ export class SubAffiliatesComponent implements OnInit {
       // this.isLoading = false;
     });
 
+  }
+
+  async getSubAffiliates(headers) {
     const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
     const body =
     {
@@ -213,8 +254,32 @@ export class SubAffiliatesComponent implements OnInit {
       },
       "format": "json"
     };
+    if (this.sub1) {
+      body.query.filters.push(
+        {
+          "filter_id_value": this.sub1,
+          "resource_type": "sub1"
+        }
+      )
+    }
+    if (this.sub2) {
+      body.query.filters.push(
+        {
+          "filter_id_value": this.sub2,
+          "resource_type": "sub2"
+        }
+      )
+    }
+    if (this.sub3) {
+      body.query.filters.push(
+        {
+          "filter_id_value": this.sub3,
+          "resource_type": "sub3"
+        }
+      )
+    }
     let jsonData = [];
-    const response2 = fetch(url, {
+    const response2 = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(body),
       headers: headers,
@@ -222,13 +287,18 @@ export class SubAffiliatesComponent implements OnInit {
     }).then(res => res.text()).then((res: any) => {
       jsonData = ndjsonParser(res);
       this.subAffiliates = jsonData;
-      this.dataSource.data = jsonData;
+      setTimeout(() => {
+        this.paginator.length = this.subAffiliates.length;
+        // this.paginator.length = jsonData.count;
+      });
       this.mapData().subscribe(subAffiliates => {
         this.subject$.next(subAffiliates);
       });
       this.isLoading = false;
       this.skeletonloader = false;
     });
+
+    return jsonData;
   }
 
   onFilterChange(value) {
@@ -291,9 +361,9 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    if (this.deleteSubscription) {
-      // this.affiliateService.deleteResponse.next([]);
-      // this.deleteSubscription.unsubscribe();
+    if (this.grossRevenueSubscription) {
+      this.subAffiliatesService.affiliatesGetResponse.next([]);
+      this.grossRevenueSubscription.unsubscribe();
     }
   }
 }

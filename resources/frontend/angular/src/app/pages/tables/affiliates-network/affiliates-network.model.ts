@@ -1,10 +1,14 @@
 import { titleCase } from "title-case";
+import { DatePipe } from '@angular/common'
+const datePipe: DatePipe = new DatePipe('en-US')
+let nf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 });
 
 export class Network {
   id: string;
   network_affiliate_id: string;
   network_id: string;
   name: string;
+  gross_revenue: string;
   account_status: string;
   network_employee_id: string;
   internal_notes: string;
@@ -25,6 +29,7 @@ export class Network {
     this.network_affiliate_id = aff.network_affiliate_id;
     this.network_id = aff.network_id;
     this.name = aff.name;
+    this.gross_revenue = '$' + nf.format(aff.gross_revenue);
     this.account_status = titleCase(aff.account_status);
     this.network_employee_id = aff.network_employee_id;
     this.internal_notes = aff.internal_notes;

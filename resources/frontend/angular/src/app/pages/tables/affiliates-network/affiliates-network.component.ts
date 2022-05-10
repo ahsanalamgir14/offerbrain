@@ -33,6 +33,7 @@ export class AffiliatesNetworkComponent implements OnInit {
   data$: Observable<Network[]> = this.subject$.asObservable();
 
   affiliates: Network[];
+  AffOptionsSubscription: Subscription;
   getSubscription: Subscription;
   deleteSubscription: Subscription;
   isLoading = false;
@@ -58,6 +59,10 @@ export class AffiliatesNetworkComponent implements OnInit {
     start: new FormControl(),
     end: new FormControl()
   });
+  network_affiliate_id: '';
+  affiliateOptions = [];
+
+
 
   @Input()
   dataSource: MatTableDataSource<Network>;
@@ -77,7 +82,9 @@ export class AffiliatesNetworkComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  
+    this.AffOptionsSubscription = this.affiliatesService.affOptionsResponse$.subscribe(data => this.manageAffOptionsResponse(data))
+    this.affiliatesService.getAffiliateOptions();
+    this.selectDate('thisMonth');
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -100,10 +107,10 @@ export class AffiliatesNetworkComponent implements OnInit {
   async getData() {
     this.isLoading = true;
     this.isChecked = false;
-    if(this.range.get('start').value != null){
+    if (this.range.get('start').value != null) {
       this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')
     }
-    if(this.range.get('end').value != null){
+    if (this.range.get('end').value != null) {
       this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
     }
     this.filters = {
@@ -117,12 +124,12 @@ export class AffiliatesNetworkComponent implements OnInit {
       this.columns = columns.data;
     });
     await this.affiliatesService.getAffiliates(this.filters)
-    .then(affiliates => {
-      this.allIdArray = [];
-      this.affiliates = affiliates.data.affiliates;
-      this.dataSource.data = affiliates.data.affiliates;
-      this.networks = affiliates.data.networks;
-      console.log('Affiliates are ',this.affiliates)
+      .then(affiliates => {
+        this.allIdArray = [];
+        this.affiliates = affiliates.data.affiliates;
+        this.dataSource.data = affiliates.data.affiliates;
+        this.networks = affiliates.data.networks;
+        console.log('Affiliates are ', this.affiliates)
         this.mapData().subscribe(affiliates => {
           this.subject$.next(affiliates);
         });
@@ -130,6 +137,11 @@ export class AffiliatesNetworkComponent implements OnInit {
       }, error => {
         this.isLoading = false;
       });
+  }
+  manageAffOptionsResponse(data) {
+    if (data.status) {
+      this.affiliateOptions = data.data.affiliates;
+    }
   }
 
   onFilterChange(value) {
@@ -152,7 +164,7 @@ export class AffiliatesNetworkComponent implements OnInit {
   }
 
 
-  viewDetails(id){
+  viewDetails(id) {
     console.log(id);
   }
 

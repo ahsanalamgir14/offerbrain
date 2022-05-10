@@ -65,10 +65,10 @@
               <div fxLayout="column" fxLayoutGap="0px">
                 <div>
                   <mat-form-field appearance="fill">
-                    <mat-label>Network</mat-label>
-                    <mat-select (selectionChange)="commonFilter($event.value, 'network_id')">
-                      <mat-option [value]="">All</mat-option>
-                      <mat-option *ngFor="let network of networks" [value]="network['network_id']">{{network['name']}}</mat-option>
+                    <mat-label>Networks</mat-label>
+                    <mat-select [(value)]="network_affiliate_id" (selectionChange)="commonFilter($event.value, 'network_affiliate_id')">
+                      <mat-option [value]="">All Networks</mat-option>
+                      <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']}} ({{ affiliate['network_affiliate_id'] }})</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -109,6 +109,14 @@
             </td>
           </ng-container>
         </ng-container>
+
+        <!-- Gross revenue column -->
+        <!-- <ng-container matColumnDef="gross_revenue">
+          <th mat-header-cell *matHeaderCellDef> Gross Revenue </th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row[column.property] }}
+          </td>
+        </ng-container> -->
 
         <!-- actions Column -->
         <ng-container matColumnDef="actions">

@@ -315,11 +315,11 @@ class TicketMonthlyController extends Controller
             ->where('time_stamp', '<=', $end_of_month)
             ->select('order_id')->get()->count();
 
-// $rebills = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'is_rebill' => 'yes', 'campaign_id' => 2])
+// $rebills = Order::join('order_products', 'order_id', 'order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'is_rebill' => 'yes', 'campaign_id' => 2])
 //     ->where('time_stamp', '>=', $start_of_month)
 //     ->where('time_stamp', '<=', $end_of_month)
 //     ->select('order_id')->get()->count();
-// dd($initials);
+// dd($rebills);
 
 // $decline = Order::where(['order_status' => 7, 'campaign_id' => 2])
 //     ->where('orders.time_stamp', '>=', $start_of_month)

@@ -9,11 +9,13 @@
                 ?Add [expanded]="0" in below line to to show filters
              -->
             <mat-expansion-panel [expanded]="0" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Filters
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
                 <div fxLayoutGap="50px">
                     <div fxLayout="column">
-                        <div>
-                            <h3>Date Filter</h3>
-                        </div>
                         <!-- *ngIf="!skeletonLoader" -->
                         <div fxLayout="column" layout-wrap fxLayoutGap="10px">
                             <div fxLayout="row" layout-wrap fxLayoutGap="10px">
@@ -115,19 +117,20 @@
         </div>
         <!-- </div> -->
 
-        <fury-list style="box-shadow:none;" name="Mids" [columns]="columns" (refresh)="refreshColumns()" (enableLoading)="isLoading = true;">
+        <fury-list style="box-shadow:none;" name="Mids" [columns]="columns" (refresh)="refreshColumns()"
+            (enableLoading)="isLoading = true;">
             <!-- <div class="actions">
           <button class="create" (click)="createCustomer()" type="button" mat-mini-fab color="primary">
             <mat-icon>add</mat-icon>
           </button>
-        </div> --> 
+        </div> -->
             <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
             <div class="sticky-columns">
                 <table [dataSource]="dataSource" mat-table matSort>
 
                     <!-- Checkbox Column -->
-                    <ng-container matColumnDef="checkbox" >
-                        <th *matHeaderCellDef class="actions-cell" mat-header-cell >
+                    <ng-container matColumnDef="checkbox">
+                        <th *matHeaderCellDef class="actions-cell" mat-header-cell>
                             <mat-checkbox (change)="updateCheck()" [(ngModel)]="selectAll" color="accent" (click)="$event.stopPropagation()"></mat-checkbox>
                         </th>
                         <td *matCellDef="let row" class="actions-cell" mat-cell>
@@ -163,7 +166,8 @@
                     <!-- mid_count column  -->
                     <ng-container matColumnDef="mid_count">
                         <th *matHeaderCellDef mat-header-cell>Mid Count</th>
-                        <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')" mat-cell>
+                        <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')"
+                            mat-cell>
                             <a routerLink="javascript:void(0)">{{ row.mid_count | number }}</a>
                         </td>
                     </ng-container>
@@ -174,26 +178,29 @@
                             ${{ row.current_monthly_amount | number : '1.2-2' }}
                         </td>
                     </ng-container>
-                    
+
                     <ng-container matColumnDef="decline_per">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{ row.decline_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{
+                                row.decline_per | number : '1.2-2' }}%</a>
                             <!-- /<a routerLink="#" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2)">{{ row.approved_per | number : '1.2-2' }}</a> % -->
                         </td>
                     </ng-container>
-                    
+
                     <ng-container matColumnDef="chargeback">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{ row.chargeback_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{
+                                row.chargeback_per | number : '1.2-2' }}%</a>
                         </td>
                     </ng-container>
-                    
+
                     <ng-container matColumnDef="refund">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%</th>
                         <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{ row.refund_per | number : '1.2-2' }}%</a>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{
+                                row.refund_per | number : '1.2-2' }}%</a>
                         </td>
                     </ng-container>
 
@@ -221,7 +228,7 @@
                 </table>
             </div>
 
- 
+
             <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
                 [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
             </mat-paginator> -->

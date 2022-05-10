@@ -4,6 +4,7 @@ export class SubAffiliate {
   sub3: string;
   sub4: string;
   sub5: string;
+  gross_revenue: string;
   impressions: string;
   gross_clicks: string;
   total_clicks: string;
@@ -42,6 +43,9 @@ export class SubAffiliate {
     this.sub4 = subAff.sub4;
     this.sub5 = subAff.sub5;
     this.impressions = subAff.impressions;
+    if (subAff.gross_revenue && subAff.gross_revenue != null) {
+      this.gross_revenue = subAff.gross_revenue;
+    } else { this.gross_revenue = '-' }
     this.gross_clicks = subAff.gross_clicks;
     this.total_clicks = subAff.total_clicks;
     this.unique_clicks = subAff.unique_clicks;
@@ -71,5 +75,9 @@ export class SubAffiliate {
     this.RPM = subAff.RPM;
     this.CPM = subAff.CPM;
     this.avg_sale_value = subAff.avg_sale_value;
+  }
+
+  set set_gross_revenue(revenue) {
+    this.gross_revenue = revenue;
   }
 }

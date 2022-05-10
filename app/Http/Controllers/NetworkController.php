@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Network;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Carbon\Carbon;
 use DB;
 
 class NetworkController extends Controller
@@ -17,24 +18,38 @@ class NetworkController extends Controller
      */
     public function index(Request $request)
     {
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-        $query = Network::select('*');
-        if ($start_date != null && $end_date != null){
-            $query->where('time_created', '>', strtotime($request->start_date));
-            $query->where('time_created', '<', strtotime($request->end_date));
-        }
-        if ($request->fields != null) {
-            $field_array = explode(',', $request->fields);
-            $value_array = explode(',', $request->values);
-            for ($i = 0; $i < count($value_array); $i++) {
-                if($value_array[$i] != ''){
-                    $query->where($field_array[$i], $value_array[$i]);
+        // DB::enableQueryLog();
+        if ($request->start_date != '' && $request->end_date != '') {
+
+            $start_date = Carbon::parse($request->start_date)->startOfDay();
+            $end_date = Carbon::parse($request->end_date)->endOfDay();
+
+            $query = DB::table('networks')
+                ->select('networks.*')
+                ->join('orders', function ($join) use ($start_date, $end_date) {
+                    $join->on('orders.affiliate', '=', 'networks.network_affiliate_id')
+                        ->where('orders.time_stamp', '>=', $start_date)
+                        ->where('orders.time_stamp', '<=', $end_date)
+                        ->where('orders.order_status', '=', 2)
+                        ->select('orders.order_status', 'orders.order_total');
+                })
+                ->addSelect(DB::raw('ROUND(SUM(orders.order_total), 2) as gross_revenue'))
+                ->groupBy('networks.network_affiliate_id');
+
+            if ($request->fields != null) {
+                $field_array = explode(',', $request->fields);
+                $value_array = explode(',', $request->values);
+                for ($i = 0; $i < count($value_array); $i++) {
+                    if ($value_array[$i] != '') {
+                        $query->where($field_array[$i], $value_array[$i]);
+                    }
                 }
             }
+            $data['affiliates'] = $query->get();
+            // dd(DB::getQueryLog());
+        } else {
+            $data['affiliates'] = Network::all();
         }
-        $data['affiliates'] = $query->get();
-        // $data['networks'] = Network::all();
         return response()->json(['status' => true, 'data' => $data]);
     }
 

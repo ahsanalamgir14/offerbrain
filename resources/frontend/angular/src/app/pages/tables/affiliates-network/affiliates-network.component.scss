@@ -9,7 +9,9 @@
 .no-bottom-padding {
   padding-bottom: 0px;
 }
-
+.full-width {
+  width: 100%;
+}
 :host ::ng-deep .mat-sort-header-container {
   display: flex;
   justify-content: center;
@@ -21,4 +23,9 @@ td.mat-cell {
 }
 table {
   border-color: none !important;
+}
+
+.mat-column-gross_revenue {
+  text-align: right !important;
+  justify-content: flex-end !important;
 }

@@ -13,10 +13,12 @@ export class AffiliatesNetworkService {
   public affiliatesGetResponse = new BehaviorSubject([]);
   public deleteResponse = new BehaviorSubject([]);
   public columnsResponse = new BehaviorSubject([]);
+  public affOptionsResponse = new BehaviorSubject([]);
 
   affiliatesGetResponse$ = this.affiliatesGetResponse.asObservable();
   deleteResponse$ = this.deleteResponse.asObservable();
   columnsResponse$ = this.columnsResponse.asObservable();
+  affOptionsResponse$ = this.affOptionsResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -38,5 +40,11 @@ export class AffiliatesNetworkService {
       this.columnsResponse.next(data);
     });
     return this.columns;
+  }
+  async getAffiliateOptions(): Promise<any> {
+    await this.apiService.getData(`networks`).then(res => res.json()).then((data) => {
+      console.log(data);
+      this.affOptionsResponse.next(data);
+    });
   }
 }

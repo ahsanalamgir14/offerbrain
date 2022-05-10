@@ -19,14 +19,6 @@
 //   overflow: hidden;
 // }
 
-// th.mat-header-cell,
-// td.mat-cell {
-//   text-align: center;
-//   text-overflow: ellipsis;
-//   white-space: nowrap;
-//   overflow: hidden;
-//   width: 20%;
-// }
 // table {
 //   border-color: none !important;
 // }
@@ -52,3 +44,17 @@
   text-align: center;
   font-weight: bold;
 }
+
+// .mat-table-cell {
+//   text-overflow: ellipsis !important; 
+//   overflow: hidden !important; 
+//   white-space: nowrap !important;
+//   max-width: 200px !important;
+// }
+
+// .mat-cell,
+// .mat-header-cell:hover {
+//   overflow: visible !important;
+//   white-space: normal !important;
+//   height: auto;
+// }

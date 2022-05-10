@@ -11,7 +11,7 @@
                 </mat-expansion-panel-header>
                 <div fxLayoutGap="50px">
                     <div fxLayout="column">
-                        <div [@fadeInUp]>
+                        <div>
                             <h3>Date Option</h3>
                         </div>
                         <div fxLayout="column" layout-wrap fxLayoutGap="10px">
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div fxFlex="100" fxFlex.xs="55">
-                        <div [@fadeInUp]>
+                        <div>
                             <h3>Other Options</h3>
                         </div>
                         <div fxLayout="row" fxLayoutGap="30px">
@@ -67,6 +67,28 @@
                                 </div>
                             </div>
                             <div fxLayout="column" fxLayoutGap="0px">
+                                <div>
+                                    <mat-form-field appearance="fill">
+                                        <mat-label>Sub1 ID</mat-label>
+                                        <input matInput placeholder="Enter Sub1 ID" [(ngModel)]="sub1">
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div fxLayout="column" fxLayoutGap="0px">
+                                <div>
+                                    <mat-form-field appearance="fill">
+                                        <mat-label>Sub2 ID</mat-label>
+                                        <input matInput placeholder="Enter Sub2 ID" [(ngModel)]="sub2">
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div fxLayout="column" fxLayoutGap="0px">
+                                <div>
+                                    <mat-form-field appearance="fill">
+                                        <mat-label>Sub3 ID</mat-label>
+                                        <input matInput placeholder="Enter Sub3 ID" [(ngModel)]="sub3">
+                                    </mat-form-field>
+                                </div>
                             </div>
                         </div>
                         <div fxLayout="row" fxLayoutAlign="end end">
@@ -133,8 +155,7 @@
                 </div>
             </mat-expansion-panel>
         </div>
-        <ngx-skeleton-loader count="2" appearance="pulse" *ngIf="skeletonloader && isLoading" animation="progress"
-            [theme]="{
+        <ngx-skeleton-loader count="2" *ngIf="skeletonloader && isLoading" animation='pulse' [theme]="{
             height: '60px',
             width: '1500px',
             maxWidth: '1280px',
@@ -143,7 +164,7 @@
         </ngx-skeleton-loader>
     </fury-page-layout-content>
     <!-- End Summary -->
-    <fury-page-layout-content [@fadeInRight]>
+    <fury-page-layout-content>
         <fury-list name="Sub-Affiliates" [columns]="columns" (filterChange)="onFilterChange($event)" *ngIf="!skeletonloader">
             <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
             <table [dataSource]="dataSource" mat-table matSort>
@@ -164,7 +185,7 @@
                 <ng-container *ngFor="let column of columns">
                     <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
-                        <td *matCellDef="let row" mat-cell>
+                        <td class="ellipsis" *matCellDef="let row" mat-cell>
                             {{ row[column.property] }}
                         </td>
                     </ng-container>
@@ -183,9 +204,13 @@
                 <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
             </table>
 
-            <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
-                [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
-            </mat-paginator>
+            <!-- <mat-paginator #paginator [pageIndex]="currentPage" [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions" aria-label="Select page">
+            </mat-paginator> -->
+            <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+            (page)="pageChanged($event)" aria-label="Select page">
+          </mat-paginator>
+            <!-- <mat-paginator [pageSize]="10"  [pageSizeOptions]="pageSizeOptions" aria-label="Select page"></mat-paginator> -->
 
         </fury-list>
         <div fxLayoutAlign="center center">

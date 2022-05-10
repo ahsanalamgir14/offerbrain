@@ -106,23 +106,23 @@ class CustomerController extends Controller
             return response()->json(['status' => true, 'message' => $total_records . ' Customers Deleted Successfully']);
         }
     }
-    public function refresh_customers()
+    public static function refresh_customers()
     {
-
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
+        $setting = Setting::first();
         $created = 0;
         $updated = 0;
         $db_customers = Customer::pluck('email')->toArray();
-        // dd($db_customers);
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v2/contacts';
-        $page = 27775;
+        $page = 28100;
 
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
         $response['customers'] = $api_data['data'];
         $last_page = $api_data['last_page'];
 
-        // dd($last_page);
         if ($response['customers']) {
             foreach ($response['customers'] as $result) {
 
@@ -166,6 +166,7 @@ class CustomerController extends Controller
                 }
             }
         }
+        Setting::update(['customer_last_page'=>$last_page]);
         return response()->json(['status' => true, 'new customers created' => $created, 'Updated customers' => $updated]);
     }
 }

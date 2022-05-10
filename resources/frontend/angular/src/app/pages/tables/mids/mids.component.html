@@ -61,7 +61,15 @@
                         <!-- <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
                             [theme]="{ height: '30px', width: '80px', 'border-radius': 0 }" *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
                     </div>
+
+
                 </div>
+
+
+
+
+
+                
             </mat-expansion-panel>
         </div>
     </fury-page-layout-content>
@@ -194,6 +202,13 @@
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%</th>
                         <td *matCellDef="let row" mat-cell>
                             <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{ row.refund_per | number : '1.2-2' }}%</a>
+                        </td>
+                    </ng-container>
+                    
+                    <ng-container matColumnDef="void">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Void%</th>
+                        <td *matCellDef="let row" mat-cell>
+                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.void_count, 'yes', 'is_void')">{{ row.void_per | number : '1.2-2' }}%</a>
                         </td>
                     </ng-container>
 

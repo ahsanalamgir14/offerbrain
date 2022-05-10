@@ -242,7 +242,7 @@ class ProspectController extends Controller
         }
         return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
     }
-    public function pull_prospects()
+    public static function pull_prospects()
     {
         ini_set('memory_limit', '512M');
         set_time_limit(0);

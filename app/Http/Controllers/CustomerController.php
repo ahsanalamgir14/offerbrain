@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -117,7 +118,7 @@ class CustomerController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v2/contacts';
-        $page = 28100;
+        $page = $setting->customer_last_page;
 
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
         $response['customers'] = $api_data['data'];

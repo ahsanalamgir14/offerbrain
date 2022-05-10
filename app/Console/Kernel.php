@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\DailyOrders;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\CustomerController;
 
 class Kernel extends ConsoleKernel
 {
@@ -27,8 +28,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        OrdersController::pull_cron_orders();
-        ProspectController::pull_prospects();
+        echo OrdersController::pull_cron_orders();
+        echo ProspectController::pull_prospects();
+        echo CustomerController::refresh_customers();
         // $schedule->command('inspire')->hourly();
         // $schedule->command('daily:orders')->cron('*/1 * * * *');
     }

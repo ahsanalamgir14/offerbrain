@@ -29,6 +29,8 @@ export class Mid {
     chargeback_per: number;
     chargeback_count: number;
     refund_count: number;
+    void_count: number;
+    void_per: number;
 
     constructor(mid) {
         this.id = mid.id;
@@ -53,6 +55,8 @@ export class Mid {
         this.decline_count = mid.decline_per;
         this.refund_count = mid.refund_per;
         this.refund_per = (mid.refund_per / mid.total_count)*100;
+        this.void_count = mid.void_per;
+        this.void_per = (mid.void_per / mid.total_count)*100;
         this.chargeback_count = mid.chargeback_per;
         this.chargeback_per = (mid.chargeback_per / mid.total_count)*100;
         this.decline_per = (mid.decline_per / mid.total_count)*100;

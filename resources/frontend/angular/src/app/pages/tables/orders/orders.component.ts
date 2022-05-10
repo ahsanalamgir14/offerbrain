@@ -139,6 +139,8 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
             this.status = mapped[2].value;
           } else if(this.field == 'order_status' && this.field_value == '7'){
             this.status = mapped[2].value;
+          } else if(this.field == 'is_void'){
+            this.is_void = mapped[2].value;
           }
         }
         this.commonFilter(this.field_value, this.field);

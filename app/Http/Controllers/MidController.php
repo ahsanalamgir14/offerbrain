@@ -15,11 +15,24 @@ use DB;
 
 class MidController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
+    public function sub_affiliate_gross_revenue(Request $request){
+        if ($request->start_date != '' && $request->end_date != '') {
+        $sub_affiliates = $request->data;
+        $start_date = Carbon::parse($request->start_date)->startOfDay();
+        $end_date = Carbon::parse($request->end_date)->endOfDay();
+
+        $query = DB::table('orders')
+        ->where('time_stamp', '>=', $start_date)
+        ->where('time_stamp', '<=', $end_date)
+        ->where('order_status', '=', 2)
+        ->where('c1', '=', '8071')
+        ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
+        $response = $query->get();
+        return response()->json(['status' => true, 'data' => $response]);
+        }
+    }
+
     public function index(Request $request)
     {
         $start_date = $request->start_date;
@@ -43,6 +56,7 @@ class MidController extends Controller
         ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
         ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
         ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
+        ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
         ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
         ->addSelect('mids.mid_group as group_name')
         // ->addSelect('profiles.global_fields->mid_group as group_name')

@@ -37,6 +37,8 @@ class MidController extends Controller
     {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        $product_value = $request->product_value;
+        //  dd($product_value);  
         if ($start_date != null && $end_date != null) {
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
@@ -44,7 +46,7 @@ class MidController extends Controller
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
-
+        
         $data = DB::table('mids')
         ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
         // ->join('profiles','mids.gateway_alias', '=', 'profiles.alias')

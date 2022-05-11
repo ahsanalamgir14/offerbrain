@@ -48,6 +48,7 @@ Route::resource('ticket-daily', TicketDailyController::class);
 Route::resource('ticket-weekly', TicketWeeklyController::class);
 Route::resource('ticket-monthly', TicketMonthlyController::class);
 Route::resource('products', ProductController::class);
+Route::resource('order-products', OrderProductController::class); 
 Route::resource('prospects', ProspectController::class);
 Route::resource('mids', MidController::class);
 Route::resource('mid-groups', MidGroupController::class);

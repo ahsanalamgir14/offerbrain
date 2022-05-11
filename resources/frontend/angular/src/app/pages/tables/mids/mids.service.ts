@@ -9,10 +9,11 @@ export class MidsService {
 
   mids: any;
   columns: any;
+  productOptions = [];
   gateway: any;
   public getResponse = new BehaviorSubject({});
   public refreshResponse = new BehaviorSubject({});
-  public getProductsResponse = new BehaviorSubject({});
+  public getProductsResponse = new BehaviorSubject([]);
   public assignGroupResponse = new BehaviorSubject({});
   public unAssignGroupResponse = new BehaviorSubject({});
   public assignBulkGroupResponse = new BehaviorSubject({});
@@ -26,11 +27,13 @@ export class MidsService {
   assignBulkGroupResponse$ = this.assignBulkGroupResponse.asObservable();
   removeBulkGroupResponse$ = this.removeBulkGroupResponse.asObservable();
   columnsResponse$ = this.columnsResponse.asObservable();
+  getProductsResponse$ = this.getProductsResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
-  async getMids(filters): Promise<any> {
-    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}`).then(res => res.json()).then((data) => {
+  async getMids(filters): Promise<any> { 
+    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}
+    &product_value=${filters.product_value}`).then(res => res.json()).then((data) => {
       this.mids = data;
       this.getResponse.next(data);
     });
@@ -68,4 +71,14 @@ export class MidsService {
     });
     return this.columns;
   }
+
+  // async getOrderProduct(): Promise<any> {
+  //   await this.apiService.getData(`order-products`).then(res => res.json()).then((data) => {
+  //      this.productOptions = data;
+  //      this.getProductsResponse.next(this.productOptions );
+  //   });
+  //     return this.columns;
+  // }
+  
+
 }

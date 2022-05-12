@@ -109,6 +109,7 @@ Route::get('pull_networks', [NetworkController::class, 'pull_networks']);
 Route::get('refresh_decline_percentage', [MidController::class, 'refresh_decline_percentage']);
 Route::get('get_mids_decline_data', [MidController::class, 'get_mids_decline_data']);
 Route::get('get_mids_count_data', [MidController::class, 'get_mids_count_data']);
+Route::get('products', [MidController::class, 'products']);
 Route::get('mids_order_total/{id}', [MidController::class, 'mids_order_total']);
 Route::get('order_history', [OrdersController::class, 'order_history']);
 Route::get('daily_order_history', [OrdersController::class, 'daily_order_history']);

@@ -9,6 +9,7 @@ export class MidsService {
 
   mids: any;
   columns: any;
+  products: any;
   gateway: any;
   public getResponse = new BehaviorSubject({});
   public refreshResponse = new BehaviorSubject({});
@@ -30,7 +31,7 @@ export class MidsService {
   constructor(private apiService: ApiService) { }
 
   async getMids(filters): Promise<any> {
-    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}`).then(res => res.json()).then((data) => {
+    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}`).then(res => res.json()).then((data) => {
       this.mids = data;
       this.getResponse.next(data);
     });
@@ -67,5 +68,12 @@ export class MidsService {
       this.columnsResponse.next(data);
     });
     return this.columns;
+  }
+  async getProducts(): Promise<any> {
+    await this.apiService.getData(`products`).then(res => res.json()).then((data) => {
+      this.products = data;
+      this.columnsResponse.next(data);
+    });
+    return this.products;
   }
 }

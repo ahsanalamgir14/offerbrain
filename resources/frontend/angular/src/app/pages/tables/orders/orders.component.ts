@@ -240,7 +240,6 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       let index = this.all_fields.indexOf(field);
       this.all_values[index] = value;
     }
-    // this.getData();
   }
 
   manageGetResponse(orders) {

@@ -74,6 +74,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   endPoint = '';
   start_date = '';
   end_date = '';
+  filteredProduct = '';
+  product = "allProducts";
 
   skeletonLoader = true;
   pageSizeOptions: number[] = [5, 10, 25, 100];
@@ -91,6 +93,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   toolTipDeclines = [];
   toolTipMidCount = [];
   timer = null;
+  products = [];
   // pageSize = 20000;
   dataSource: MatTableDataSource<Mid> | null;
 
@@ -110,7 +113,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
-    this.selectDate('thisMonth');
+    this.selectDate('lastThreeMonths');
+    this.getProducts();
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -151,6 +155,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filters = {
       "start": this.start_date,
       "end": this.end_date,
+      "all_fields": this.all_fields,
+      "all_values": this.all_values,
     }
     await this.midsService.getColumns().then(columns => {
       this.columns = columns.data;
@@ -177,6 +183,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
       this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
     }
+  }
+  async getProducts(){
+    await this.midsService.getProducts().then(products => {
+      this.products = products.data;
+    });
   }
 
   getTooltipDeclines(mid) {
@@ -229,7 +240,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.timer = setTimeout(() =>{
         const target = new ElementRef(evt.currentTarget);
         const dialogRef = this.dialog.open(MidDetailDialogComponent, {
-          data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status, type : type }
+          data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status, type : type, product : this.filteredProduct }
         });
     },500)
   }
@@ -279,6 +290,17 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   //   }
   // }
 
+  commonFilter(value, field) {
+    this.filteredProduct = value;
+    if (this.all_fields.indexOf(field) === -1) {
+      this.all_fields.push(field);
+      this.all_values.push(value);
+    } else {
+      let index = this.all_fields.indexOf(field);
+      this.all_values[index] = value;
+    }
+  }
+  
   async manageAssignResponse(data) {
     if (Object.keys(data).length) {
       if (data.status) {

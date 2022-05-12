@@ -18,7 +18,7 @@ class NetworkController extends Controller
      */
     public function index(Request $request)
     {
-        // DB::enableQueryLog();
+        DB::statement("SET SQL_MODE=''");
         if ($request->start_date != '' && $request->end_date != '') {
 
             $start_date = Carbon::parse($request->start_date)->startOfDay();

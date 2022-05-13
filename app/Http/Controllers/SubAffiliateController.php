@@ -121,7 +121,10 @@ class SubAffiliateController extends Controller
         $response = [];
         if ($request->start_date != '' && $request->end_date != '') {
             $sub_affiliates = $request->data;
+<<<<<<< Updated upstream
             $affiliate_id = $request->affiliate_id;
+=======
+>>>>>>> Stashed changes
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 
@@ -143,8 +146,6 @@ class SubAffiliateController extends Controller
                 $query->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
                 $response[] = $query->pluck('gross_revenue')->toArray();
             }
-            // dd($response);
-            // dd(DB::getQueryLog());
             return response()->json(['status' => true, 'data' => $response]);
         }
     }

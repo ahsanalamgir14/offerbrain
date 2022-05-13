@@ -126,7 +126,7 @@
         <!-- </div> -->
 
         <fury-list style="box-shadow:none;" name="Mids" [columns]="columns" (refresh)="refreshColumns()"
-            (enableLoading)="isLoading = true;">
+            (enableLoading)="isLoading = true;" (filterChange)="onFilterChange($event)">
             <!-- <div class="actions">
           <button class="create" (click)="createCustomer()" type="button" mat-mini-fab color="primary">
             <mat-icon>add</mat-icon>

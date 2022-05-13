@@ -196,6 +196,7 @@ export class SubAffiliatesComponent implements OnInit {
       'data': affiliatesArray,
       'start_date': this.start_date,
       'end_date': this.end_date,
+      'affiliate_id': this.affiliate
     };
     this.subAffiliatesService.getGrossRevenue(filter);
   }
@@ -319,8 +320,6 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   commonFilter(value, field) {
-    console.log(value);
-    console.log(this.affiliate);
     if (this.all_fields.indexOf(field) === -1) {
       this.all_fields.push(field);
       this.all_values.push(value);

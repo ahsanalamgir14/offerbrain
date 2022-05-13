@@ -78,6 +78,8 @@ export class SubAffiliate {
   }
 
   set set_gross_revenue(revenue) {
-    this.gross_revenue = revenue;
+    if (revenue && revenue != null) {
+      this.gross_revenue = revenue;
+    } else { this.gross_revenue = '-' }
   }
 }

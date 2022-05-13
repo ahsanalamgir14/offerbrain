@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
 use App\Models\Network;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
@@ -23,6 +24,14 @@ class NetworkController extends Controller
 
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
+
+            // $query = Order::where('time_stamp', '>=', $start_date)
+            //         ->where('time_stamp', '<=', $end_date)
+            //         ->where('order_status', '=', 7)
+            //         ->where('affiliate', '=', 1)
+            //         ->select('order_status', 'order_total')
+            //         ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'))->count();
+            // dd($query);
 
             $query = DB::table('networks')
                 ->select('networks.*')
@@ -45,6 +54,7 @@ class NetworkController extends Controller
                     }
                 }
             }
+            dd($query->count());
             $data['affiliates'] = $query->get();
             // dd(DB::getQueryLog());
         } else {

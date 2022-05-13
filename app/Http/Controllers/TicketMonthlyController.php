@@ -59,6 +59,7 @@ class TicketMonthlyController extends Controller
         } */
         $latest = TicketMonthly::orderBy('id', 'desc')->first();
         // dd($latest);
+        dd(isset($latest));
         if (isset($latest)) {
             if ($latest->month != $current_month) {
                 $model = new TicketMonthly();

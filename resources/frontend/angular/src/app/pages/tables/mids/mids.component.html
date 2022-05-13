@@ -54,7 +54,7 @@
                         <!-- <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{ height: '50px', width: '300px','border-radius': 0 }"
                             *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
                     </div>
-                    <div fxFlex="100" fxFlex.xs="55">
+                    <!-- <div fxFlex="100" fxFlex.xs="55">
                         <div [@fadeInUp]>
                           <br><br>                 
                         </div>
@@ -65,7 +65,6 @@
                                 <mat-label>Product</mat-label>
 
                                 <mat-select [(ngModel)]="product_value">
-                                    <!-- <h3>{{product}}</h3> -->
                                   <mat-option [value]="">All Products</mat-option>
                                   <mat-option *ngFor="let product of productOptions" [value]="product.value" >{{product.value}}</mat-option>
                                 </mat-select>
@@ -73,18 +72,7 @@
                             </div>
                         </div>
                         </div>
-                        <!-- <div fxLayout="row" fxLayoutAlign="end end">
-                          <button mat-raised-button color="accent" (click)="getData()">Apply</button>
-                        </div> -->
-                        <!-- <div fxLayout="row" fxLayoutAlign="end end">
-                          <ngx-skeleton-loader count="1" appearance="line" animation="progress" [theme]="{
-                            height: '30px',
-                            width: '80px',
-                            'border-radius': 0
-                          }"
-                            > </ngx-skeleton-loader>
-                        </div> -->
-                      </div>
+                      </div> -->
                     <!-- *ngIf="!skeletonLoader" -->
                     
                     <div fxLayout="row" fxLayoutAlign="end end">

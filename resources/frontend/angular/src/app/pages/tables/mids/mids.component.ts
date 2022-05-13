@@ -94,7 +94,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   toolTipDeclines = [];
   toolTipMidCount = [];
   productOptions = [];
-  product = "allProducts";
+  // product = "allProducts";
   timer = null;
   products = [];
   // pageSize = 20000;
@@ -162,14 +162,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     this.filters = {
-      "product_value": this.product_value, 
+      // "product_value": this.product_value, 
       "start": this.start_date,
       "end": this.end_date,
       "all_fields": this.all_fields,
       "all_values": this.all_values,
     }
-
-
 
     await this.midsService.getColumns().then(columns => {
       this.columns = columns.data;

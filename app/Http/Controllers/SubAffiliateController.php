@@ -121,10 +121,7 @@ class SubAffiliateController extends Controller
         $response = [];
         if ($request->start_date != '' && $request->end_date != '') {
             $sub_affiliates = $request->data;
-<<<<<<< Updated upstream
             $affiliate_id = $request->affiliate_id;
-=======
->>>>>>> Stashed changes
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 

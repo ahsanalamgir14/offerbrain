@@ -143,8 +143,6 @@ class SubAffiliateController extends Controller
                 $query->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
                 $response[] = $query->pluck('gross_revenue')->toArray();
             }
-            // dd($response);
-            // dd(DB::getQueryLog());
             return response()->json(['status' => true, 'data' => $response]);
         }
     }

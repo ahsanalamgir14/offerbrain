@@ -26,48 +26,48 @@ class OrdersController extends Controller
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
 
         $query = DB::table('orders')->select(
-            'id',
-            'order_id',
-            'created_by_employee_name',
-            'billing_first_name',
-            'billing_last_name',
-            'billing_street_address',
-            'order_total',
-            'acquisition_month',
-            'acquisition_year',
-            'c1',
-            'affid',
-            'trx_month',
-            'order_sales_tax_amount',
-            'decline_reason',
-            'is_cascaded',
-            'decline_reason_details',
-            'is_fraud',
-            'is_chargeback',
-            'chargeback_date',
-            'is_rma',
-            'rma_number',
-            'rma_reason',
-            'is_recurring',
-            'is_void',
-            'void_amount',
-            'void_date',
-            'is_refund',
-            'refund_amount',
-            'refund_date',
-            'order_confirmed',
-            'order_confirmed_date',
-            'acquisition_date',
-            'is_blacklisted',
-            'coupon_id',
-            'created_by_user_name',
-            'order_sales_tax',
-            'order_status',
-            'promo_code',
-            'recurring_date',
-            'response_code',
-            'return_reason',
-            'time_stamp'
+            'orders.id',
+            'orders.order_id',
+            'orders.created_by_employee_name',
+            'orders.billing_first_name',
+            'orders.billing_last_name',
+            'orders.billing_street_address',
+            'orders.order_total',
+            'orders.acquisition_month',
+            'orders.acquisition_year',
+            'orders.c1',
+            'orders.affid',
+            'orders.trx_month',
+            'orders.order_sales_tax_amount',
+            'orders.decline_reason',
+            'orders.is_cascaded',
+            'orders.decline_reason_details',
+            'orders.is_fraud',
+            'orders.is_chargeback',
+            'orders.chargeback_date',
+            'orders.is_rma',
+            'orders.rma_number',
+            'orders.rma_reason',
+            'orders.is_recurring',
+            'orders.is_void',
+            'orders.void_amount',
+            'orders.void_date',
+            'orders.is_refund',
+            'orders.refund_amount',
+            'orders.refund_date',
+            'orders.order_confirmed',
+            'orders.order_confirmed_date',
+            'orders.acquisition_date',
+            'orders.is_blacklisted',
+            'orders.coupon_id',
+            'orders.created_by_user_name',
+            'orders.order_sales_tax',
+            'orders.order_status',
+            'orders.promo_code',
+            'orders.recurring_date',
+            'orders.response_code',
+            'orders.return_reason',
+            'orders.time_stamp'
         );
 
             // $total_rows = 30000;
@@ -77,19 +77,19 @@ class OrdersController extends Controller
             // $start_date = date('Y-m-d', strtotime($request->start_date));
             // $end_date = date('Y-m-d', strtotime($request->start_date));
             // $query->whereBetween('acquisition_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-            $query->where('time_stamp', '>', $start_date);
-            $query->where('time_stamp', '<', $end_date);
+            $query->where('orders.time_stamp', '>', $start_date);
+            $query->where('orders.time_stamp', '<', $end_date);
         }
         if ($request->gateway_id != '') {
-            $query->where('gateway_id', $request->gateway_id);
+            $query->where('orders.gateway_id', $request->gateway_id);
         }
         if ($request->affiliate != '') {
-            $query->where('affiliate', $request->affiliate);
+            $query->where('orders.affiliate', $request->affiliate);
         }
         if ($request->sub_affiliate != '') {
-            $query->where('c1', $request->sub_affiliate)
-                ->orWhere('c2', $request->sub_affiliate)
-                ->orWhere('c3', $request->sub_affiliate);
+            $query->where('orders.c1', $request->sub_affiliate)
+                ->orWhere('orders.c2', $request->sub_affiliate)
+                ->orWhere('orders.c3', $request->sub_affiliate);
         }
 
         if ($request->fields != null) {
@@ -97,13 +97,17 @@ class OrdersController extends Controller
             $value_array = explode(',', $request->values);
             for ($i = 0; $i < count($value_array); $i++) {
                 if ($value_array[$i] != '' && $field_array[$i] != 'products') {
-                    $query->where($field_array[$i], $value_array[$i]);
+                    $query->where('orders.'.$field_array[$i], $value_array[$i]);
                 }
                 if ($field_array[$i] == 'products') {
-                    $query->where('products', 'like', '%' . $value_array[$i] . '%');
+                    $query->where('orders.products', 'like', '%' . $value_array[$i] . '%');
                 }
             }
         }
+        if($request->filteredProduct != ''){
+            $query->join('order_products','orders.order_id','=','order_products.order_id')->where('order_products.name',$request->filteredProduct);
+        }
+        $total_rows = $query->count('orders.id');
         // if ($request->search != '') {
         //     $query->where('order_id', 'like', '%' . $request->search . '%')
         //         ->orWhere('created_by_employee_name', 'like', '%' . $request->search . '%')
@@ -119,8 +123,8 @@ class OrdersController extends Controller
         //         ->orWhere('created_by_user_name', 'like', '%' . $request->search . '%');
         //     }
 
-        $total_rows = $query->count('id');
-        $rows = $query->orderBy('id', 'desc')->SimplePaginate($no_of_records_per_page);
+        // $total_rows = $query->count('id');
+        $rows = $query->orderBy('orders.id', 'desc')->SimplePaginate($no_of_records_per_page);
         // $total_rows = 303502;
         $total_pages = ceil($total_rows / $rows->perPage());
 

@@ -63,6 +63,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   bulkUpdateSubscription: Subscription;
   columnsSubscription: Subscription;
   searchSubscription: Subscription;
+  getProductsSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
   pageSize = 25;
@@ -77,7 +78,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredProduct = '';
   product = "allProducts";
 
-  skeletonLoader = true;
+  skeletonLoader = true; 
   pageSizeOptions: number[] = [5, 10, 25, 100];
   totalMids: number = 0;
   assignedMids: number = 0;
@@ -92,6 +93,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   toolTipDeclines = [];
   toolTipMidCount = [];
+  productOptions = [];
+  // product = "allProducts";
   timer = null;
   products = [];
   // pageSize = 20000;
@@ -107,6 +110,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    
     this.notyf.dismissAll();
     this.refreshSubscription = this.midsService.refreshResponse$.subscribe(data => this.manageRefreshResponse(data))
     this.assignSubscription = this.midsService.assignGroupResponse$.subscribe(data => this.manageAssignResponse(data))
@@ -116,6 +120,9 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectDate('lastThreeMonths');
     this.getProducts();
     this.getData();
+    //this.midsService.getOrderProduct();
+    // console.log(this.getProductsName());
+    this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -152,12 +159,16 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.range.get('end').value != null) {
       this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
     }
+
+
     this.filters = {
+      // "product_value": this.product_value, 
       "start": this.start_date,
       "end": this.end_date,
       "all_fields": this.all_fields,
       "all_values": this.all_values,
     }
+
     await this.midsService.getColumns().then(columns => {
       this.columns = columns.data;
     });
@@ -548,4 +559,26 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.searchSubscription.unsubscribe();
     }
   }
+
+  async getProductsName() {
+    const response = fetch(`${this.endPoint}/api/order-products`)
+      .then(res => res.json()).then((data) => {
+        this.productOptions = data.data;
+        this.productOptions =  Object.entries(this.productOptions).map(([type, value]) => ({type, value}));
+      });
+       return this.productOptions;            
+  }
+
+  // commonFilter(value, field) {
+  //   // console.log(this.all_fields.indexOf(field));
+  //   if (this.all_fields.indexOf(field) === -1) {
+  //     this.all_fields.push(field);
+  //     this.all_values.push(value);
+  //   } else {
+  //     let index = this.all_fields.indexOf(field);
+  //     this.all_values[index] = value;
+  //   }
+  //   // this.getData();
+  // }
+
 }

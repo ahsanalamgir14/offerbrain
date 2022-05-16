@@ -10,21 +10,47 @@ use Illuminate\Support\Facades\Http;
 
 class CustomerController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $pageno = isset($request->page) ? $request->page : 1;
+    //     $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
+    //     $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
+    //     $total_rows = $query->count('id');
+
+    //     if ($request->search != '') {
+    //             $query->Where('email', 'like', '%' . $request->search . '%')
+    //             ->orWhere('first_name', 'like', '%' . $request->search . '%')
+    //             ->orWhere('last_name', 'like', '%' . $request->search . '%');
+    //         }
+    //         // dd($pageno);
+    //         $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
+
+    //     // $total_rows = $query->count('id');
+    //     $total_pages = ceil($total_rows / $data->perPage());
+    //     $pag['count'] = $total_rows;
+    //     $pag['total_pages'] = $total_pages;
+    //     $pag['pageno'] = $pageno;
+    //     $pag['rows_per_page'] = $no_of_records_per_page;
+    //     return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
+    // }
+
+
+
+
+
     public function index(Request $request)
     {
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-
         $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
+        $total_rows = $query->count('id');
 
         if ($request->search != '') {
             $query->Where('email', 'like', '%' . $request->search . '%')
-                ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%');
+            ->orWhere('first_name', 'like', '%' . $request->search . '%')
+            ->orWhere('last_name', 'like', '%' . $request->search . '%');
         }
-
-        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page);
-        $total_rows = $query->count('id');
+        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
@@ -32,12 +58,11 @@ class CustomerController extends Controller
         $pag['rows_per_page'] = $no_of_records_per_page;
         return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
     }
+
     public function get_customer_detail(Request $request)
     {
         $customerData = Customer::findOrFail($request->id);
-
         $customerAddress = json_decode($customerData->addresses);
-        // dd(json_decode($customerAddress));
         return response()->json(['status' => true, 'data' => $customerData, 'address_data' => $customerAddress]);
     }
     public function create()

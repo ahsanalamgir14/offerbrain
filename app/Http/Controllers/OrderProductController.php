@@ -15,7 +15,10 @@ class OrderProductController extends Controller
      */
     public function index()
     {
-        //
+        $data = OrderProduct::pluck('name')->toArray();
+        $data = array_unique($data);
+        // dd($data);
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
     /**

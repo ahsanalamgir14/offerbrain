@@ -35,7 +35,6 @@ class MidController extends Controller
 
     public function index(Request $request)
     {
-        
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -45,7 +44,6 @@ class MidController extends Controller
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
-
         $query = DB::table('mids')
         ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
         // ->join('profiles','mids.gateway_alias', '=', 'profiles.alias')
@@ -66,7 +64,6 @@ class MidController extends Controller
             $query->join('order_products','orders.order_id','=','order_products.order_id')->where('order_products.name',$request->values);
         }
         $data = $query->get();
-        // $data = Mid::all();
         return response()->json(['status' => true, 'data' => $data]);
     }
     public function products(){

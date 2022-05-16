@@ -84,6 +84,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   is_void = '';
   end_date = '';
   field_value = '';
+  filteredProduct = '';
   field = '';
   gateway_id = '';
   is_filtered = false;
@@ -122,11 +123,14 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       const mapped = Object.entries(params).map(([key, value]) => ({key, value}));
 
       if(mapped[0]){
+
         this.gateway_id = mapped[0].value;
         this.field = mapped[1].value;
         this.field_value = mapped[2].value;
         this.start_date = mapped[3].value;
         this.end_date = mapped[4].value;
+        this.filteredProduct = mapped[5].value;
+        
         this.is_filtered = true;
         if(this.gateway_id != ''){
           this.range.get('start').setValue(new Date(mapped[3].value));
@@ -206,7 +210,8 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       'search': this.search,
       'gateway_id': this.gateway_id,
       'affiliate': this.affiliate,
-      'sub_affiliate': this.subAffiliate
+      'sub_affiliate': this.subAffiliate,
+      'filteredProduct': this.filteredProduct,
     }
     this.ordersService.getOrders(this.filters)
       .then(orders => {

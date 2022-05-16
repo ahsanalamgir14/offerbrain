@@ -13,7 +13,7 @@ export class MidsService {
   gateway: any;
   public getResponse = new BehaviorSubject({});
   public refreshResponse = new BehaviorSubject({});
-  public getProductsResponse = new BehaviorSubject({});
+  public getProductsResponse = new BehaviorSubject([]);
   public assignGroupResponse = new BehaviorSubject({});
   public unAssignGroupResponse = new BehaviorSubject({});
   public assignBulkGroupResponse = new BehaviorSubject({});
@@ -27,6 +27,7 @@ export class MidsService {
   assignBulkGroupResponse$ = this.assignBulkGroupResponse.asObservable();
   removeBulkGroupResponse$ = this.removeBulkGroupResponse.asObservable();
   columnsResponse$ = this.columnsResponse.asObservable();
+  getProductsResponse$ = this.getProductsResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 

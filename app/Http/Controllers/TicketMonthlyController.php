@@ -311,22 +311,23 @@ class TicketMonthlyController extends Controller
         $start_of_month = Carbon::parse($start_of_month)->startOfMonth();
         $end_of_month = Carbon::parse($start_of_month)->endOfMonth();
 
+        //initials done and verified
         $initials = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 2, 'campaign_id' => 2])
             ->where('time_stamp', '>=', $start_of_month)
             ->where('time_stamp', '<=', $end_of_month)
             ->select('order_id')->get()->count();
 
-// $rebills = Order::join('order_products', 'order_id', 'order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'is_rebill' => 'yes', 'campaign_id' => 2])
+// $rebills = Order::join('order_products', 'orders.order_id', 'order_products.order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
 //     ->where('time_stamp', '>=', $start_of_month)
 //     ->where('time_stamp', '<=', $end_of_month)
-//     ->select('order_id')->get()->count();
-// dd($rebills);
+//     ->select('orders.order_id')->get()->count();
+// dd($initials);
 
-// $decline = Order::where(['order_status' => 7, 'campaign_id' => 2])
-//     ->where('orders.time_stamp', '>=', $start_of_month)
-//     ->where('orders.time_stamp', '<=', $end_of_month)
-//     ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year', 'orders.order_status')
-//     ->get()->count();
+        // $decline = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 7, 'campaign_id' => 2])
+        //     ->where('time_stamp', '>=', $start_of_month)
+        //     ->where('time_stamp', '<=', $end_of_month)
+        //     ->select('order_id', 'time_stamp', 'acquisition_month', 'acquisition_year', 'order_status')
+        //     ->get()->count();
 
 // dd($decline);
 
@@ -409,6 +410,112 @@ class TicketMonthlyController extends Controller
         $latest->clv = $clv;
         $latest->save();
 
+        $data = TicketMonthly::orderBy('id', 'desc')->get();
+        return response()->json(['status' => true, 'data' => $data]);
+    }
+
+    public function refresh_all_monthly()
+    {
+
+        // $data = TicketMonthly::orderBy('id', 'desc')->take(10)->get();
+        $db_months = TicketMonthly::pluck('month')->toArray();
+        $data = TicketMonthly::orderBy('id', 'desc')->get();
+        // dd($data);
+        $date_today = Carbon::now()->format('Y-m-d');
+        $current_month = Carbon::now()->format('F');
+        $current_year = Carbon::now()->format('Y');
+        // $latest = TicketMonthly::orderBy('id', 'desc')->first();
+
+        foreach ($data as $t_key => $ticket) {
+
+            $initials = 0;
+            $initial_condition_2 = 0;
+            $rebills = 0;
+            $cycle_1_condition_1 = 0;
+            $cycle_1_condition_2 = 0;
+            $cycle_1_per = 0;
+            $avg_day = 0;
+            $filled_per = 0;
+            $avg_ticket = 0;
+            $revenue = 0;
+            $refund = 0;
+            $refund_rate = 0;
+            $CBs = 0;
+            $CB_per = 0;
+            $CB_currency = 0;
+            $fulfillment = 0;
+            $processing = 0;
+            $cpa = 0;
+            $cpa_avg = 0;
+            $net = 0;
+            $clv = 0;
+
+            $start_of_month = $ticket->year . '-' . $ticket->month . '-01';
+            // $start_of_month = '2022-April-01';
+            $start_of_month = Carbon::parse($start_of_month)->startOfMonth();
+            $end_of_month = Carbon::parse($start_of_month)->endOfMonth()->format('Y-m-d');
+
+        //initials done and verified
+            $initials = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 2, 'campaign_id' => 2])
+                ->where('time_stamp', '>=', $start_of_month)
+                ->where('time_stamp', '<=', $end_of_month)
+                // ->where('products->name', 'LIKE', '%(I)%')
+                // ->orWhere('products->name', 'LIKE', '%(c)%')
+                ->select('order_id')->get()->count();
+
+            // dd($initials);
+            $rebills = Order::join('order_products', 'orders.order_id', 'order_products.order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
+                ->where('orders.time_stamp', '>=', $start_of_month)
+                ->where('orders.time_stamp', '<=', $end_of_month)
+                ->where('products->name', 'LIKE', '%(CR1)%')
+                ->select('orders.order_id')->get()->count();
+                // dd($rebills);
+            // dd($rebills);
+
+
+        // $decline = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 7, 'campaign_id' => 2])
+        //     ->where('time_stamp', '>=', $start_of_month)
+        //     ->where('time_stamp', '<=', $end_of_month)
+        //     ->select('order_id', 'time_stamp', 'acquisition_month', 'acquisition_year', 'order_status')
+        //     ->get()->count();
+
+// dd($decline);
+
+            $net = $revenue + $refund + $CBs + $fulfillment + $processing + $cpa;
+            $fulfillment = $initials * -18;
+            if ($rebills != 0) {
+                $avg_ticket = $revenue / $rebills;
+            }
+            if ($cycle_1_condition_2 != 0) {
+                $cycle_1_per = $cycle_1_condition_1 / $cycle_1_condition_2;
+                $clv = $net / $initials;
+            }
+            if ($revenue != 0) {
+                $refund_rate = $refund / $revenue;
+                $CB_per = $CBs / $revenue;
+                $processing = -0.2 * $revenue;
+            }
+
+            $ticket->initials = $initials;
+            $ticket->rebills = $rebills;
+            $ticket->cycle_1_per = $cycle_1_per;
+            $ticket->avg_day = $avg_day; //yet to calculate
+            $ticket->avg_ticket = $avg_ticket;
+            $ticket->revenue = $revenue;
+            $ticket->refund = (($refund > 0) ? -$refund : $refund);
+            $ticket->filled_per = $filled_per; // yet to calculate
+            $ticket->refund_rate = $refund_rate;
+            $ticket->CBs = $CBs;
+            $ticket->CB_per = $CB_per;
+            $ticket->CB_currency = $CB_currency;
+            $ticket->fulfillment = $fulfillment;
+            $ticket->processing = $processing;
+        // $ticket->cpa = ??
+        // $ticket->cpa_avg = $cpa / $initials??
+            $ticket->net = $net;
+            $ticket->clv = $clv;
+            $ticket->save();
+        }
         $data = TicketMonthly::orderBy('id', 'desc')->get();
         return response()->json(['status' => true, 'data' => $data]);
     }

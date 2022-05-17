@@ -84,6 +84,7 @@ Route::get('refresh-daily', [TicketDailyController::class, 'refresh_daily']);
 Route::get('refresh-all-daily', [TicketDailyController::class, 'refresh_all_daily_tickets']);
 Route::get('refresh-weekly', [TicketWeeklyController::class, 'refresh_weekly']);
 Route::get('refresh-monthly', [TicketMonthlyController::class, 'refresh_monthly']);
+Route::get('refresh-all-monthly', [TicketMonthlyController::class, 'refresh_all_monthly']);
 Route::get('populate_products_from_orders', [OrderProductController::class, 'populate_products_from_orders']);
 Route::get('pull_payment_router_view', [MidController::class, 'pull_payment_router_view']);
 Route::get('pull_profiles', [ProfileController::class, 'pull_profiles']);

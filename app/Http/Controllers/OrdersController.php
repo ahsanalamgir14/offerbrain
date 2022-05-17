@@ -774,8 +774,8 @@ class OrdersController extends Controller
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
             $url,
             [
-                'start_date' => '04/26/2022',
-                'end_date' => '04/26/2022',
+                'start_date' => '05/01/2022',
+                'end_date' => '05/15/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -1239,8 +1239,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-04-16';
-        $ending_day = '2022-04-24';
+        $starting_day = '2022-05-01';
+        $ending_day = '2022-05-15';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);

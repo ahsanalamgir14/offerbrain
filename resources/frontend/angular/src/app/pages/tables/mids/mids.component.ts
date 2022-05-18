@@ -12,6 +12,7 @@ import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { MidDetailDialogComponent } from '../../mid-detail-dialog/mid-detail-dialog.component';
+import { ProductFilterDialogComponent } from '../../product-filter-dialog/product-filter-dialog.component';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
 import { GroupDialogComponent } from './group-dialog/group-dialog.component';
 import { GroupDialogModel } from './group-dialog/group-dialog';
@@ -89,6 +90,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedRows: Mid[] = [];
   selectAll: boolean = false;
   isBulkUpdate: boolean = false;
+  isColumnLoading: boolean = true;
   columns: any = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   toolTipDeclines = [];
@@ -96,6 +98,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   productOptions = [];
   // product = "allProducts";
   timer = null;
+  productId = [];
   products = [];
   // pageSize = 20000;
   dataSource: MatTableDataSource<Mid> | null;
@@ -167,6 +170,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       "end": this.end_date,
       "all_fields": this.all_fields,
       "all_values": this.all_values,
+      "productId" : this.filteredProduct
     }
 
     await this.midsService.getColumns().then(columns => {
@@ -246,14 +250,36 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     return midCountArray;
   }
 
-  openDialog(id, gateway_id, evt: MouseEvent, total_count, status, type){
+  openDialog(id, gateway_id, evt, total_count, status, type){
+    let targetAttr = evt.target.getBoundingClientRect();
     clearTimeout(this.timer); 
     this.timer = setTimeout(() =>{
         const target = new ElementRef(evt.currentTarget);
         const dialogRef = this.dialog.open(MidDetailDialogComponent, {
+          // position: {
+          //   top: targetAttr.y + targetAttr.height + 10 + "px",
+          //   left: targetAttr.x - targetAttr.width - 20 + "px"
+          // },s
           data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status, type : type, product : this.filteredProduct }
         });
     },500)
+  }
+  openDialogForProductFilter(event, start_date, end_date, field){
+    let targetAttr = event.target.getBoundingClientRect();
+    const dialogRef = this.dialog.open(ProductFilterDialogComponent, {
+      height: '500px',
+      // position: {
+      //   top: targetAttr.y + targetAttr.height + 10 + "px",
+      //   left: targetAttr.x - targetAttr.width - 20 + "px"
+      // },
+      data : {start_date : start_date, end_date : end_date, field: field}
+    })
+    dialogRef.afterClosed().subscribe(id => {
+      if (id) {
+        this.filteredProduct = id;
+        this.getData();
+      }
+    });
   }
 
   countContent() {

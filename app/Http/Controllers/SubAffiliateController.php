@@ -122,6 +122,7 @@ class SubAffiliateController extends Controller
         if ($request->start_date != '' && $request->end_date != '') {
             $sub_affiliates = $request->data;
             $affiliate_id = $request->affiliate_id;
+            // dd($affiliate_id);
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 
@@ -129,17 +130,17 @@ class SubAffiliateController extends Controller
                 $query = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
-                    ->where('affiliate', '<=', $affiliate_id)
+                    ->whereIn('affiliate', $affiliate_id)
                     ->where('order_status', '=', 2);
                 if ($sub_affiliates[$i][0] && $sub_affiliates[$i][0] != '') {
                     $query->where('c1', '=', $sub_affiliates[$i][0]);
                 }
-                if ($sub_affiliates[$i][1] && $sub_affiliates[$i][1] != '') {
-                    $query->where('c2', '=', $sub_affiliates[$i][1]);
-                }
-                if ($sub_affiliates[$i][2] && $sub_affiliates[$i][2] != '') {
-                    $query->where('c3', '=', $sub_affiliates[$i][2]);
-                }
+                // if ($sub_affiliates[$i][1] && $sub_affiliates[$i][1] != '') {
+                //     $query->where('c2', '=', $sub_affiliates[$i][1]);
+                // }
+                // if ($sub_affiliates[$i][2] && $sub_affiliates[$i][2] != '') {
+                //     $query->where('c3', '=', $sub_affiliates[$i][2]);
+                // }
                 $query->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
                 $response[] = $query->pluck('gross_revenue')->toArray();
             }

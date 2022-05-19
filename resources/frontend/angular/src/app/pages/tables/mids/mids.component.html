@@ -219,7 +219,7 @@
                     </ng-container>
 
                     <ng-container matColumnDef="current_monthly_amount">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Current Monthly Amount</th>
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Gross Revenue</th>
                         <td *matCellDef="let row" mat-cell [ngClass]="row.current_monthly_amount == '0.00' ? 'highlight-danger' : ''">
                             ${{ row.current_monthly_amount | number : '1.2-2' }}
                         </td>

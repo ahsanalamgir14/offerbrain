@@ -58,7 +58,7 @@
                                 <div>
                                     <mat-form-field appearance="fill">
                                         <mat-label>Affiliate</mat-label>
-                                        <mat-select [(value)]="affiliate" (selectionChange)="commonFilter($event.value, 'affiliate_id')">
+                                        <mat-select [(value)]="affiliate" multiple (selectionChange)="commonFilter($event.value, 'affiliate_id')">
                                             <mat-option [value]="">All Affiliates</mat-option>
                                             <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']
                                                 }} ({{ affiliate['network_affiliate_id'] }})</mat-option>
@@ -204,13 +204,9 @@
                 <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
             </table>
 
-            <!-- <mat-paginator #paginator [pageIndex]="currentPage" [pageSize]="pageSize"
-                [pageSizeOptions]="pageSizeOptions" aria-label="Select page">
-            </mat-paginator> -->
-            <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
-            (page)="pageChanged($event)" aria-label="Select page">
-          </mat-paginator>
-            <!-- <mat-paginator [pageSize]="10"  [pageSizeOptions]="pageSizeOptions" aria-label="Select page"></mat-paginator> -->
+            <mat-paginator #paginator [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+                (page)="pageChanged($event)" aria-label="Select page">
+            </mat-paginator>
 
         </fury-list>
         <div fxLayoutAlign="center center">

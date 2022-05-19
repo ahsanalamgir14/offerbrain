@@ -1,5 +1,6 @@
-<div [class.collapsed]="isCollapsed$ | async" [class.dropdown-open]="dropdownOpen$ | async" [ngClass]="levelClass"
+<div [class.dropdown-open]="dropdownOpen$ | async" [class.collapsed]="isCollapsed$ | async" [ngClass]="levelClass"
   class="sidenav-item">
+    
   <div *ngIf="item.type === 'subheading'" [ngClass]="item.customClass" class="subheading">{{ item.name }}
   </div>
 
@@ -32,8 +33,7 @@
     </mat-icon>
   </ng-template>
 
-
-  <div [@dropdownOpen]="dropdownOpen$ | async" class="dropdown" fxLayout="column">
+  <div [@dropdownOpen]="dropdownOpen$ | async" class="dropdown" fxLayout="column" >
     <fury-sidenav-item *ngFor="let subItem of item.subItems" [item]="subItem" [level]="level+1"></fury-sidenav-item>
   </div>
 </div>

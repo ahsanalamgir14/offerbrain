@@ -25,6 +25,7 @@ import isFunction from 'lodash-es/isFunction';
 })
 export class SidenavItemComponent implements OnInit {
 
+  isCollapse:boolean;
   @Input('item') item: SidenavItem;
   @Input('level') level: number;
 
@@ -54,8 +55,7 @@ export class SidenavItemComponent implements OnInit {
   handleClick() {
     if (this.item.subItems && this.item.subItems.length > 0) {
       this.sidenavService.toggleItemOpen(this.item);
-      console.log('this.item :', this.item);
-
+      // console.log('this.item :', this.item);
     } else if (typeof this.item.routeOrFunction === 'string' || this.item.routeOrFunction instanceof String) {
       this.router.navigate([this.item.routeOrFunction]);
     } else if (typeof this.item.routeOrFunction === 'function' || this.item.routeOrFunction instanceof Function) {

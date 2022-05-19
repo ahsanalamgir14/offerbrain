@@ -1415,6 +1415,13 @@ class OrdersController extends Controller
             }
         }
     }
+  
+    public static function test1(){
+        return response()->json(['message' => 'Test 1']);
+    }
+    public static function test2(){
+        return response()->json(['message' => 'Test 2']);
+    }
 
     public function insert_missing_history()
     {

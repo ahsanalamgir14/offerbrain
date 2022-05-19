@@ -32,7 +32,7 @@ export class MidsService {
   constructor(private apiService: ApiService) { }
 
   async getMids(filters): Promise<any> {
-    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}`).then(res => res.json()).then((data) => {
+    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&productId=${filters.productId}`).then(res => res.json()).then((data) => {
       this.mids = data;
       this.getResponse.next(data);
     });

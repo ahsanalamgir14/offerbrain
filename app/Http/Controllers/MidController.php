@@ -60,8 +60,9 @@ class MidController extends Controller
         ->addSelect('mids.mid_group as group_name')
         // ->addSelect('profiles.global_fields->mid_group as group_name')
         ->groupBy('mids.id');
-        if($request->values != null){
-            $query->join('order_products','orders.order_id','=','order_products.order_id')->where('order_products.name',$request->values);
+        if($request->productId != null){
+            $nameArray=explode(",",$request->productId); 
+            $query->join('order_products','orders.order_id','=','order_products.order_id')->whereIn('order_products.name',$nameArray);
         }
         $data = $query->get();
         return response()->json(['status' => true, 'data' => $data]);
@@ -70,8 +71,21 @@ class MidController extends Controller
         $products = DB::table('order_products')->select('id','name')->groupBy('name')->get();
         return response()->json(['status' => true, 'data' => $products]);
     }
+    public function getProductForFilter(Request $request){
+        DB::statement("SET SQL_MODE=''");
+        $start_date = Carbon::parse($request->start_date)->startOfDay();
+        $end_date = Carbon::parse($request->end_date)->endOfDay();
+        
+        $products = DB::table('order_products')
+        ->join('orders', 'orders.order_id', '=', 'order_products.order_id')
+        ->where('orders.time_stamp', '>=', $start_date)
+        ->where('orders.time_stamp', '<=', $end_date)
+        ->select('order_products.id','order_products.name')->groupBy('order_products.name')->get();
+        return response()->json(['status' => true, 'data' => $products]);
+    }
     public function get_mid_count_detail(Request $request)
     {
+        DB::enableQueryLog();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -91,9 +105,11 @@ class MidController extends Controller
             ->addSelect(DB::raw('COUNT(order_products.name) as total_count'));
             $query->where("orders.$request->type", $status);
             if($request->product != null){
-                $query->where("order_products.name", $request->product);
+                $nameArray=explode(",",$request->product); 
+                $query->whereIn("order_products.name", $nameArray);
             }
             $details = $query->groupBy('order_products.name')->get();
+            // dd(DB::getQueryLog());
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
             $data['total_count'] = $detail->total_count;

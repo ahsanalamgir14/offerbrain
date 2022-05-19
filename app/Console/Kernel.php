@@ -28,8 +28,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        echo OrdersController::pull_cron_orders();
+        // echo OrdersController::test2();
         echo ProspectController::pull_prospects();
+        echo OrdersController::pull_cron_orders();
+        echo OrdersController::test1();
         echo CustomerController::refresh_customers();
         // $schedule->command('inspire')->hourly();
         // $schedule->command('daily:orders')->cron('*/1 * * * *');
@@ -39,11 +41,10 @@ class Kernel extends ConsoleKernel
      * Register the commands for the application.
      *
      * @return void
-     */
+    */
     protected function commands()
     {
         $this->load(__DIR__.'/Commands');
-
         require base_path('routes/console.php');
     }
 }

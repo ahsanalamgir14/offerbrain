@@ -54,7 +54,6 @@ class NetworkController extends Controller
                     }
                 }
             }
-
             $data['affiliates'] = $query->get();
             // dd(DB::getQueryLog());
         } else {

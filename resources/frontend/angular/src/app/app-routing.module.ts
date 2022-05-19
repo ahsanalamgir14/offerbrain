@@ -23,6 +23,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/customers/customer-detail/customer-detail.module').then(m => m.CustomerDetailModule),
       },
       {
+        path: 'product-filter-dialog',
+        loadChildren: () => import('./pages/product-filter-dialog/product-filter-dialog.module').then(m => m.ProductFilterDialogModule),
+      },
+      {
         path: 'prospects',
         loadChildren: () => import('./pages/tables/prospects/prospects.module').then(m => m.ProspectsModule),
       },

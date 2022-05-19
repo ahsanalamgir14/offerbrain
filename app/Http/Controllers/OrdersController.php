@@ -97,15 +97,15 @@ class OrdersController extends Controller
             $value_array = explode(',', $request->values);
             for ($i = 0; $i < count($value_array); $i++) {
                 if ($value_array[$i] != '' && $field_array[$i] != 'products') {
-                    $query->where('orders.'.$field_array[$i], $value_array[$i]);
+                    $query->where('orders.' . $field_array[$i], $value_array[$i]);
                 }
                 if ($field_array[$i] == 'products') {
                     $query->where('orders.products', 'like', '%' . $value_array[$i] . '%');
                 }
             }
         }
-        if($request->filteredProduct != ''){
-            $query->join('order_products','orders.order_id','=','order_products.order_id')->where('order_products.name',$request->filteredProduct);
+        if ($request->filteredProduct != '') {
+            $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->where('order_products.name', $request->filteredProduct);
         }
         $total_rows = $query->count('orders.id');
         // if ($request->search != '') {
@@ -774,8 +774,8 @@ class OrdersController extends Controller
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
             $url,
             [
-                'start_date' => '05/01/2022',
-                'end_date' => '05/15/2022',
+                'start_date' => '05/18/2022',
+                'end_date' => '05/18/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -1234,13 +1234,13 @@ class OrdersController extends Controller
         $new_orders = 0;
         $updated_orders = 0;
         $order_ids = [];
-        $missing_orders = [];
+        $pending_orders = [];
 
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-05-01';
-        $ending_day = '2022-05-15';
+        $starting_day = '2022-05-18';
+        $ending_day = '2022-05-18';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);
@@ -1314,22 +1314,25 @@ class OrdersController extends Controller
                                 $mass_assignment = $this->get_order_product_mass($result);
                                 $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
                             } else {
-                                array_push($missing_orders, $result->order_id);
+                                array_push($pending_orders, $result->order_id);
+                                $new_orders++;
+                                Order::create((array)$result);
+                                $mass_assignment = $this->get_order_product_mass($result);
+                                OrderProduct::create($mass_assignment);
                             }
                             // dd('die');
-
                         }
                         $data = null;
                         $results = null;
                         $order_ids = [];
-                        // $missing_orders = [];
+                        // $pending_orders = [];
                     }
                 } else {
                     return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
                 }
             }
         }
-        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders, 'Missing Orders: ' => $missing_orders]);
+        return response()->json(['status' => true, 'New Orders in todays API' => $new_orders, 'Updated orders:' => $updated_orders, 'New Pending Orders: ' => $pending_orders]);
     }
     public function daily_order_history()
     {
@@ -1412,4 +1415,75 @@ class OrdersController extends Controller
             }
         }
     }
+
+    public function insert_missing_history()
+    {
+        return view('insert-order-view');
+    }
+
+    public function insert_missing_result(Request $request)
+    {
+
+        $orders_array = $request->orders_array;
+        $orders_array = str_replace(array('[', ']', '"', "'"), '', $orders_array);
+        // var_dump($orders_array);die;
+        $orders_array = explode(',', $orders_array);
+        // dd($orders_array);
+        $new_orders = 0;
+        $updated_orders = 0;
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
+        $order_view_api = 'https://thinkbrain.sticky.io/api/v1/order_view';
+        $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+            ->post($order_view_api, ['order_id' => $orders_array])->getBody()->getContents());
+
+        if (count($orders_array) > 1) {
+            $results = $order_views->data;
+        } else {
+            $results[0] = $order_views;
+        }
+
+        foreach ($results as $result) {
+            $month = Carbon::parse($result->time_stamp)->format('F');
+            $year = Carbon::parse($result->time_stamp)->format('Y');
+            $result->acquisition_month = $month;
+            $result->acquisition_year = $year;
+            $result->trx_month = $month;
+            $result->billing_email = $result->email_address;
+            $result->billing_telephone = $result->customers_telephone;
+            $result->shipping_email = $result->email_address;
+            $result->shipping_telephone = $result->customers_telephone;
+            if (property_exists($result, 'employeeNotes')) {
+                $result->employeeNotes = serialize($result->employeeNotes);
+            }
+            $result->utm_info = serialize($result->utm_info);
+            if (property_exists($result, 'products')) {
+                $result->products = serialize($result->products);
+            }
+            $result->systemNotes = serialize($result->systemNotes);
+            $result->totals_breakdown = serialize($result->totals_breakdown);
+            $db_order = Order::where(['order_id' => $result->order_id])->first();
+            if ($db_order) {
+                $updated_orders++;
+                $db_order->update((array)$result);
+                $mass_assignment = $this->get_order_product_mass($result);
+                $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+            } else {
+                // array_push($pending_orders, $result->order_id);
+                $new_orders++;
+                Order::create((array)$result);
+                $mass_assignment = $this->get_order_product_mass($result);
+                OrderProduct::create($mass_assignment);
+            }
+        }
+        $response['new_orders'] = $new_orders;
+        $response['updated_orders'] = $updated_orders;
+        return view('history-response-view', $response);
+    }
+
+//     public function view_missing_history(){
+//         $response['new_orders'] = 500;
+//         $response['updated_orders'] = 1000;
+//         return view('history-response-view', $response);
+//     }
 }

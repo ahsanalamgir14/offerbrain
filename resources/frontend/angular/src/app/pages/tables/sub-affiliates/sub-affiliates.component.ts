@@ -67,7 +67,7 @@ export class SubAffiliatesComponent implements OnInit {
   });
 
   affiliateOptions = [];
-  affiliate: string;
+  affiliate: [];
   skeletonloader = true;
 
   @Input()
@@ -113,8 +113,8 @@ export class SubAffiliatesComponent implements OnInit {
   dataSource: MatTableDataSource<SubAffiliate>;
   selection = new SelectionModel<SubAffiliate>(true, []);
 
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
 
   constructor(private dialog: MatDialog, private subAffiliatesService: SubAffiliatesService, private http: HttpClient) {
     this.endPoint = environment.endpoint;
@@ -176,7 +176,7 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   async getData() {
-    if (!this.affiliate) {
+    if (!this.affiliate || this.affiliate.length == 0) {
       this.notyf.error('Please select network to get data');
       return;
     }
@@ -231,6 +231,8 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   async getSubAffiliates(headers) {
+    // console.log(this.affiliate.length);
+    // return;
     const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
     const body =
     {
@@ -247,14 +249,21 @@ export class SubAffiliatesComponent implements OnInit {
       ],
       "query": {
         "filters": [
-          {
-            "filter_id_value": this.affiliate,
-            "resource_type": "affiliate"
-          }
+
         ]
       },
       "format": "json"
     };
+    if (this.affiliate) {
+      this.affiliate.forEach(function (e) {
+        body.query.filters.push(
+          {
+            "filter_id_value": e,
+            "resource_type": "affiliate"
+          }
+        )
+      })
+    }
     if (this.sub1) {
       body.query.filters.push(
         {
@@ -289,7 +298,8 @@ export class SubAffiliatesComponent implements OnInit {
       jsonData = ndjsonParser(res);
       this.subAffiliates = jsonData;
       setTimeout(() => {
-        this.paginator.length = this.subAffiliates.length;
+        this.dataSource.paginator = this.paginator
+        // this.paginator.length = 100;
         // this.paginator.length = jsonData.count;
       });
       this.mapData().subscribe(subAffiliates => {

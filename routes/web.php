@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,8 @@ Route::any('/register', function() {
 
 Route::any('/get_records', [OrdersController::class, 'pull_orders_jan']);
 Route::any('/update_profiles', [ProfileController::class, 'update_profiles']);
+Route::any('/insert-missing-history', [OrdersController::class, 'insert_missing_history']);
+Route::post('/insert-missing-result', [OrdersController::class, 'insert_missing_result'])->name('missing-history.post');
 
 Route::group(['middleware' => 'auth'], function () {
 Route::any('/{any}', [HomeController::class, 'index'])->where('any', '^(?!api).*$');

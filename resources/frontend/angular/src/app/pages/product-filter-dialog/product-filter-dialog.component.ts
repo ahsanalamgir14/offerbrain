@@ -30,10 +30,11 @@ export class ProductFilterDialogComponent implements OnInit {
   search = '';
   customers: Product[];
 
-  id : string;
+  // id : string;
   field: string;
   start_date : string;
   end_date : string;
+  filterProducts : any;
   endPoint = '';
   products = [];
   idArray = [];
@@ -45,7 +46,7 @@ export class ProductFilterDialogComponent implements OnInit {
   @Input()
   columns: ListColumn[] = [
     { name: 'Checkbox', property: 'checkbox', visible: true },
-    { name: 'ID', property: 'id', visible: false, isModelProperty: true },
+    // { name: 'ID', property: 'id', visible: false, isModelProperty: true },
     { name: 'Name', property: 'name', visible: true, isModelProperty: true },
   ] as ListColumn[];
   dataSource: MatTableDataSource<Product> | null;
@@ -58,8 +59,14 @@ export class ProductFilterDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ProductFilterDialogModel, private dialog: MatDialog) {
       this.start_date = data.start_date;
       this.end_date = data.end_date;
-      this.field = data.field;
+      // this.field = data.field;
       this.endPoint = environment.endpoint;
+      this.products = data.filterProducts;
+      this.isLoading = false;
+      this.mapData().subscribe(products => {
+        this.subject$.next(products);
+        this.isLoading = false;
+      });
   }
 
   get visibleColumns() {
@@ -76,7 +83,7 @@ export class ProductFilterDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getData();
+    // this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -86,15 +93,15 @@ export class ProductFilterDialogComponent implements OnInit {
     });
   }
   async getData(){
-    const response = fetch(`${this.endPoint}/api/getProductForFilter?start_date=${this.start_date}&end_date=${this.end_date}&field=${this.field}`).then(res => res.json()).then((data) => {
-      if(data.status){
-        this.products = data.data;
-          this.mapData().subscribe(products => {
-            this.subject$.next(products);
-            this.isLoading = false;
-          });
-        }
-    });
+    // const response = fetch(`${this.endPoint}/api/getProductForFilter?start_date=${this.start_date}&end_date=${this.end_date}&field=${this.field}`).then(res => res.json()).then((data) => {
+    //   if(data.status){
+    //     this.products = data.data;
+    //       this.mapData().subscribe(products => {
+    //         this.subject$.next(products);
+    //         this.isLoading = false;
+    //       });
+    //     }
+    // });
   }
   isAllSelected() {
     const numSelected = this.selection.selected.length;

@@ -46,7 +46,6 @@ class MidController extends Controller
         }
         $query = DB::table('mids')
         ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
-        // ->join('profiles','mids.gateway_alias', '=', 'profiles.alias')
         ->where('orders.time_stamp', '>=', $start_date)
         ->where('orders.time_stamp', '<=', $end_date)
         ->select(DB::raw('mids.*'))
@@ -58,8 +57,10 @@ class MidController extends Controller
         ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
         ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
         ->addSelect('mids.mid_group as group_name')
-        // ->addSelect('profiles.global_fields->mid_group as group_name')
         ->groupBy('mids.id');
+        // ->join('order_products','orders.order_id','=','order_products.order_id')
+        // ->addSelect('order_products.id as product_id','order_products.name as product_name')
+        // ->groupBy('order_products.name');
         if($request->productId != null){
             $nameArray=explode(",",$request->productId); 
             $query->join('order_products','orders.order_id','=','order_products.order_id')->whereIn('order_products.name',$nameArray);

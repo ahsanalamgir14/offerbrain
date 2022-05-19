@@ -122,10 +122,9 @@ class ProspectController extends Controller
             return response()->json(['status' => true, 'message' => $total_records . ' Prospects Deleted Successfully']);
         }
     }
-
+    
     public function pull_prospects_dec()
     {
-
         $new_prospects = 0;
         $updated_prospects = 0;
         $db_prospect_ids = Prospect::pluck('prospect_id')->toArray();
@@ -249,7 +248,6 @@ class ProspectController extends Controller
         set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
-        // $db_prospect_ids = DB::table('prospects')->pluck('prospect_id')->toArray();
 
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
@@ -257,7 +255,7 @@ class ProspectController extends Controller
         $model = new Prospect();
 
         $startDate = Carbon::createFromFormat('Y-m-d', '2022-04-28');
-        $endDate = Carbon::createFromFormat('Y-m-d', '2022-05-09');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-04-29');
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
 

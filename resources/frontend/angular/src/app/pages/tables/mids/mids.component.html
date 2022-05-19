@@ -99,10 +99,10 @@
                       </div>
                    
                     </div>
+                </div>                 -->
                     <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
                         <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
                     </div>
-                  </div>                 -->
             </mat-expansion-panel>
         </div>
     </fury-page-layout-content>
@@ -204,7 +204,9 @@
 
                     <!-- mid_count column  -->
                     <ng-container matColumnDef="mid_count">
-                        <th *matHeaderCellDef mat-header-cell>Mid Count</th>
+                        <th *matHeaderCellDef mat-header-cell>Mid Count
+                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'mid_count')">filter_list</mat-icon>
+                        </th>
                         <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')"
                             mat-cell>
                             <a routerLink="javascript:void(0)">{{ row.mid_count | number }}</a>
@@ -220,7 +222,7 @@
 
                     <ng-container matColumnDef="decline_per">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline%
-                            <mat-icon role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'decline')">filter_list</mat-icon>
+                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'decline')">filter_list</mat-icon>
                         </th>
                         <td *matCellDef="let row" mat-cell>
                             <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{
@@ -230,7 +232,9 @@
                     </ng-container>
 
                     <ng-container matColumnDef="chargeback">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%</th>
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%
+                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'chargeback')">filter_list</mat-icon>
+                        </th>
                         <td *matCellDef="let row" mat-cell>
                             <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{
                                 row.chargeback_per | number : '1.2-2' }}%</a>
@@ -238,7 +242,9 @@
                     </ng-container>
 
                     <ng-container matColumnDef="refund">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%</th>
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%
+                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'refund')">filter_list</mat-icon>
+                        </th>
                         <td *matCellDef="let row" mat-cell>
                             <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{
                                 row.refund_per | number : '1.2-2' }}%</a>

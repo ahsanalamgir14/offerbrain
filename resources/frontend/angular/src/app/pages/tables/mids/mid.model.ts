@@ -31,14 +31,13 @@ export class Mid {
     refund_count: number;
     void_count: number;
     void_per: number;
+    // product_name: string;
 
     constructor(mid) {
         this.id = mid.id;
         this.router_id = mid.router_id;
-        
         this.mid_group = mid.mid_group;
         this.mid_count = mid.mid_count;
-        
         this.router_date_in = datePipe.transform(mid.router_date_in, 'MM-dd-yyyy');
         this.router_desc = mid.router_desc;
         this.mid_group_setting_id = mid.mid_group_setting_id;
@@ -62,12 +61,7 @@ export class Mid {
         this.decline_per = (mid.decline_per / mid.total_count)*100;
         this.approved_per = 100 - (mid.decline_per / mid.total_count)*100;
         this.decline_orders = mid.decline_orders;
+        // this.product_name = mid.product_name;
         this.checked = false;
     }
-
-    // numberWithCommas(x) {
-    //     var parts = x.toString().split(".");
-    //     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    //     return parts.join(".");
-    // }
 }

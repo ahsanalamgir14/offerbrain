@@ -91,11 +91,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   selectAll: boolean = false;
   isBulkUpdate: boolean = false;
   isColumnLoading: boolean = true;
+  isProductLoaded: boolean = false;
   columns: any = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   toolTipDeclines = [];
   toolTipMidCount = [];
   productOptions = [];
+  filterProducts = [];
   // product = "allProducts";
   timer = null;
   productId = [];
@@ -121,11 +123,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
     this.selectDate('lastThreeMonths');
-    this.getProducts();
+    // this.getProducts();
     this.getData();
+    this.getProductFilterData();
     //this.midsService.getOrderProduct();
     // console.log(this.getProductsName());
-    this.getProductsName();
+    // this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -197,6 +200,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     for (let i = 0; i < this.mids.length; i++) {
       // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
       this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
+
+      // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
     }
   }
   async getProducts(){
@@ -265,6 +270,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     },500)
   }
   openDialogForProductFilter(event, start_date, end_date, field){
+    let filterProducts = this.filterProducts
     let targetAttr = event.target.getBoundingClientRect();
     const dialogRef = this.dialog.open(ProductFilterDialogComponent, {
       height: '500px',
@@ -272,13 +278,22 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       //   top: targetAttr.y + targetAttr.height + 10 + "px",
       //   left: targetAttr.x - targetAttr.width - 20 + "px"
       // },
-      data : {start_date : start_date, end_date : end_date, field: field}
+      data : {start_date : start_date, end_date : end_date, field: field, filterProducts: filterProducts}
     })
     dialogRef.afterClosed().subscribe(id => {
       if (id) {
         this.filteredProduct = id;
         this.getData();
       }
+    });
+  }
+
+  async getProductFilterData(){
+    const response = fetch(`${this.endPoint}/api/getProductForFilter?start_date=${this.start_date}&end_date=${this.end_date}`).then(res => res.json()).then((data) => {
+      if(data.status){
+        this.filterProducts = data.data;
+        this.isProductLoaded = true;
+        }
     });
   }
 

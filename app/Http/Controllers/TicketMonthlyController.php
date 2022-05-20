@@ -452,8 +452,8 @@ class TicketMonthlyController extends Controller
             $net = 0;
             $clv = 0;
 
-            // $start_of_month = $ticket->year . '-' . $ticket->month . '-01';
-            $start_of_month = '2022-April-01';
+            $start_of_month = $ticket->year . '-' . $ticket->month . '-01';
+            // $start_of_month = '2022-April-01';
             $start_of_month = Carbon::parse($start_of_month)->startOfMonth();
             $end_of_month = Carbon::parse($start_of_month)->endOfMonth()->format('Y-m-d');
 

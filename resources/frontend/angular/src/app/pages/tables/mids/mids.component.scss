@@ -21,6 +21,9 @@
 .mb {
   margin-bottom: 10px;
 }
+.mb-5 {
+  margin-bottom: 5px;
+}
 .ml {
   margin-left: 10px;
 }
@@ -160,3 +163,7 @@ table {
 .custom-orange {
   background-color: orange;
 }
+.show-link:hover {
+  text-decoration: underline;
+}
+

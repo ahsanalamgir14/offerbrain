@@ -6,8 +6,8 @@
     <div fxLayout="row" fxLayoutAlign="start center" fxFlex>
       <input fxFlex class="fury-filter-input" (keydown.enter)="recordSearch()" (keydown.escape)="changeFilterValue('')"
         #filter placeholder="Search&hellip;">
-      <mat-icon class="fury-filter-input-icon" *ngIf="name == 'Mids'" matTooltip="search" (click)="recordSearch()">search</mat-icon>
-      <mat-icon class="fury-filter-input-icon" *ngIf="name == 'Mids'" matTooltip="clear" (click)="clearSearch()">replay</mat-icon>
+      <!-- <mat-icon class="fury-filter-input-icon" *ngIf="name == 'Mids'" matTooltip="search" (click)="recordSearch()">search</mat-icon>
+      <mat-icon class="fury-filter-input-icon" *ngIf="name == 'Mids'" matTooltip="clear" (click)="clearSearch()">replay</mat-icon> -->
     </div>
 
     <button class="fury-column-filter" type="button" mat-icon-button [matMenuTriggerFor]="columnFilter">

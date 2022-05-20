@@ -36,6 +36,7 @@ export class ListComponent implements AfterViewInit {
     }
   }
 
+  //to be deleted
   async changeFilterValue(value) {
     if (this.filter.nativeElement.value != '') {
       this.filter.nativeElement.value = value;
@@ -47,6 +48,7 @@ export class ListComponent implements AfterViewInit {
     this.filter.nativeElement.value = '';
     await this.recordSearch();
   }
+  //up to here
 
   async toggleColumnVisibility(column, event) {
     event.stopPropagation();
@@ -63,6 +65,7 @@ export class ListComponent implements AfterViewInit {
     });
   }
 
+  //delete function
   async recordSearch() {
     let keyword = this.filter.nativeElement.value;
     if (this.name == 'Mids') {

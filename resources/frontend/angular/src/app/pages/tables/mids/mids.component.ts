@@ -28,6 +28,7 @@ import { ListComponent } from 'src/@fury/shared/list/list.component';
 import { RevenueDialogModel } from './revenue-dialog/revenue-dialog.model';
 import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
 
+//to be deleted
 @Pipe({ name: 'tooltipList' })
 export class TooltipListPipe implements PipeTransform {
 
@@ -39,6 +40,8 @@ export class TooltipListPipe implements PipeTransform {
     return list;
   }
 }
+//up to here
+
 @Component({
   selector: 'fury-mids',
   templateUrl: './mids.component.html',
@@ -79,7 +82,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredProduct = '';
   product = "allProducts";
 
-  skeletonLoader = true; 
+  skeletonLoader = true;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   totalMids: number = 0;
   assignedMids: number = 0;
@@ -115,20 +118,19 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    
+
     this.notyf.dismissAll();
     this.refreshSubscription = this.midsService.refreshResponse$.subscribe(data => this.manageRefreshResponse(data))
     this.assignSubscription = this.midsService.assignGroupResponse$.subscribe(data => this.manageAssignResponse(data))
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
-    this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
-    this.selectDate('lastThreeMonths');
+    // this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
+    this.selectDate('thisMonth');
     // this.getProducts();
     this.getData();
     this.getProductFilterData();
     //this.midsService.getOrderProduct();
-    // console.log(this.getProductsName());
-    // this.getProductsName();
+    this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -166,14 +168,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
     }
 
-
     this.filters = {
       // "product_value": this.product_value, 
       "start": this.start_date,
       "end": this.end_date,
       "all_fields": this.all_fields,
       "all_values": this.all_values,
-      "productId" : this.filteredProduct
+      "productId": this.filteredProduct
     }
 
     await this.midsService.getColumns().then(columns => {
@@ -204,7 +205,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
     }
   }
-  async getProducts(){
+  async getProducts() {
     await this.midsService.getProducts().then(products => {
       this.products = products.data;
     });
@@ -233,43 +234,44 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTooltipMidCounts(mid) {
-    var midCountArray = [];
-    let data = [];
-    if (mid.mid_count.mid_count_data) {
-      data = mid.mid_count.mid_count_data.sort((a, b) => (a.name > b.name) ? 1 : -1);
-      console.log('data :', data);
-    }
-    let totalMids = mid.mid_count.mid_count;
-    if (totalMids != 0) {
-      data.forEach(function (v) {
-        if (v.name != undefined) {
-          let list = '';
-          list += v.name + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.count + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.percentage + '%';
-          if (!midCountArray.includes(list)) {
-            midCountArray.push(list);
-          }
-        }
-      });
-      midCountArray.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalMids + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalMids / 100).toFixed(2) + '%');
-    }
-    return midCountArray;
+    // var midCountArray = [];
+    // let data = [];
+    // if (mid.mid_count.mid_count_data) {
+    //   data = mid.mid_count.mid_count_data.sort((a, b) => (a.name > b.name) ? 1 : -1);
+    //   console.log('data :', data);
+    // }
+    // let totalMids = mid.mid_count.mid_count;
+    // if (totalMids != 0) {
+    //   data.forEach(function (v) {
+    //     if (v.name != undefined) {
+    //       let list = '';
+    //       list += v.name + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.count + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.percentage + '%';
+    //       if (!midCountArray.includes(list)) {
+    //         midCountArray.push(list);
+    //       }
+    //     }
+    //   });
+    //   midCountArray.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalMids + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalMids / 100).toFixed(2) + '%');
+    // }
+    // return midCountArray;
   }
 
-  openDialog(id, gateway_id, evt, total_count, status, type){
+  openDialog(id, gateway_id, evt, total_count, status, type) {
     let targetAttr = evt.target.getBoundingClientRect();
-    clearTimeout(this.timer); 
-    this.timer = setTimeout(() =>{
-        const target = new ElementRef(evt.currentTarget);
-        const dialogRef = this.dialog.open(MidDetailDialogComponent, {
-          // position: {
-          //   top: targetAttr.y + targetAttr.height + 10 + "px",
-          //   left: targetAttr.x - targetAttr.width - 20 + "px"
-          // },s
-          data: { trigger: target, id: id, gateway_id : gateway_id, start_date : this.start_date, end_date : this.end_date, total_count : total_count, status : status, type : type, product : this.filteredProduct }
-        });
-    },500)
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      const target = new ElementRef(evt.currentTarget);
+      const dialogRef = this.dialog.open(MidDetailDialogComponent, {
+        // position: {
+        //   top: targetAttr.y + targetAttr.height + 10 + "px",
+        //   left: targetAttr.x - targetAttr.width - 20 + "px"
+        // },s
+        data: { trigger: target, id: id, gateway_id: gateway_id, start_date: this.start_date, end_date: this.end_date, total_count: total_count, status: status, type: type, product: this.filteredProduct }
+      });
+    }, 500)
   }
-  openDialogForProductFilter(event, start_date, end_date, field){
+
+  openDialogForProductFilter(event, start_date, end_date, field) {
     let filterProducts = this.filterProducts
     let targetAttr = event.target.getBoundingClientRect();
     const dialogRef = this.dialog.open(ProductFilterDialogComponent, {
@@ -278,7 +280,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       //   top: targetAttr.y + targetAttr.height + 10 + "px",
       //   left: targetAttr.x - targetAttr.width - 20 + "px"
       // },
-      data : {start_date : start_date, end_date : end_date, field: field, filterProducts: filterProducts}
+      data: { start_date: start_date, end_date: end_date, field: field, filterProducts: filterProducts }
     })
     dialogRef.afterClosed().subscribe(id => {
       if (id) {
@@ -288,13 +290,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  async getProductFilterData(){
-    const response = fetch(`${this.endPoint}/api/getProductForFilter?start_date=${this.start_date}&end_date=${this.end_date}`).then(res => res.json()).then((data) => {
-      if(data.status){
-        this.filterProducts = data.data;
-        this.isProductLoaded = true;
-        }
-    });
+  async getProductFilterData() {
+    await this.midsService.getProducts().then(products => {
+      this.filterProducts = products.data;
+      this.isProductLoaded = true;
+    })
   }
 
   countContent() {
@@ -352,7 +352,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.all_values[index] = value;
     }
   }
-  
+
   async manageAssignResponse(data) {
     if (Object.keys(data).length) {
       if (data.status) {
@@ -384,28 +384,27 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  manageSearchResponse(mids) {
-    if (mids.status) {
-      this.mids = mids.data
-      this.totalMids = mids.data.length
-      this.mapData().subscribe(mids => {
-        this.subject$.next(mids);
-      });
-      this.skeletonLoader = false;
-      this.isLoading = false;
-      this.selectAll = false;
-      this.isBulkUpdate = false;
-      this.selectedRows = [];
+  // manageSearchResponse(mids) {
+  //   if (mids.status) {
+  //     this.mids = mids.data
+  //     this.totalMids = mids.data.length
+  //     this.mapData().subscribe(mids => {
+  //       this.subject$.next(mids);
+  //     });
+  //     this.skeletonLoader = false;
+  //     this.isLoading = false;
+  //     this.selectAll = false;
+  //     this.isBulkUpdate = false;
+  //     this.selectedRows = [];
 
-      this.countContent();
-      for (let i = 0; i < this.mids.length; i++) {
-        this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
-        this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
-      }
-    }
-    console.log('search data :', mids);
-
-  }
+  //     this.countContent();
+  //     for (let i = 0; i < this.mids.length; i++) {
+  //       this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
+  //       this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
+  //     }
+  //   }
+  //   console.log('search data :', mids);
+  // }
 
   async manageRefreshResponse(data) {
     if (data.status) {
@@ -508,19 +507,21 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-  openRevenueDialog(mid) {
-    const dialogData = new RevenueDialogModel('Revenue Details: ' + mid.gateway_alias, '', mid);
-    const dialogRef = this.dialog.open(RevenueDialogComponent, {
-      maxWidth: '500px',
-      closeOnNavigation: true,
-      data: dialogData
-    })
-    dialogRef.afterClosed().subscribe(groupName => {
-      // if (groupName) {
-      //   this.midsService.assignGroup(alias, groupName);
-      // }
-    });
-  }
+  
+  //To be removed not required
+  // openRevenueDialog(mid) {
+  //   const dialogData = new RevenueDialogModel('Revenue Details: ' + mid.gateway_alias, '', mid);
+  //   const dialogRef = this.dialog.open(RevenueDialogComponent, {
+  //     maxWidth: '500px',
+  //     closeOnNavigation: true,
+  //     data: dialogData
+  //   })
+  //   dialogRef.afterClosed().subscribe(groupName => {
+  //     // if (groupName) {
+  //     //   this.midsService.assignGroup(alias, groupName);
+  //     // }
+  //   });
+  // }
 
   updateCheck() {
     this.selectedRows = [];
@@ -605,9 +606,9 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     const response = fetch(`${this.endPoint}/api/order-products`)
       .then(res => res.json()).then((data) => {
         this.productOptions = data.data;
-        this.productOptions =  Object.entries(this.productOptions).map(([type, value]) => ({type, value}));
+        this.productOptions = Object.entries(this.productOptions).map(([type, value]) => ({ type, value }));
       });
-       return this.productOptions;            
+    return this.productOptions;
   }
 
   // commonFilter(value, field) {

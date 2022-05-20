@@ -73,7 +73,7 @@ export class MidsService {
   async getProducts(): Promise<any> {
     await this.apiService.getData(`products`).then(res => res.json()).then((data) => {
       this.products = data;
-      this.columnsResponse.next(data);
+      // this.columnsResponse.next(data);
     });
     return this.products;
   }

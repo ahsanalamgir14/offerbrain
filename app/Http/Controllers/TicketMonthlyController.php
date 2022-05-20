@@ -312,16 +312,19 @@ class TicketMonthlyController extends Controller
         $end_of_month = Carbon::parse($start_of_month)->endOfMonth();
 
         //initials done and verified
-        $initials = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 2, 'campaign_id' => 2])
+        // $initials = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 2, 'campaign_id' => 2])
+        //     ->where('time_stamp', '>=', $start_of_month)
+        //     ->where('time_stamp', '<=', $end_of_month)
+        //     ->select('order_id')->get()->count();
+        // dd($initials);
+
+        $rebills = Order::join('order_products', 'orders.order_id', 'order_products.order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
             ->where('time_stamp', '>=', $start_of_month)
             ->where('time_stamp', '<=', $end_of_month)
-            ->select('order_id')->get()->count();
-
-// $rebills = Order::join('order_products', 'orders.order_id', 'order_products.order_id')->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
-//     ->where('time_stamp', '>=', $start_of_month)
-//     ->where('time_stamp', '<=', $end_of_month)
-//     ->select('orders.order_id')->get()->count();
-// dd($initials);
+            ->where('order_products.name', 'LIKE', '%(rhgs)%')
+            ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
+            ->select('orders.order_id')->get()->count();
+        dd($rebills);
 
         // $decline = Order::where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'order_status' => 7, 'campaign_id' => 2])
         //     ->where('time_stamp', '>=', $start_of_month)
@@ -329,7 +332,6 @@ class TicketMonthlyController extends Controller
         //     ->select('order_id', 'time_stamp', 'acquisition_month', 'acquisition_year', 'order_status')
         //     ->get()->count();
 
-// dd($decline);
 
         // Order::where(['prepaid_match' => 'NO', 'is_test_cc' => 0])->whereDate('acquisition_date', '>=', $start_of_month)->whereDate('acquisition_date', '<=', $end_of_month)->chunk(100, function ($orders) {
         //     foreach ($orders as $order) {
@@ -450,49 +452,56 @@ class TicketMonthlyController extends Controller
             $net = 0;
             $clv = 0;
 
-            // $start_of_month = $ticket->year . '-' . $ticket->month . '-01';
-            $start_of_month = '2022-February-01';
+            $start_of_month = $ticket->year . '-' . $ticket->month . '-01';
+            // $start_of_month = '2022-April-01';
             $start_of_month = Carbon::parse($start_of_month)->startOfMonth();
             $end_of_month = Carbon::parse($start_of_month)->endOfMonth()->format('Y-m-d');
 
             // $rebills = Order::where('orders.time_stamp', '>=', $start_of_month)
             //     ->where('orders.time_stamp', '<=', $end_of_month)
-            //     ->where(['orders.order_status' => 2, 'orders.campaign_id' => 2])
+            //     // ->where(['orders.campaign_id' => 2])
             //     ->join('order_products', 'orders.order_id', 'order_products.order_id')
-            //     ->where('order_products.name', 'LIKE', '%(c1)%')
-            //     ->select('orders.order_id')->get()->count();
+            //     ->where('order_products.name', 'LIKE', '%(c)%')
+            //     ->select('orders.*')->take(20)->get();
+            // dd($rebills);
 
             // $initials = Order::where('time_stamp', '>=', $start_of_month)
             //     ->where('time_stamp', '<=', $end_of_month)
             //     ->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'campaign_id' => 2])
             //     ->where('order_products.name', 'LIKE', '%(c)%')
             //     ->count();
-            $initials = Order::select('orders.order_id', 'order_products.name')
-                ->where('orders.time_stamp', '>=', $start_of_month)
+            $query = Order::where('orders.time_stamp', '>=', $start_of_month)
                 ->where('orders.time_stamp', '<=', $end_of_month)
                 ->where(['prepaid_match' => 'No', 'is_test_cc' => 0, 'orders.campaign_id' => 2])
                 ->join('order_products', 'orders.order_id', 'order_products.order_id')
-                ->where('order_products.name', 'LIKE', '%(c1)%')
-                // ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-                // ->addSelect(DB::raw('SUM(orders.order_total) as revenue'))
-                ->count();
-            dd($initials);
-
-
-            $initials_data = Order::where('orders.time_stamp', '>=', $start_of_month)
-                ->where('orders.time_stamp', '<=', $end_of_month)
-                ->where(['orders.order_status' => 2, 'orders.campaign_id' => 2])
-                ->join('order_products', 'orders.order_id', 'order_products.order_id')
-                ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
+                ->select(DB::raw('COUNT(orders.order_id) as total_count'))
                 ->addSelect(DB::raw('SUM(orders.order_total) as revenue'))
-                ->where('order_products.name', 'LIKE', '%(c)%')->get();
+                ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c)%" then 0 end) as initials'))
+                ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c1)%" then 0 end) as rebills'))
+                ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c2)%" then 0 end) as Cycle_2'))
+                ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c3+)%" then 0 end) as Cycle_3_plus'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c1)%" then 0 end) / COUNT(case when order_products.name like "%(c)%" then 0 end)) * 100 as cycle_1_per'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c2)%" then 0 end) / COUNT(case when order_products.name like "%(c1)%" then 0 end)) * 100 as cycle_2_per'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c3+)%" then 0 end) / COUNT(case when order_products.name like "%(c2)%" then 0 end)) * 100 as cycle_3_per'))
+                ->groupBy('orders.acquisition_month')->first();
+                // $query->addSelect(DB::raw("'FOO' as field2"))->get();
+            // dd($query);
+
+
+            // $initials_data = Order::where('orders.time_stamp', '>=', $start_of_month)
+            //     ->where('orders.time_stamp', '<=', $end_of_month)
+            //     ->where(['orders.order_status' => 2, 'orders.campaign_id' => 2])
+            //     ->join('order_products', 'orders.order_id', 'order_products.order_id')
+            //     ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
+            //     ->addSelect(DB::raw('SUM(orders.order_total) as revenue'))
+            //     ->where('order_products.name', 'LIKE', '%(c)%')->get();
             // var_dump($initials[0]['revenue']);die;
 
-            $rebills_data = Order::where('orders.time_stamp', '>=', $start_of_month)
-                ->where('orders.time_stamp', '<=', $end_of_month)
-                ->where(['orders.order_status' => 2, 'orders.campaign_id' => 2])
-                ->join('order_products', 'orders.order_id', 'order_products.order_id')
-                ->where('order_products.name', 'LIKE', '%(c1)%')->count();
+            // $rebills_data = Order::where('orders.time_stamp', '>=', $start_of_month)
+            //     ->where('orders.time_stamp', '<=', $end_of_month)
+            //     ->where(['orders.order_status' => 2, 'orders.campaign_id' => 2])
+            //     ->join('order_products', 'orders.order_id', 'order_products.order_id')
+            //     ->where('order_products.name', 'LIKE', '%(c1)%')->count();
             // dd($rebills);
             // dd($rebills);
 
@@ -503,8 +512,8 @@ class TicketMonthlyController extends Controller
         //     ->get()->count();
 
 // dd($decline);
-            $initials = $initials_data[0]['revenue'];
-            $rebills = $rebills_data;
+            $initials = $query['initials'];
+            $rebills =  $query['rebills'];
             $net = $revenue + $refund + $CBs + $fulfillment + $processing + $cpa;
             $fulfillment = $initials * -18;
             if ($rebills != 0) {
@@ -522,7 +531,7 @@ class TicketMonthlyController extends Controller
 
             $ticket->initials = $initials;
             $ticket->rebills = $rebills;
-            $ticket->cycle_1_per = $cycle_1_per;
+            $ticket->cycle_1_per = $query['cycle_1_per'];
             $ticket->avg_day = $avg_day; //yet to calculate
             $ticket->avg_ticket = $avg_ticket;
             $ticket->revenue = $revenue;

@@ -1,86 +1,85 @@
 <fury-page-layout mode="simple">
-    <!-- <fury-page-layout-header>
+  <!-- <fury-page-layout-header>
         <fury-breadcrumbs [@fadeInRight] [crumbs]="['Tables']" current="Mids"></fury-breadcrumbs>
     </fury-page-layout-header> -->
 
-    <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-        <div class="content" layout="column" class="full-width">
-            <!-- 
+  <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
+    <div class="content" layout="column" class="full-width">
+      <!-- 
                 ?Add [expanded]="0" in below line to to show filters
              -->
-            <mat-expansion-panel [expanded]="0" hideToggle>
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        Filters
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div fxLayoutGap="50px">
-                    <div fxLayout="column">
-                        <!-- *ngIf="!skeletonLoader" -->
-                        <div fxLayout="column" layout-wrap fxLayoutGap="10px">
-                            <div fxLayout="row" layout-wrap fxLayoutGap="10px">
-                                <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
-                                <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This
-                                        Month</button></div>
-                                <div>
-                                    <button mat-raised-button color="warn" [matMenuTriggerFor]="more">More</button>
-                                    <mat-menu #more="matMenu">
-                                        <button mat-menu-item (click)="selectDate('yesterday')">Yesterday</button>
-                                        <button mat-menu-item (click)="selectDate('pastWeek')">Past Week</button>
-                                        <button mat-menu-item (click)="selectDate('pastTwoWeek')">Past 2 Weeks</button>
-                                        <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
-                                        <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
-                                        <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
-                                    </mat-menu>
-                                </div>
-                            </div>
-                            <div>
-                                <mat-form-field appearance="fill">
-                                    <mat-label>Enter a date range</mat-label>
-                                    <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-                                        <input matStartDate formControlName="start" placeholder="Start date">
-                                        <input matEndDate formControlName="end" placeholder="End date">
-                                    </mat-date-range-input>
-                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                                    <mat-date-range-picker #picker></mat-date-range-picker>
-
-                                    <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid
-                                        start date</mat-error>
-                                    <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end
-                                        date</mat-error>
-                                </mat-form-field>
-                            </div>
-                        </div>
-                        <!-- <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{ height: '50px', width: '300px','border-radius': 0 }"
-                            *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
-                    </div>
-                    <!-- <div fxFlex="100" fxFlex.xs="55">
-                        <div [@fadeInUp]>
-                          <br><br>                 
-                        </div>
-                        <div fxLayout="row" fxLayoutGap="30px">
-                          <div fxLayout="column" fxLayoutGap="0px">
-                            <div>
-                              <mat-form-field appearance="fill">
-                                <mat-label>Product</mat-label>
-
-                                <mat-select [(ngModel)]="product_value">
-                                  <mat-option [value]="">All Products</mat-option>
-                                  <mat-option *ngFor="let product of productOptions" [value]="product.value" >{{product.value}}</mat-option>
-                                </mat-select>
-                              </mat-form-field>
-                            </div>
-                        </div>
-                        </div>
-                      </div> -->
-                    <!-- *ngIf="!skeletonLoader" -->
-                    
-                    <div fxLayout="row" fxLayoutAlign="end end">
-                        <!-- <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
-                            [theme]="{ height: '30px', width: '80px', 'border-radius': 0 }" *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
-                    </div>
+      <mat-expansion-panel [expanded]="0" hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div fxLayoutGap="50px">
+          <div fxLayout="column">
+            <!-- *ngIf="!skeletonLoader" -->
+            <div fxLayout="column" layout-wrap fxLayoutGap="10px">
+              <div fxLayout="row" layout-wrap fxLayoutGap="10px">
+                <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
+                <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This
+                    Month</button></div>
+                <div>
+                  <button mat-raised-button color="warn" [matMenuTriggerFor]="more">More</button>
+                  <mat-menu #more="matMenu">
+                    <button mat-menu-item (click)="selectDate('yesterday')">Yesterday</button>
+                    <button mat-menu-item (click)="selectDate('pastWeek')">Past Week</button>
+                    <button mat-menu-item (click)="selectDate('pastTwoWeek')">Past 2 Weeks</button>
+                    <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
+                    <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
+                    <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
+                  </mat-menu>
                 </div>
-                <!-- <div fxFlex="100" fxFlex.xs="55">
+              </div>
+              <div>
+                <mat-form-field appearance="fill">
+                  <mat-label>Enter a date range</mat-label>
+                  <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                    <input matStartDate formControlName="start" placeholder="Start date">
+                    <input matEndDate formControlName="end" placeholder="End date">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #picker></mat-date-range-picker>
+
+                  <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid
+                    start date</mat-error>
+                  <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end
+                    date</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+            <!-- <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{ height: '50px', width: '300px','border-radius': 0 }"
+                            *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
+          </div>
+          <div fxFlex="100" fxFlex.xs="55">
+            <div [@fadeInUp]>
+              <h3 class="mb-5">Other Options</h3>
+            </div>
+            <div fxLayout="row" fxLayoutGap="30px">
+              <div fxLayout="column" fxLayoutGap="0px">
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Product</mat-label>
+                    <mat-select [(ngModel)]="filteredProduct">
+                      <mat-option [value]="">All Products</mat-option>
+                      <mat-option *ngFor="let product of productOptions" [value]="product.value">{{product.value}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- *ngIf="!skeletonLoader" -->
+
+          <div fxLayout="row" fxLayoutAlign="end end">
+            <!-- <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
+                            [theme]="{ height: '30px', width: '80px', 'border-radius': 0 }" *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
+          </div>
+        </div>
+        <!-- <div fxFlex="100" fxFlex.xs="55">
                     <div [@fadeInUp]>
                       <h3>Other Options</h3>
                     </div>
@@ -100,166 +99,167 @@
                    
                     </div>
                 </div>                 -->
-                    <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
-                        <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
-                    </div>
-            </mat-expansion-panel>
+        <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
+          <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
         </div>
-    </fury-page-layout-content>
+      </mat-expansion-panel>
+    </div>
+  </fury-page-layout-content>
 
-    <fury-page-layout-content>
-        <div fxLayout="row" layout-wrap fxLayoutGap="10px">
-            <div>
-                <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Mids</button>
-            </div>
-            <div>
-                <button *ngIf="isBulkUpdate" mat-raised-button color="accent" (click)="assignBulkGroup()">({{selectedRows.length}})
-                    Assign Group</button>
-            </div>
-            <div>
-                <button *ngIf="isBulkUpdate" mat-raised-button color="warn" (click)="handleBulkDeleteAction()">({{selectedRows.length}})
-                    Remove Groups</button>
-            </div>
+  <fury-page-layout-content>
+    <div fxLayout="row" layout-wrap fxLayoutGap="10px">
+      <div>
+        <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Mids</button>
+      </div>
+      <div>
+        <button *ngIf="isBulkUpdate" mat-raised-button color="accent" (click)="assignBulkGroup()">({{selectedRows.length}})
+          Assign Group</button>
+      </div>
+      <div>
+        <button *ngIf="isBulkUpdate" mat-raised-button color="warn" (click)="handleBulkDeleteAction()">({{selectedRows.length}})
+          Remove Groups</button>
+      </div>
+    </div>
+    <!-- <div class="mt mb"> -->
+    <div fxLayout="row" class="large mb" *ngIf="!isLoading">
+      <div fxFlex="16.66" class="col1">
+        <div class="items-box">
+          Total Mids: {{totalMids}}
         </div>
-        <!-- <div class="mt mb"> -->
-        <div fxLayout="row" class="large mb" *ngIf="!isLoading">
-            <div fxFlex="16.66" class="col1">
-                <div class="items-box">
-                    Total Mids: {{totalMids}}
-                </div>
-            </div>
-            <div fxFlex="16.66" class="col2">
-                <div class="items-box">
-                    Assigned Mids: {{assignedMids}}
-                </div>
-            </div>
-            <div fxFlex="16.66" class="col3">
-                <div class="items-box">
-                    Unassigned Mids: {{unAssignedMids}}
-                </div>
-            </div>
-            <div fxFlex="16.66" class="col4">
-                <div class="items-box">
-                    Uninitialized Mids: {{unInitializedMids}}
-                </div>
-            </div>
-            <div fxFlex="16.66" class="col3">
-                <div class="items-box">
-                    Closed Mids: {{totalClosed}}
-                </div>
-            </div>
-            <div fxFlex="16.66" class="col3 custom-orange">
-                <div class="items-box">
-                    Paused Mids: {{totalPaused}}
-                </div>
-            </div>
+      </div>
+      <div fxFlex="16.66" class="col2">
+        <div class="items-box">
+          Assigned Mids: {{assignedMids}}
         </div>
-        <!-- </div> -->
+      </div>
+      <div fxFlex="16.66" class="col3">
+        <div class="items-box">
+          Unassigned Mids: {{unAssignedMids}}
+        </div>
+      </div>
+      <div fxFlex="16.66" class="col4">
+        <div class="items-box">
+          Uninitialized Mids: {{unInitializedMids}}
+        </div>
+      </div>
+      <div fxFlex="16.66" class="col3">
+        <div class="items-box">
+          Closed Mids: {{totalClosed}}
+        </div>
+      </div>
+      <div fxFlex="16.66" class="col3 custom-orange">
+        <div class="items-box">
+          Paused Mids: {{totalPaused}}
+        </div>
+      </div>
+    </div>
+    <!-- </div> -->
 
-        <fury-list style="box-shadow:none;" name="Mids" [columns]="columns" (refresh)="refreshColumns()"
-            (enableLoading)="isLoading = true;" (filterChange)="onFilterChange($event)">
-            <!-- <div class="actions">
+    <fury-list style="box-shadow:none;" name="Mids" [columns]="columns" (refresh)="refreshColumns()" (enableLoading)="isLoading = true;"
+      (filterChange)="onFilterChange($event)">
+      <!-- <div class="actions">
           <button class="create" (click)="createCustomer()" type="button" mat-mini-fab color="primary">
             <mat-icon>add</mat-icon>
           </button>
         </div> -->
-            <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-            <div class="sticky-columns">
-                <table [dataSource]="dataSource" mat-table matSort>
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+      <div class="sticky-columns">
+        <table [dataSource]="dataSource" mat-table matSort>
 
-                    <!-- Checkbox Column -->
-                    <ng-container matColumnDef="checkbox">
-                        <th *matHeaderCellDef class="actions-cell" mat-header-cell>
-                            <mat-checkbox (change)="updateCheck()" [(ngModel)]="selectAll" color="accent" (click)="$event.stopPropagation()"></mat-checkbox>
-                        </th>
-                        <td *matCellDef="let row" class="actions-cell" mat-cell>
-                            <mat-checkbox [(ngModel)]="row.checked" color="primary" (change)='updateCheckedRow($event, row)'></mat-checkbox>
-                        </td>
-                    </ng-container>
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="checkbox">
+            <th *matHeaderCellDef class="actions-cell" mat-header-cell>
+              <mat-checkbox (change)="updateCheck()" [(ngModel)]="selectAll" color="accent" (click)="$event.stopPropagation()"></mat-checkbox>
+            </th>
+            <td *matCellDef="let row" class="actions-cell" mat-cell>
+              <mat-checkbox [(ngModel)]="row.checked" color="primary" (change)='updateCheckedRow($event, row)'></mat-checkbox>
+            </td>
+          </ng-container>
 
-                    <ng-container *ngFor="let column of columns">
-                        <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
-                            <td *matCellDef="let row" mat-cell>
-                                {{ row[column.property] }}
-                            </td>
-                        </ng-container>
-                    </ng-container>
+          <ng-container *ngFor="let column of columns">
+            <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+              <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+              <td *matCellDef="let row" mat-cell>
+                {{ row[column.property] }}
+              </td>
+            </ng-container>
+          </ng-container>
 
-                    <!-- Group name column -->
-                    <ng-container matColumnDef="gateway_alias">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Gateway Alias</th>
-                        <td *matCellDef="let row" (click)="openRevenueDialog(row)" mat-cell [ngClass]="row.gateway_alias.indexOf('CLOSED') !== -1 ? 'highlight-grey' : row.current_monthly_amount == '0.00' ? 'highlight-orange' : ''">
-                            {{ row.gateway_alias }}
-                        </td>
-                    </ng-container>
+          <!-- Group name column -->
+          <ng-container matColumnDef="gateway_alias">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Gateway Alias</th>
+            <td *matCellDef="let row" (click)="openRevenueDialog(row)" mat-cell [ngClass]="row.gateway_alias.indexOf('CLOSED') !== -1 ? 'highlight-grey' : row.current_monthly_amount == '0.00' ? 'highlight-orange' : ''">
+              {{ row.gateway_alias }}
+            </td>
+          </ng-container>
 
-                    <!-- Group name column -->
-                    <ng-container matColumnDef="mid_group">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Group Name</th>
-                        <td *matCellDef="let row" (click)="openAssignDialog(row.gateway_alias)" mat-cell [ngClass]="{'highlight-group': !row.mid_group}">
-                            {{ row.mid_group? row.mid_group : 'Unassigned' }}
-                        </td>
-                    </ng-container>
+          <!-- Group name column -->
+          <ng-container matColumnDef="mid_group">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Group Name</th>
+            <td *matCellDef="let row" (click)="openAssignDialog(row.gateway_alias)" mat-cell [ngClass]="{'highlight-group': !row.mid_group}">
+              {{ row.mid_group? row.mid_group : 'Unassigned' }}
+            </td>
+          </ng-container>
 
-                    <!-- mid_count column  -->
-                    <ng-container matColumnDef="mid_count">
-                        <th *matHeaderCellDef mat-header-cell>Mid Count
-                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'mid_count')">filter_list</mat-icon>
-                        </th>
-                        <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')"
-                            mat-cell>
-                            <a routerLink="javascript:void(0)">{{ row.mid_count | number }}</a>
-                        </td>
-                    </ng-container>
+          <!-- mid_count column  -->
+          <ng-container matColumnDef="mid_count">
+            <th *matHeaderCellDef mat-header-cell>Mid Count
+              <!-- <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'mid_count')">filter_list</mat-icon> -->
+            </th>
+            <td *matCellDef="let row" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2, 'order_status')"
+              mat-cell>
+              <a class="show-link">{{ row.mid_count | number }}</a>
+            </td>
+          </ng-container>
 
-                    <ng-container matColumnDef="current_monthly_amount">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Gross Revenue</th>
-                        <td *matCellDef="let row" mat-cell [ngClass]="row.current_monthly_amount == '0.00' ? 'highlight-danger' : ''">
-                            ${{ row.current_monthly_amount | number : '1.2-2' }}
-                        </td>
-                    </ng-container>
+          <ng-container matColumnDef="current_monthly_amount">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Gross Revenue</th>
+            <td *matCellDef="let row" mat-cell [ngClass]="row.current_monthly_amount == '0.00' ? 'highlight-danger' : ''">
+              ${{ row.current_monthly_amount | number : '1.2-2' }}
+            </td>
+          </ng-container>
 
-                    <ng-container matColumnDef="decline_per">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline%
-                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'decline')">filter_list</mat-icon>
-                        </th>
-                        <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{
-                                row.decline_per | number : '1.2-2' }}%</a>
-                            <!-- /<a routerLink="#" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2)">{{ row.approved_per | number : '1.2-2' }}</a> % -->
-                        </td>
-                    </ng-container>
+          <ng-container matColumnDef="decline_per">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline%
+              <!-- <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'decline')">filter_list</mat-icon> -->
+            </th>
+            <td *matCellDef="let row" mat-cell>
+              <a class="show-link" (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 7, 'order_status')">{{
+                row.decline_per | number : '1.2-2' }}%</a>
+              <!-- /<a routerLink="#" (click)="openDialog(row.id, row.gateway_id, $event, row.mid_count, 2)">{{ row.approved_per | number : '1.2-2' }}</a> % -->
+            </td>
+          </ng-container>
 
-                    <ng-container matColumnDef="chargeback">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%
-                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'chargeback')">filter_list</mat-icon>
-                        </th>
-                        <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{
-                                row.chargeback_per | number : '1.2-2' }}%</a>
-                        </td>
-                    </ng-container>
+          <ng-container matColumnDef="chargeback">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>ChargeBack%
+              <!-- <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'chargeback')">filter_list</mat-icon> -->
+            </th>
+            <td *matCellDef="let row" mat-cell>
+              <a class="show-link" (click)="openDialog(row.id, row.gateway_id, $event, row.decline_count, 1, 'is_chargeback')">{{
+                row.chargeback_per | number : '1.2-2' }}%</a>
+            </td>
+          </ng-container>
 
-                    <ng-container matColumnDef="refund">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%
-                            <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'refund')">filter_list</mat-icon>
-                        </th>
-                        <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{
-                                row.refund_per | number : '1.2-2' }}%</a>
-                        </td>
-                    </ng-container>
-                    
-                    <ng-container matColumnDef="void">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Void%</th>
-                        <td *matCellDef="let row" mat-cell>
-                            <a (click)="openDialog(row.id, row.gateway_id, $event, row.void_count, 'yes', 'is_void')">{{ row.void_per | number : '1.2-2' }}%</a>
-                        </td>
-                    </ng-container>
+          <ng-container matColumnDef="refund">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund%
+              <!-- <mat-icon *ngIf="isProductLoaded" role="img" class="mat-icon notranslate material-icons-outlined mat-icon-no-color" aria-hidden="true" data-mat-icon-type="font" (click)="openDialogForProductFilter($event, this.start_date, this.end_date, 'refund')">filter_list</mat-icon> -->
+            </th>
+            <td *matCellDef="let row" mat-cell>
+              <a class="show-link" (click)="openDialog(row.id, row.gateway_id, $event, row.refund_count, 'yes', 'is_refund')">{{
+                row.refund_per | number : '1.2-2' }}%</a>
+            </td>
+          </ng-container>
 
-                    <!-- Decline % -->
-                    <!-- <ng-container matColumnDef="decline_per">
+          <ng-container matColumnDef="void">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Void%</th>
+            <td *matCellDef="let row" mat-cell>
+              <a class="show-link" (click)="openDialog(row.id, row.gateway_id, $event, row.void_count, 'yes', 'is_void')">{{
+                row.void_per | number : '1.2-2' }}%</a>
+            </td>
+          </ng-container>
+
+          <!-- Decline % -->
+          <!-- <ng-container matColumnDef="decline_per">
                         <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline %</th>
                         <td *matCellDef="let row, index as i" [matTooltip]="toolTipDeclines[i] | tooltipList"
                             matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
@@ -267,29 +267,28 @@
                         </td>
                     </ng-container> -->
 
-                    <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef> Actions </th>
-                        <td mat-cell *matCellDef="let row">
-                            <a class="view-link" (click)="viewMidDetails(row.gateway_alias)">View</a> |
-                            <a class="delete-link" (click)="handleDeleteAction(row.gateway_alias)">Unassign</a>
-                        </td>
-                    </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let row">
+              <a class="view-link" (click)="viewMidDetails(row.gateway_alias)">View</a> |
+              <a class="delete-link" (click)="handleDeleteAction(row.gateway_alias)">Unassign</a>
+            </td>
+          </ng-container>
 
-                    <!-- <mat-header-row *matHeaderRowDef="visibleColumns" [style.min-height]="0" ></mat-header-row> -->
-                    <tr *matHeaderRowDef="visibleColumns;  sticky: true" mat-header-row></tr>
-                    <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
-                        mat-row></tr>
-                </table>
-            </div>
+          <!-- <mat-header-row *matHeaderRowDef="visibleColumns" [style.min-height]="0" ></mat-header-row> -->
+          <tr *matHeaderRowDef="visibleColumns;  sticky: true" mat-header-row></tr>
+          <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+        </table>
+      </div>
 
 
-            <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
+      <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize"
                 [pageSizeOptions]="pageSizeOptions" (page)="pageChanged($event)" aria-label="Select page">
             </mat-paginator> -->
 
 
-        </fury-list>
+    </fury-list>
 
-    </fury-page-layout-content>
+  </fury-page-layout-content>
 
 </fury-page-layout>

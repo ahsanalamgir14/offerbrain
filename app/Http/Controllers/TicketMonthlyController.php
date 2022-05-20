@@ -480,9 +480,9 @@ class TicketMonthlyController extends Controller
                 ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c1)%" then 0 end) as rebills'))
                 ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c2)%" then 0 end) as Cycle_2'))
                 ->addSelect(DB::raw('COUNT(case when order_products.name like "%(c3+)%" then 0 end) as Cycle_3_plus'))
-                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c1)%" then 0 end) / COUNT(case when order_products.name like "%(c)%" then 0 end)) * 100 as Cycle_1_per'))
-                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c2)%" then 0 end) / COUNT(case when order_products.name like "%(c1)%" then 0 end)) * 100 as Cycle_2_per'))
-                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c3+)%" then 0 end) / COUNT(case when order_products.name like "%(c2)%" then 0 end)) * 100 as Cycle_3_per'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c1)%" then 0 end) / COUNT(case when order_products.name like "%(c)%" then 0 end)) * 100 as cycle_1_per'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c2)%" then 0 end) / COUNT(case when order_products.name like "%(c1)%" then 0 end)) * 100 as cycle_2_per'))
+                ->addSelect(DB::raw('(COUNT(case when order_products.name like "%(c3+)%" then 0 end) / COUNT(case when order_products.name like "%(c2)%" then 0 end)) * 100 as cycle_3_per'))
                 ->groupBy('orders.acquisition_month')->first();
                 // $query->addSelect(DB::raw("'FOO' as field2"))->get();
             // dd($query);

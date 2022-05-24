@@ -30,6 +30,8 @@
                     <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
                     <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
                     <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
+                    <button mat-menu-item (click)="selectDate('thisYear')">Current Year</button>
+                    <button mat-menu-item (click)="selectDate('pastYear')">Past 1 Year</button>
                   </mat-menu>
                 </div>
               </div>
@@ -42,7 +44,6 @@
                   </mat-date-range-input>
                   <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-date-range-picker #picker></mat-date-range-picker>
-
                   <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
                   <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
                 </mat-form-field>
@@ -64,18 +65,22 @@
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Campaign</mat-label>
-                    <mat-select [(value)]="campaign" (selectionChange)="commonFilter($event.value, 'campaign_id')">
-                      <mat-option [value]="">All Campaigns</mat-option>
-                      <mat-option *ngFor="let campaign of campaignOptions" [value]="campaign['campaign_id']">{{campaign['name']}}</mat-option>
+                    <mat-select [(value)]="campaign_id" multiple>
+                      <!-- <mat-option [value]="">ALL Campaigns</mat-option> -->
+                      <mat-option class="uppercase-options" *ngFor="let campaign of campaignOptions" [value]="campaign['campaign_id']">{{campaign['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Product</mat-label>
-                    <mat-select [(value)]="product" (selectionChange)="commonFilter($event.value, 'products')">
-                      <mat-option [value]="">All Products</mat-option>
-                      <mat-option *ngFor="let product of productOptions" [value]="product['name']">{{product['name']}}</mat-option>
+                    <mat-select [formControl]="product" (selectionChange)="commonFilter($event.value, 'products')"
+                      #singleSelect>
+                      <!-- <mat-option>
+                        <ngx-mat-select-search [formControl]="filterProduct" placeholderLabel="Search..."></ngx-mat-select-search>
+                      </mat-option> -->
+                      <!-- <mat-option [value]="">ALL Products</mat-option> -->
+                      <mat-option class="uppercase-options" *ngFor="let product of productOptions " [value]="product['name']">{{product['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -83,9 +88,9 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Chargeback</mat-label>
                     <mat-select [(value)]="is_chargeback" (selectionChange)="commonFilter($event.value, 'is_chargeback')">
-                      <mat-option [value]="">All</mat-option>
-                      <mat-option value=1>Yes</mat-option>
-                      <mat-option value=0>No</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
+                      <mat-option value=1>YES</mat-option>
+                      <mat-option value=0>NO</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -95,7 +100,7 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Billing Cycle</mat-label>
                     <mat-select [(value)]="billingCycle" (selectionChange)="commonFilter($event.value, 'billing_cycle')">
-                      <mat-option [value]="">All</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
                       <mat-option value="1">ON</mat-option>
                       <mat-option value="0">OFF</mat-option>
                     </mat-select>
@@ -105,7 +110,7 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Currency</mat-label>
                     <mat-select [(value)]="billing_country" (selectionChange)="commonFilter($event.value, 'billing_country')">
-                      <mat-option [value]="">All Currencies</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
                       <mat-option value="US">US</mat-option>
                     </mat-select>
                   </mat-form-field>
@@ -114,9 +119,9 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Refund</mat-label>
                     <mat-select [(value)]="is_refund" (selectionChange)="commonFilter($event.value, 'is_refund')">
-                      <mat-option [value]="">All</mat-option>
-                      <mat-option value="yes">Yes</mat-option>
-                      <mat-option value="no">No</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
+                      <mat-option value="yes">YES</mat-option>
+                      <mat-option value="no">NO</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -126,7 +131,7 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Card Type</mat-label>
                     <mat-select [(value)]="ccType" (selectionChange)="commonFilter($event.value, 'cc_type')">
-                      <mat-option [value]="">All</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
                       <mat-option *ngFor="let cardType of cardOptions" [value]="cardType">{{ cardType }}</mat-option>
                     </mat-select>
                   </mat-form-field>
@@ -135,10 +140,9 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Is 3D Secure</mat-label>
                     <mat-select [(value)]="is_3d_protected" (selectionChange)="commonFilter($event.value, 'is_3d_protected')">
-                      <mat-option [value]="">All</mat-option>
-                      <mat-option value="1">Yes</mat-option>
-                      <mat-option value="0">No</mat-option>
-
+                      <mat-option [value]="">ALL</mat-option>
+                      <mat-option value="1">YES</mat-option>
+                      <mat-option value="0">NO</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -146,20 +150,20 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Void</mat-label>
                     <mat-select [(value)]="is_void" (selectionChange)="commonFilter($event.value, 'is_void')">
-                      <mat-option [value]="">All</mat-option>
-                      <mat-option value="yes">Yes</mat-option>
-                      <mat-option value="no">No</mat-option>
+                      <mat-option [value]="">ALL</mat-option>
+                      <mat-option value="yes">YES</mat-option>
+                      <mat-option value="no">NO</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
               </div>
-              
+
               <div fxLayout="column" fxLayoutGap="0px">
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>State</mat-label>
-                    <mat-select [(value)]="state" (selectionChange)="commonFilter($event.value, 'shipping_state')">
-                      <mat-option [value]="">All States</mat-option>
+                    <mat-select [(value)]="state" multiple>
+                      <!-- <mat-option [value]="">ALL States</mat-option> -->
                       <mat-option *ngFor="let state of stateOptions" [value]="state.abbreviation">{{state.name}} -
                         {{state.abbreviation}}</mat-option>
                     </mat-select>
@@ -169,7 +173,7 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Status</mat-label>
                     <mat-select [(value)]="status" (selectionChange)="commonFilter($event.value, 'order_status')">
-                      <mat-option [value]="">All Status</mat-option>
+                      <mat-option [value]="">ALL Status</mat-option>
                       <mat-option value="2">Approved</mat-option>
                       <mat-option value="7">Declined</mat-option>
                     </mat-select>
@@ -192,8 +196,6 @@
                   </mat-form-field>
                 </div>
               </div>
-
-
             </div>
             <ngx-skeleton-loader count="2" appearance="line" animation="progress" [theme]="{
                   height: '50px',
@@ -255,13 +257,12 @@
         </ng-container>
 
         <tr *matHeaderRowDef="visibleColumns" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
-          mat-row></tr>
+        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
       </table>
 
       <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
-      (page)="pageChanged($event)" aria-label="Select page">
-    </mat-paginator>
+        (page)="pageChanged($event)" aria-label="Select page">
+      </mat-paginator>
     </fury-list>
 
   </fury-page-layout-content>

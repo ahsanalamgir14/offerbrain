@@ -3,21 +3,19 @@
 .clickable {
   cursor: pointer;
 }
-.full-width{
-  width: 100%
+.full-width {
+  width: 100%;
 }
-.no-bottom-padding{
+.no-bottom-padding {
   padding-bottom: 0px;
 }
-.view-link{
-  color: #6495ED;
+.view-link {
+  color: #6495ed;
 }
-.delete-link{
-  color: #F62217;
+.delete-link {
+  color: #f62217;
 }
 @media screen and (max-width: 992px) {
-  
-  
 }
 
 @keyframes ghost {
@@ -50,4 +48,8 @@
 
 ::ng-deep .mat-form-field-type-mat-date-range-input .mat-form-field-infix {
   width: 200px !important;
+}
+
+.uppercase-options {
+  text-transform: uppercase;
 }

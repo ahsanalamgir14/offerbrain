@@ -117,6 +117,33 @@
             {{ row[column.property] }}
           </td>
         </ng-container> -->
+        <ng-container matColumnDef="rebill_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Rebill %</th>
+          <td *matCellDef="let row" mat-cell>
+            <a class="show-link" >{{row.rebill_per | number : '1.2-2' }}%</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="upsell_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell %</th>
+          <td *matCellDef="let row" mat-cell>
+            <a class="show-link" >{{row.upsell_per | number : '1.2-2' }}%</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="chargeback_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Chargeback %</th>
+          <td *matCellDef="let row" mat-cell>
+            <a class="show-link" >{{row.chargeback_per | number : '1.2-2' }}%</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="refund_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund %</th>
+          <td *matCellDef="let row" mat-cell>
+            <a class="show-link" >{{row.refund_per | number : '1.2-2' }}%</a>
+          </td>
+        </ng-container>
 
         <!-- actions Column -->
         <ng-container matColumnDef="actions">

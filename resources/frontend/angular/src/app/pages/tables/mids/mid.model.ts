@@ -49,7 +49,7 @@ export class Mid {
         this.gateway_id = mid.gateway_id;
         this.gateway_alias = mid.gateway_alias;
         this.global_monthly_cap = '$' + nf.format(mid.global_monthly_cap);
-        this.current_monthly_amount = mid.current_monthly_amount;
+        this.current_monthly_amount = mid.gross_revenue;
         this.processing_percent = mid.processing_percent + '%';
         this.decline_count = mid.decline_per;
         this.refund_count = mid.refund_per;

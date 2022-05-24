@@ -24,7 +24,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MidsComponent, TooltipListPipe } from './mids.component';
 import { GroupDialogComponent } from './group-dialog/group-dialog.component';
 import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
-
+// import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
   imports: [
@@ -51,6 +51,7 @@ import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.componen
     MatPaginatorModule,
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
+    // NgMultiSelectDropDownModule.forRoot()
   ],
   declarations: [MidsComponent, GroupDialogComponent, TooltipListPipe, RevenueDialogComponent],
   exports: [MidsComponent],

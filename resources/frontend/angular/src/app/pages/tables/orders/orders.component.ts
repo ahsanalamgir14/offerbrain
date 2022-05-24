@@ -10,7 +10,6 @@ import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { Order } from './order.model';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
-//self imports
 import { FormGroup, FormControl } from '@angular/forms';
 import { OrdersService } from './orders.service';
 import { Subscription } from 'rxjs';
@@ -20,20 +19,20 @@ import { ProductDetailComponent } from './product-detail/product-detail.componen
 import { ApiService } from 'src/app/api.service';
 import *  as  states from './states.json';
 
+
 @Component({
   selector: 'fury-orders',
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
   animations: [fadeInRightAnimation, fadeInUpAnimation]
 })
-export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
 
+export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   subject$: ReplaySubject<Order[]> = new ReplaySubject<Order[]>(1);
   data$: Observable<Order[]> = this.subject$.asObservable();
   orders: Order[];
 
-  //customer coding
   getSubscription: Subscription;
   getCampaignsSubscription: Subscription;
   getProductsSubscription: Subscription;
@@ -53,12 +52,12 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     start: new FormControl(),
     end: new FormControl()
   });
-
-  //mat date range selector
+  product: FormControl = new FormControl();
+  filterProduct: FormControl = new FormControl();
   selected = "transactionCreatedDate";
-  campaign = "allCampaigns";
+  campaign_id = '';
   campaignCategory = "allCategories";
-  product = "allProducts";
+  // product = "allProducts";
   productCategory = "allCategories";
   campaignProduct = "allCampaignProducts";
   affiliate = "";
@@ -68,10 +67,9 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   billingCycle = "all";
   recycleNo = "all";
   txnType = "all";
-  billing_country = "allCurrencies";
+  billing_country = "US";
   country = "allCountries";
-  state = "allStates";
-  gateway = "all";
+  state = [];
   ccType = "all";
   is_3d_protected = "all";
   gatewayCategory = "allGatewayCategories";
@@ -86,12 +84,11 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   field_value = '';
   filteredProduct = '';
   field = '';
-  gateway_id = '';
+  gateway_id: '';
   is_filtered = false;
-
+  productOptions = [];
   campaignOptions: [];
-  productOptions: [];
-  cardOptions: string[] = ['visa', 'master'];
+  cardOptions: string[] = ['VISA', 'MASTER'];
   pageSizeOptions: number[] = [5, 10, 25, 100];
   stateOptions: any = (states as any).default;
 
@@ -120,9 +117,9 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private dialog: MatDialog, private ordersService: OrdersService, private apiService: ApiService, private route: ActivatedRoute) {
     this.endPoint = environment.endpoint;
     this.route.queryParams.subscribe(params => {
-      const mapped = Object.entries(params).map(([key, value]) => ({key, value}));
+      const mapped = Object.entries(params).map(([key, value]) => ({ key, value }));
 
-      if(mapped[0]){
+      if (mapped[0]) {
 
         this.gateway_id = mapped[0].value;
         this.field = mapped[1].value;
@@ -130,20 +127,20 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.start_date = mapped[3].value;
         this.end_date = mapped[4].value;
         this.filteredProduct = mapped[5].value;
-        
+
         this.is_filtered = true;
-        if(this.gateway_id != ''){
+        if (this.gateway_id != '') {
           this.range.get('start').setValue(new Date(mapped[3].value));
           this.range.get('end').setValue(new Date(mapped[4].value));
-          if(this.field == 'is_refund'){
+          if (this.field == 'is_refund') {
             this.is_refund = mapped[2].value;
-          } else if(this.field == 'is_chargeback'){
+          } else if (this.field == 'is_chargeback') {
             this.is_chargeback = mapped[2].value;
-          } else if(this.field == 'order_status' && this.field_value == '2'){
+          } else if (this.field == 'order_status' && this.field_value == '2') {
             this.status = mapped[2].value;
-          } else if(this.field == 'order_status' && this.field_value == '7'){
+          } else if (this.field == 'order_status' && this.field_value == '7') {
             this.status = mapped[2].value;
-          } else if(this.field == 'is_void'){
+          } else if (this.field == 'is_void') {
             this.is_void = mapped[2].value;
           }
         }
@@ -151,7 +148,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.selectDate('today');
       }
-  });
+    });
   }
 
   get visibleColumns() {
@@ -173,13 +170,16 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.data = orders;
     });
   }
+
   mapData() {
     return of(this.orders.map(order => new Order(order)));
   }
+
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
+
   pageChanged(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex;
@@ -188,15 +188,15 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getData() {
 
-    console.log(' affiliate:', this.affiliate );
-    console.log(' sub-affiliate:', this.subAffiliate );
+    console.log(' affiliate:', this.affiliate);
+    console.log(' sub-affiliate:', this.subAffiliate);
     // return;
     this.isLoading = true;
-    if(!this.is_filtered){
-      if(this.range.get('start').value != null){
+    if (!this.is_filtered) {
+      if (this.range.get('start').value != null) {
         this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')
       }
-      if(this.range.get('end').value != null){
+      if (this.range.get('end').value != null) {
         this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
       }
     }
@@ -209,8 +209,10 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       'all_values': this.all_values,
       'search': this.search,
       'gateway_id': this.gateway_id,
+      'campaign_id': this.campaign_id,
       'affiliate': this.affiliate,
       'sub_affiliate': this.subAffiliate,
+      'shipping_state': this.state,
       'filteredProduct': this.filteredProduct,
     }
     this.ordersService.getOrders(this.filters)
@@ -231,13 +233,16 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoading = false;
       });
   }
+
   async getDropData() {
     const response = fetch(`${this.endPoint}/api/getDropDownContent`)
       .then(res => res.json()).then((data) => {
         this.filterData = data;
       });
   }
+
   commonFilter(value, field) {
+
     if (this.all_fields.indexOf(field) === -1) {
       this.all_fields.push(field);
       this.all_values.push(value);
@@ -245,6 +250,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       let index = this.all_fields.indexOf(field);
       this.all_values[index] = value;
     }
+
   }
 
   manageGetResponse(orders) {
@@ -266,22 +272,11 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.campaignOptions = data.data;
     }
   }
+
   manageProductsResponse(data) {
     if (data.status) {
       this.productOptions = data.data;
     }
-  }
-
-  createCustomer() {
-
-  }
-
-  updateCustomer(Order) {
-
-  }
-
-  deleteCustomer(Order) {
-
   }
 
   onFilterChange(value) {
@@ -325,9 +320,15 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (param == 'lastSixMonths') {
       this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
       this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'thisYear') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), 0, 1));
+      this.range.get('end').setValue(endDate);
+    } else if (param == 'pastYear') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear() - 1, 0, 1));
+      this.range.get('end').setValue(new Date(startDate.getFullYear() - 1, 11, 31));
     }
   }
-  
+
   openDialog(id) {
     const dialogRef = this.dialog.open(ProductDetailComponent, {
       disableClose: true,
@@ -337,6 +338,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
     });
   }
+
   ngOnDestroy() {
   }
 }

@@ -14,7 +14,7 @@ import { ApiService } from 'src/app/api.service';
 
 @Injectable()
 export class SidenavService implements OnDestroy {
-  isopen:boolean;
+  isopen: boolean;
   public userDetailsResponse = new BehaviorSubject([]);
 
   userDetailsResponse$ = this.userDetailsResponse.asObservable();
@@ -130,26 +130,59 @@ export class SidenavService implements OnDestroy {
     }
   }
 
-  toggleItemOpen(item: SidenavItem) {    
+  toggleItemOpen(item: SidenavItem) {
     let currentlyOpen = this.currentlyOpen;
 
     if (this.isOpen(item)) {
       if (currentlyOpen.length > 1) {
-        currentlyOpen.length = currentlyOpen.indexOf(item);
+        const found = currentlyOpen.some(el => el.name === item.name);
+        if (found) {
+          const index = currentlyOpen.indexOf(item);
+          currentlyOpen.splice(index, 1);
+        }
+        // currentlyOpen.length = currentlyOpen.indexOf(item);
       }
-       else { 
+      else {
         currentlyOpen = [];
+        console.log('make everything empty');
       }
-      
+
     } else {
       const found = currentlyOpen.some(el => el.name === item.name);
-      if(!found){
+      if (!found) {
         var newItem = this.getParents(item);
-        currentlyOpen.push(newItem[0]);
+        console.log('newItem :', newItem);
+        if (newItem[0].hasOwnProperty('subItems')) {
+          currentlyOpen.push(newItem[0]);
+        }
+        // console.log(newItem);
       }
     }
+
+    console.log('currentlyOpen :', currentlyOpen);
     this.currentlyOpen = currentlyOpen;
   }
+
+  // toggleItemOpen(item: SidenavItem) {    
+  //   let currentlyOpen = this.currentlyOpen;
+
+  //   if (this.isOpen(item)) {
+  //     if (currentlyOpen.length > 1) {
+  //       currentlyOpen.length = currentlyOpen.indexOf(item);
+  //     }
+  //      else { 
+  //       currentlyOpen = [];
+  //     }
+
+  //   } else {
+  //     const found = currentlyOpen.some(el => el.name === item.name);
+  //     if(!found){
+  //       var newItem = this.getParents(item);
+  //       currentlyOpen.push(newItem[0]);
+  //     }
+  //   }
+  //   this.currentlyOpen = currentlyOpen;
+  // }
 
   sortRecursive(array: SidenavItem[], propertyName: string): SidenavItem[] {
     const that = this;

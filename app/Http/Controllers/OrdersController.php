@@ -70,18 +70,17 @@ class OrdersController extends Controller
             'orders.time_stamp'
         );
 
-            // $total_rows = 30000;
         if ($start_date != null && $end_date != null) {
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
-            // $start_date = date('Y-m-d', strtotime($request->start_date));
-            // $end_date = date('Y-m-d', strtotime($request->start_date));
-            // $query->whereBetween('acquisition_date', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-            $query->where('orders.time_stamp', '>', $start_date);
-            $query->where('orders.time_stamp', '<', $end_date);
+            $query->where('orders.time_stamp', '>=', $start_date);
+            $query->where('orders.time_stamp', '<=', $end_date);
         }
-        if ($request->gateway_id != '') {
-            $query->where('orders.gateway_id', $request->gateway_id);
+        // if ($request->gateway_id != '') {
+        //     $query->whereIn('orders.gateway_id', explode(',', $request->gateway_id));
+        // }
+        if ($request->campaign_id != '') {
+            $query->whereIn('orders.campaign_id', explode(',', $request->campaign_id));
         }
         if ($request->affiliate != '') {
             $query->where('orders.affiliate', $request->affiliate);
@@ -90,6 +89,9 @@ class OrdersController extends Controller
             $query->where('orders.c1', $request->sub_affiliate)
                 ->orWhere('orders.c2', $request->sub_affiliate)
                 ->orWhere('orders.c3', $request->sub_affiliate);
+        }
+        if ($request->shipping_state != '') {
+            $query->whereIn('orders.shipping_state', explode(',', $request->shipping_state));
         }
 
         if ($request->fields != null) {
@@ -774,8 +776,8 @@ class OrdersController extends Controller
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
             $url,
             [
-                'start_date' => '05/18/2022',
-                'end_date' => '05/18/2022',
+                'start_date' => '05/21/2022',
+                'end_date' => '05/21/2022',
                 'campaign_id' => 'all',
                 'criteria' => 'all'
             ]
@@ -1239,8 +1241,8 @@ class OrdersController extends Controller
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
 
-        $starting_day = '2022-05-18';
-        $ending_day = '2022-05-18';
+        $starting_day = '2022-05-19';
+        $ending_day = '2022-05-21';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);
@@ -1415,11 +1417,13 @@ class OrdersController extends Controller
             }
         }
     }
-  
-    public static function test1(){
+
+    public static function test1()
+    {
         return response()->json(['message' => 'Test 1']);
     }
-    public static function test2(){
+    public static function test2()
+    {
         return response()->json(['message' => 'Test 2']);
     }
 

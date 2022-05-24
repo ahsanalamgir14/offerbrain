@@ -25,8 +25,8 @@ import { Mid } from './mid.model';
 import { Notyf } from 'notyf';
 import { ListService } from 'src/@fury/shared/list/list.service';
 import { ListComponent } from 'src/@fury/shared/list/list.component';
-import { RevenueDialogModel } from './revenue-dialog/revenue-dialog.model';
-import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
+// import { RevenueDialogModel } from './revenue-dialog/revenue-dialog.model';
+// import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
 
 //to be deleted
 @Pipe({ name: 'tooltipList' })
@@ -80,7 +80,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   start_date = '';
   end_date = '';
   filteredProduct = '';
-  product = "allProducts";
+  // product = "allProducts";
+  selectedMids = '';
 
   skeletonLoader = true;
   pageSizeOptions: number[] = [5, 10, 25, 100];
@@ -101,12 +102,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   toolTipMidCount = [];
   productOptions = [];
   filterProducts = [];
-  // product = "allProducts";
+  midOptions = [];
   timer = null;
   productId = [];
   products = [];
   // pageSize = 20000;
   dataSource: MatTableDataSource<Mid> | null;
+
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -126,10 +128,10 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
     // this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
     this.selectDate('thisMonth');
+    this.getMidOptions();
+    this.getProductFilterData();
     // this.getProducts();
     this.getData();
-    this.getProductFilterData();
-    //this.midsService.getOrderProduct();
     this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -159,6 +161,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getData();
   }
 
+  onItemSelect(item: any) {
+    console.log(item);
+  }
+  onSelectAll(items: any) {
+    console.log(items);
+  }
+
   async getData() {
     this.isLoading = true;
     if (this.range.get('start').value != null) {
@@ -169,12 +178,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.filters = {
-      // "product_value": this.product_value, 
       "start": this.start_date,
       "end": this.end_date,
       "all_fields": this.all_fields,
       "all_values": this.all_values,
-      "productId": this.filteredProduct
+      "product_id": this.filteredProduct,
+      'selected_mids': this.selectedMids
     }
 
     await this.midsService.getColumns().then(columns => {
@@ -198,12 +207,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isLoading = false;
     });
     this.countContent();
-    for (let i = 0; i < this.mids.length; i++) {
-      // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
-      this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
+    // for (let i = 0; i < this.mids.length; i++) {
+    // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
+    // this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
 
-      // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
-    }
+    // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
+    // }
   }
   async getProducts() {
     await this.midsService.getProducts().then(products => {
@@ -312,9 +321,9 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.assignedMids++;
       }
 
-      if (mid.gateway_alias.indexOf("CLOSED") !== -1) {
-        this.totalClosed++;
-      }
+      // if (mid.gateway_alias.indexOf("CLOSED") !== -1) {
+      //   this.totalClosed++;
+      // }
       // if(mid.gateway_alias.indexOf("CLOSING") !== -1){
       //   this.totalPaused++;
       // }
@@ -507,7 +516,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-  
+
   //To be removed not required
   // openRevenueDialog(mid) {
   //   const dialogData = new RevenueDialogModel('Revenue Details: ' + mid.gateway_alias, '', mid);
@@ -609,6 +618,18 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.productOptions = Object.entries(this.productOptions).map(([type, value]) => ({ type, value }));
       });
     return this.productOptions;
+  }
+
+  async getMidOptions() {
+    this.midsService.getMidOptions().then(data => {
+      this.midOptions = data.data;
+    });
+  }
+
+  reset() {
+    this.selectedMids = '';
+    this.filteredProduct = '';
+    this.selectDate('thisMonth');
   }
 
   // commonFilter(value, field) {

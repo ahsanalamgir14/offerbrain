@@ -14,7 +14,7 @@ import { ApiService } from 'src/app/api.service';
 
 @Injectable()
 export class SidenavService implements OnDestroy {
-
+  isopen:boolean;
   public userDetailsResponse = new BehaviorSubject([]);
 
   userDetailsResponse$ = this.userDetailsResponse.asObservable();
@@ -130,25 +130,25 @@ export class SidenavService implements OnDestroy {
     }
   }
 
-  toggleItemOpen(item: SidenavItem) {
+  toggleItemOpen(item: SidenavItem) {    
     let currentlyOpen = this.currentlyOpen;
-    
 
     if (this.isOpen(item)) {
       if (currentlyOpen.length > 1) {
         currentlyOpen.length = currentlyOpen.indexOf(item);
       }
-       else {
+       else { 
         currentlyOpen = [];
       }
-    } else {
-      currentlyOpen = this.getParents(item);
-      console.log('currentlyOpen :', currentlyOpen);
       
+    } else {
+      const found = currentlyOpen.some(el => el.name === item.name);
+      if(!found){
+        var newItem = this.getParents(item);
+        currentlyOpen.push(newItem[0]);
+      }
     }
-
     this.currentlyOpen = currentlyOpen;
-    // console.log('this.currentlyOpen :', this.currentlyOpen);
   }
 
   sortRecursive(array: SidenavItem[], propertyName: string): SidenavItem[] {

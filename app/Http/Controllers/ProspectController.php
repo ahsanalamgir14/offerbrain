@@ -248,23 +248,21 @@ class ProspectController extends Controller
         set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
-
+        
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $model = new Prospect();
-
-        $startDate = Carbon::createFromFormat('Y-m-d', '2022-04-28');
-        $endDate = Carbon::createFromFormat('Y-m-d', '2022-04-29');
+        
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-05-16');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-05-17');
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
-
+        
         foreach ($dateRange as $day) {
             $monthDays[] = Carbon::parse($day)->format('m/d/Y');
         }
-
         foreach ($monthDays as $day) {
-
             $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
                 $url,
                 [
@@ -279,42 +277,43 @@ class ProspectController extends Controller
             if ($api_data->response_code == 602) {
                 continue;
             }
-
             $prospect_ids = $api_data->prospect_id;
             $data = $api_data->data;
             $total_prospects = $api_data->total_prospects;
-
+            
             foreach ($data as $object) {
                 $results[] = (array)$object;
             }
             if (isset($total_prospects) && $total_prospects != 0 && $total_prospects <= 10000) {
-
                 $updated_prospects = 0;
                 $new_prospects = 0;
+                $index = 1;
                 $db_prospect_ids = Prospect::pluck('prospect_id')->toArray();
-
                 foreach ($results as $result) {
-                    $prospect = new Prospect();
                     $month = Carbon::parse($result['date_created'])->format('F');
                     $year = Carbon::parse($result['date_created'])->format('Y');
                     $result['month_created'] = $month;
                     $result['year_created'] = $year;
                     $result['notes'] = json_encode($result['notes']);
-
+                    unset($result['response_code']);
                     if (in_array($result['prospect_id'], $db_prospect_ids)) {
                         $updated_prospects++;
-                        $prospect = Prospect::where(['prospect_id' => $result['prospect_id']])->first();
-                        $prospect->update($result);
+                        Prospect::where('prospect_id', $result['prospect_id'])->update($result);
                     } else {
+                        $prospect = new Prospect();
                         $new_prospects++;
                         $prospect->create($result);
                     }
+                    $index++;
+                    if($index == 150){
+                        break;
+                    }
+                    return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
                 }
+                // return response()->json(['status' => true, 'New Record in todays API']);
                 $response['new_prospects'] = $new_prospects;
                 $response['updated_prospects'] = $updated_prospects;
-                // return $response;
-
-                // $response = $this->save_prospects($results);
+                
                 $new_prospects += $response['new_prospects'];
                 $updated_prospects += $response['updated_prospects'];
                 $results = null;
@@ -374,8 +373,7 @@ class ProspectController extends Controller
 
                     if (in_array($result['prospect_id'], $db_prospect_ids)) {
                         $updated_prospects++;
-                        $prospect = Prospect::where(['prospect_id' => $result['prospect_id']])->first();
-                        $prospect->update($result);
+                        $prospect = Prospect::where(['prospect_id' => $result['prospect_id']])->update($result);
                     } else {
                         $new_prospects++;
                         $prospect->create($result);
@@ -390,7 +388,6 @@ class ProspectController extends Controller
                 $data = null;
             }
         }
-        return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
     }
     public function get_prospect_with_time($username, $password, $url, $day)
     {

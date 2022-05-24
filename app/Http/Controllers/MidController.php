@@ -62,7 +62,7 @@ class MidController extends Controller
         // ->addSelect('order_products.id as product_id','order_products.name as product_name')
         // ->groupBy('order_products.name');
         if($request->productId != null){
-            $nameArray=explode(",",$request->productId); 
+            $nameArray=explode(",",$request->productId);
             $query->join('order_products','orders.order_id','=','order_products.order_id')->whereIn('order_products.name',$nameArray);
         }
         $data = $query->get();

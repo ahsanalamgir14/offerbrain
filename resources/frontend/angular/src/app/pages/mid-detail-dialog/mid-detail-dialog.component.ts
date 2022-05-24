@@ -45,10 +45,15 @@ export class MidDetailDialogComponent implements OnInit {
         });
         this.details = data.data;
         this.isLoading = false;
+        this.products = this.replaceCommaLine(this.products);
+        console.log(this.products);
       }
     });
   }
-
+  replaceCommaLine(data) {
+      let dataToArray = data.toString().split(',').map(item => item.trim());
+      return dataToArray.join("|");
+  }
   onConfirm(): void {
     
   }

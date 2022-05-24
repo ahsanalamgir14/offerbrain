@@ -130,7 +130,7 @@ export class SidenavService implements OnDestroy {
     }
   }
 
-  toggleItemOpen(item: SidenavItem) {
+  toggleItemOpen(item: SidenavItem) {    
     let currentlyOpen = this.currentlyOpen;
 
     if (this.isOpen(item)) {
@@ -142,7 +142,7 @@ export class SidenavService implements OnDestroy {
         }
         // currentlyOpen.length = currentlyOpen.indexOf(item);
       }
-      else {
+       else { 
         currentlyOpen = [];
         console.log('make everything empty');
       }

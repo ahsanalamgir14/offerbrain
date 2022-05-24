@@ -42,7 +42,12 @@ class NetworkController extends Controller
                         ->where('orders.order_status', '=', 2)
                         ->select('orders.order_status', 'orders.order_total');
                 })
+                ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
                 ->addSelect(DB::raw('ROUND(SUM(orders.order_total), 2) as gross_revenue'))
+                ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'nothing' then 0 end), 2) as rebill_per")
+                ->selectRaw("ROUND(COUNT(case when orders.upsell_product_quantity != '' then 0 end), 2) as upsell_per")
+                ->selectRaw("ROUND(COUNT(case when orders.is_chargeback = 1 then 0 end) , 2) as chargeback_per")
+                ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'yes' then 0 end), 2) as refund_per")
                 ->groupBy('networks.network_affiliate_id');
 
             if ($request->fields != null) {

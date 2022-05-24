@@ -15,26 +15,9 @@ use DB;
 
 class MidController extends Controller
 {
-    
-    public function sub_affiliate_gross_revenue(Request $request){
-        if ($request->start_date != '' && $request->end_date != '') {
-        $sub_affiliates = $request->data;
-        $start_date = Carbon::parse($request->start_date)->startOfDay();
-        $end_date = Carbon::parse($request->end_date)->endOfDay();
-
-        $query = DB::table('orders')
-        ->where('time_stamp', '>=', $start_date)
-        ->where('time_stamp', '<=', $end_date)
-        ->where('order_status', '=', 2)
-        ->where('c1', '=', '8071')
-        ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
-        $response = $query->get();
-        return response()->json(['status' => true, 'data' => $response]);
-        }
-    }
-
     public function index(Request $request)
     {
+        // dd($request->selected_mids);
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -44,46 +27,58 @@ class MidController extends Controller
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
-        $query = DB::table('mids')
-        ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
-        ->where('orders.time_stamp', '>=', $start_date)
-        ->where('orders.time_stamp', '<=', $end_date)
-        ->select(DB::raw('mids.*'))
-        ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-        ->addSelect(DB::raw('SUM(orders.order_total) as sum'))
-        ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
-        ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
-        ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
-        ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
-        ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
-        ->addSelect('mids.mid_group as group_name')
-        ->groupBy('mids.id');
-        // ->join('order_products','orders.order_id','=','order_products.order_id')
-        // ->addSelect('order_products.id as product_id','order_products.name as product_name')
-        // ->groupBy('order_products.name');
-        if($request->productId != null){
-            $nameArray=explode(",",$request->productId); 
-            $query->join('order_products','orders.order_id','=','order_products.order_id')->whereIn('order_products.name',$nameArray);
+        if ($request->selected_mids) {
+            $selected_mids = explode(",", $request->selected_mids);
+            $query = DB::table('mids')->whereIn('mids.gateway_id', $selected_mids);
+        } else {
+            $query = DB::table('mids')->where(['mids.is_active' => 1]);
+        }
+        $query = $query
+            ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
+            ->where('orders.time_stamp', '>=', $start_date)
+            ->where('orders.time_stamp', '<=', $end_date)
+            ->where(['orders.order_status' => 2])
+            ->select(DB::raw('mids.*'))
+            ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
+            ->addSelect(DB::raw('SUM(orders.order_total) as gross_revenue'))
+            ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
+            ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
+            ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
+            ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
+            ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
+            ->addSelect('mids.mid_group as group_name')
+            ->groupBy('mids.id');
+            // ->join('order_products','orders.order_id','=','order_products.order_id')
+            // ->addSelect('order_products.id as product_id','order_products.name as product_name')
+            // ->groupBy('order_products.name');
+        if ($request->product_id != null) {
+            $nameArray = explode(",", $request->product_id);
+            $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
         }
         $data = $query->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
-    public function products(){
-        $products = DB::table('order_products')->select('id','name')->groupBy('name')->get();
+
+    public function products()
+    {
+        $products = DB::table('order_products')->select('id', 'name')->groupBy('name')->get();
         return response()->json(['status' => true, 'data' => $products]);
     }
-    public function getProductForFilter(Request $request){
+
+    public function getProductForFilter(Request $request)
+    {
         DB::statement("SET SQL_MODE=''");
         $start_date = Carbon::parse($request->start_date)->startOfDay();
         $end_date = Carbon::parse($request->end_date)->endOfDay();
-        
+
         $products = DB::table('order_products')
-        ->join('orders', 'orders.order_id', '=', 'order_products.order_id')
-        ->where('orders.time_stamp', '>=', $start_date)
-        ->where('orders.time_stamp', '<=', $end_date)
-        ->select('order_products.id','order_products.name')->groupBy('order_products.name')->get();
+            ->join('orders', 'orders.order_id', '=', 'order_products.order_id')
+            ->where('orders.time_stamp', '>=', $start_date)
+            ->where('orders.time_stamp', '<=', $end_date)
+            ->select('order_products.id', 'order_products.name')->groupBy('order_products.name')->get();
         return response()->json(['status' => true, 'data' => $products]);
     }
+
     public function get_mid_count_detail(Request $request)
     {
         DB::enableQueryLog();
@@ -104,12 +99,12 @@ class MidController extends Controller
             ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
             ->select('order_products.name as name')
             ->addSelect(DB::raw('COUNT(order_products.name) as total_count'));
-            $query->where("orders.$request->type", $status);
-            if($request->product != null){
-                $nameArray=explode(",",$request->product); 
-                $query->whereIn("order_products.name", $nameArray);
-            }
-            $details = $query->groupBy('order_products.name')->get();
+        $query->where("orders.$request->type", $status);
+        if ($request->product != null) {
+            $nameArray = explode(",", $request->product);
+            $query->whereIn("order_products.name", $nameArray);
+        }
+        $details = $query->groupBy('order_products.name')->get();
             // dd(DB::getQueryLog());
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
@@ -200,6 +195,8 @@ class MidController extends Controller
     {
         $new_gateways = 0;
         $updated_gateways = 0;
+        $affected = DB::table('mids')->update(['is_active' => 0]);
+        // dd('die');
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
@@ -221,6 +218,7 @@ class MidController extends Controller
                         $gateway->mid_group_setting_id = $router->mid_group_setting_id;
                         $gateway->mid_group_setting = $router->mid_group_setting;
                         $gateway->is_three_d_routed = $router->is_three_d_routed;
+                        $gateway->is_active = 1;
                         $gateway->is_strict_preserve = $router->is_strict_preserve;
                         $update->update((array)$gateway);
                         $updated_gateways++;
@@ -233,6 +231,7 @@ class MidController extends Controller
                         $gateway->mid_group_setting_id = $router->mid_group_setting_id;
                         $gateway->mid_group_setting = $router->mid_group_setting;
                         $gateway->is_three_d_routed = $router->is_three_d_routed;
+                        $gateway->is_active = 1;
                         $gateway->is_strict_preserve = $router->is_strict_preserve;
                         $mid->create((array)$gateway);
                         $new_gateways++;
@@ -368,5 +367,29 @@ class MidController extends Controller
             $mid_count_data = null;
         }
         return response()->json(['status' => true]);
+    }
+
+    public function sub_affiliate_gross_revenue(Request $request)
+    {
+        if ($request->start_date != '' && $request->end_date != '') {
+            $sub_affiliates = $request->data;
+            $start_date = Carbon::parse($request->start_date)->startOfDay();
+            $end_date = Carbon::parse($request->end_date)->endOfDay();
+
+            $query = DB::table('orders')
+                ->where('time_stamp', '>=', $start_date)
+                ->where('time_stamp', '<=', $end_date)
+                ->where('order_status', '=', 2)
+                ->where('c1', '=', '8071')
+                ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'));
+            $response = $query->get();
+            return response()->json(['status' => true, 'data' => $response]);
+        }
+    }
+
+    public function get_active_mids()
+    {
+        $data = Mid::where(['is_active' => 1])->get();
+        return response()->json(['status' => true, 'data' => $data]);
     }
 }

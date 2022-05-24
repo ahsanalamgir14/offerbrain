@@ -11,6 +11,7 @@ export class MidsService {
   columns: any;
   products: any;
   gateway: any;
+  midOptions: any = [];
   public getResponse = new BehaviorSubject({});
   public refreshResponse = new BehaviorSubject({});
   public getProductsResponse = new BehaviorSubject([]);
@@ -32,7 +33,7 @@ export class MidsService {
   constructor(private apiService: ApiService) { }
 
   async getMids(filters): Promise<any> {
-    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&productId=${filters.productId}`).then(res => res.json()).then((data) => {
+    await this.apiService.getData(`mids?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&product_id=${filters.product_id}&selected_mids=${filters.selected_mids}`).then(res => res.json()).then((data) => {
       this.mids = data;
       this.getResponse.next(data);
     });
@@ -70,11 +71,19 @@ export class MidsService {
     });
     return this.columns;
   }
+
   async getProducts(): Promise<any> {
     await this.apiService.getData(`products`).then(res => res.json()).then((data) => {
       this.products = data;
       // this.columnsResponse.next(data);
     });
     return this.products;
+  }
+
+  async getMidOptions(): Promise<any> {
+    await this.apiService.getData(`get-active-mids`).then(res => res.json()).then((data) => {
+      this.midOptions = data;
+    });
+    return this.midOptions;
   }
 }

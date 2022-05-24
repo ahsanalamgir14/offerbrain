@@ -465,5 +465,69 @@ class ProspectController extends Controller
         $response['updated_prospects'] = $updated_prospects;
         return $response;
     }
+
+    public function pull_local_prospects()
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
+        $new_prospects = 0;
+        $updated_prospects = 0;
+        // $db_prospect_ids = DB::table('prospects')->pluck('prospect_id')->toArray();
+
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
+        $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
+        $model = new Prospect();
+
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-04-27');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-05-24');
+        $dateRange = CarbonPeriod::create($startDate, $endDate);
+        $dateRange->toArray();
+
+        foreach ($dateRange as $day) {
+            $monthDays[] = Carbon::parse($day)->format('m/d/Y');
+        }
+
+        foreach ($monthDays as $day) {
+
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                $url,
+                [
+                    'start_date' => $day,
+                    'end_date' => $day,
+                    'campaign_id' => 'all',
+                    'criteria' => 'all',
+                    'search_type' => 'all',
+                    'return_type' => 'prospect_view'
+                ]
+            )->getBody()->getContents());
+            if ($api_data->response_code == 602) {
+                continue;
+            }
+
+            $prospect_ids = $api_data->prospect_id;
+            $data = $api_data->data;
+            $total_prospects = $api_data->total_prospects;
+
+            foreach ($data as $object) {
+                $results[] = (array)$object;
+            }
+            if (isset($total_prospects) && $total_prospects != 0 && $total_prospects <= 10000) {
+                $response = $this->save_prospects($results);
+                $new_prospects += $response['new_prospects'];
+                $updated_prospects += $response['updated_prospects'];
+                $results = null;
+                $data = null;
+            } else {
+                $results = $this->get_prospect_with_time($username, $password, $url, $day);
+                $response = $this->save_prospects($results);
+                $new_prospects += $response['new_prospects'];
+                $updated_prospects += $response['updated_prospects'];
+                $results = null;
+                $data = null;
+            }
+        }
+        return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
+    }
 }
 

@@ -1,9 +1,5 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ChartData } from 'chart.js';
 import { BehaviorSubject, of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { ApiService } from 'src/app/api.service';
 
 /**
@@ -31,7 +27,7 @@ export class OrdersService {
   async getOrders(filters): Promise<any> {
     await this.apiService.getData(`orders?pageno=${filters.currentPage}&per_page=${filters.pageSize}
     &start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&search=${filters.search}&gateway_id=${filters.gateway_id}
-    &affiliate=${filters.affiliate}&sub_affiliate=${filters.sub_affiliate}&filteredProduct=${filters.filteredProduct}`)
+    &affiliate=${filters.affiliate}&sub_affiliate=${filters.sub_affiliate}&shipping_state=${filters.shipping_state}&campaign_id=${filters.campaign_id}&filteredProduct=${filters.filteredProduct}`)
       .then(res => res.json()).then((data) => {
         this.orders = data;
         this.ordersGetResponse.next(data);

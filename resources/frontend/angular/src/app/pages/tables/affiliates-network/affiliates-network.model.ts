@@ -9,6 +9,10 @@ export class Network {
   network_id: string;
   name: string;
   gross_revenue: string;
+  rebill_per: number;
+  upsell_per: number;
+  chargeback_per: number;
+  refund_per: number;
   account_status: string;
   network_employee_id: string;
   internal_notes: string;
@@ -30,6 +34,10 @@ export class Network {
     this.network_id = aff.network_id;
     this.name = aff.name;
     this.gross_revenue = '$' + nf.format(aff.gross_revenue);
+    this.rebill_per = (aff.rebill_per / aff.total_count) * 100;
+    this.upsell_per = (aff.upsell_per / aff.total_count) * 100;
+    this.chargeback_per = (aff.chargeback_per / aff.total_count) * 100;
+    this.refund_per = (aff.refund_per / aff.total_count) * 100;
     this.account_status = titleCase(aff.account_status);
     this.network_employee_id = aff.network_employee_id;
     this.internal_notes = aff.internal_notes;

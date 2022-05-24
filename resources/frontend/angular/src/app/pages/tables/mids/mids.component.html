@@ -62,9 +62,24 @@
               <div fxLayout="column" fxLayoutGap="0px">
                 <div>
                   <mat-form-field appearance="fill">
+                    <mat-label>Select Gateway</mat-label>
+                    <mat-select [(ngModel)]="selectedMids" multiple>
+                      <mat-option *ngFor="let mid of midOptions" [value]="mid.gateway_id">{{mid.gateway_alias}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <!-- <div>
+                  <ng-multiselect-dropdown placeholder="'Select Gateway'" [settings]="dropdownSettings" [data]="midOptions"
+                    [(ngModel)]="selectedMids" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)">
+                  </ng-multiselect-dropdown>
+                </div> -->
+              </div>
+              <div fxLayout="column" fxLayoutGap="0px">
+                <div>
+                  <mat-form-field appearance="fill">
                     <mat-label>Product</mat-label>
-                    <mat-select [(ngModel)]="filteredProduct">
-                      <mat-option [value]="">All Products</mat-option>
+                    <mat-select [(ngModel)]="filteredProduct" multiple>
+                      <!-- <mat-option [value]="">All Products</mat-option> -->
                       <mat-option *ngFor="let product of productOptions" [value]="product.value">{{product.value}}</mat-option>
                     </mat-select>
                   </mat-form-field>
@@ -100,6 +115,7 @@
                     </div>
                 </div>                 -->
         <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
+          <div><button mat-raised-button color="accent" (click)="reset()">Reset</button></div>
           <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
         </div>
       </mat-expansion-panel>

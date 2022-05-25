@@ -80,7 +80,7 @@
                     <mat-label>Product</mat-label>
                     <mat-select [(ngModel)]="filteredProduct" multiple>
                       <!-- <mat-option [value]="">All Products</mat-option> -->
-                      <mat-option *ngFor="let product of productOptions" [value]="product.value">{{product.value}}</mat-option>
+                      <mat-option *ngFor="let product of productOptions" [value]="product['name']">{{product['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>

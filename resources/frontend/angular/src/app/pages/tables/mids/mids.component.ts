@@ -126,13 +126,14 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignSubscription = this.midsService.assignGroupResponse$.subscribe(data => this.manageAssignResponse(data))
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
+    this.getProductsSubscription = this.midsService.getProductsResponse$.subscribe(data => this.manageProductsResponse(data))
     // this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
     this.selectDate('thisMonth');
     this.getMidOptions();
     this.getProductFilterData();
     // this.getProducts();
     this.getData();
-    this.getProductsName();
+    // this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -214,10 +215,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
     // }
   }
-  async getProducts() {
-    await this.midsService.getProducts().then(products => {
-      this.products = products.data;
-    });
+  getProducts() {
+    this.midsService.getProducts();
   }
 
   getTooltipDeclines(mid) {
@@ -390,6 +389,12 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.notyf.success(data.message);
       this.midGroupComponent.refresh();
       this.isBulkUpdate = false;
+    }
+  }
+
+  manageProductsResponse(data) {
+    if (data.status) {
+      this.productOptions = data.data;
     }
   }
 
@@ -611,14 +616,14 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async getProductsName() {
-    const response = fetch(`${this.endPoint}/api/order-products`)
-      .then(res => res.json()).then((data) => {
-        this.productOptions = data.data;
-        this.productOptions = Object.entries(this.productOptions).map(([type, value]) => ({ type, value }));
-      });
-    return this.productOptions;
-  }
+  // async getProductsName() {
+  //   const response = fetch(`${this.endPoint}/api/order-products`)
+  //     .then(res => res.json()).then((data) => {
+  //       this.productOptions = data.data;
+  //       this.productOptions = Object.entries(this.productOptions).map(([type, value]) => ({ type, value }));
+  //     });
+  //   return this.productOptions;
+  // }
 
   async getMidOptions() {
     this.midsService.getMidOptions().then(data => {

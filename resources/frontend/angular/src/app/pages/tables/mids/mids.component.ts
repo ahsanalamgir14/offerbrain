@@ -218,9 +218,9 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
     // }
   }
-  getProducts() {
-    this.midsService.getProducts();
-  }
+  // getProducts() {
+  //   this.midsService.getProducts();
+  // }
 
   getTooltipDeclines(mid) {
     var productNames = [];
@@ -242,8 +242,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     //   productNames.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalDeclinedOrders + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalDeclinedOrders / 100).toFixed(2) + '%');
     // }
     return productNames;
-  }
-
   }
 
   openDialog(id, gateway_id, evt, total_count, status, type) {

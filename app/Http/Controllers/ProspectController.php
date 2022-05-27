@@ -244,8 +244,8 @@ class ProspectController extends Controller
     }
     public static function pull_prospects()
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
+        // ini_set('memory_limit', '512M');
+        // set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
         

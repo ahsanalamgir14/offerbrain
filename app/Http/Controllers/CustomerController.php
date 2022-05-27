@@ -134,8 +134,8 @@ class CustomerController extends Controller
     }
     public static function refresh_customers()
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
+        // ini_set('memory_limit', '512M');
+        // set_time_limit(0);
         $setting = Setting::first();
         $created = 0;
         $updated = 0;

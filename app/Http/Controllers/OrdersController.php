@@ -76,9 +76,10 @@ class OrdersController extends Controller
             $query->where('orders.time_stamp', '>=', $start_date);
             $query->where('orders.time_stamp', '<=', $end_date);
         }
-        // if ($request->gateway_id != '') {
-        //     $query->whereIn('orders.gateway_id', explode(',', $request->gateway_id));
-        // }
+        
+        if (isset($request->gateway_id) && $request->gateway_id != "undefined") {
+            $query->whereIn('orders.gateway_id', explode(',', $request->gateway_id));
+        }
         if ($request->campaign_id != '') {
             $query->whereIn('orders.campaign_id', explode(',', $request->campaign_id));
         }
@@ -110,24 +111,9 @@ class OrdersController extends Controller
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->where('order_products.name', $request->filteredProduct);
         }
         $total_rows = $query->count('orders.id');
-        // if ($request->search != '') {
-        //     $query->where('order_id', 'like', '%' . $request->search . '%')
-        //         ->orWhere('created_by_employee_name', 'like', '%' . $request->search . '%')
-        //         ->orWhere('billing_first_name', 'like', '%' . $request->search . '%')
-        //         ->orWhere('billing_last_name', 'like', '%' . $request->search . '%')
-        //         ->orWhere('billing_street_address', 'like', '%' . $request->search . '%')
-        //         ->orWhere('c1', 'like', '%' . $request->search . '%')
-        //         ->orWhere('affid', 'like', '%' . $request->search . '%')
-        //         ->orWhere('trx_month', 'like', '%' . $request->search . '%')
-        //         ->orWhere('order_sales_tax_amount', 'like', '%' . $request->search . '%')
-        //         ->orWhere('decline_reason', 'like', '%' . $request->search . '%')
-        //         ->orWhere('is_cascaded', 'like', '%' . $request->search . '%')
-        //         ->orWhere('created_by_user_name', 'like', '%' . $request->search . '%');
-        //     }
-
-        // $total_rows = $query->count('id');
+       
         $rows = $query->orderBy('orders.id', 'desc')->SimplePaginate($no_of_records_per_page);
-        // $total_rows = 303502;
+
         $total_pages = ceil($total_rows / $rows->perPage());
 
         $pag['count'] = $total_rows;

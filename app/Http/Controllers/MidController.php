@@ -37,10 +37,11 @@ class MidController extends Controller
             ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
             ->where('orders.time_stamp', '>=', $start_date)
             ->where('orders.time_stamp', '<=', $end_date)
-            ->where(['orders.order_status' => 2])
+            // ->where(['orders.order_status' => 2])
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-            ->addSelect(DB::raw('SUM(orders.order_total) as gross_revenue'))
+            ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
+            // ->addSelect(DB::raw('SUM(orders.order_total) as gross_revenue'))
             ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
             ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
             ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
@@ -61,6 +62,7 @@ class MidController extends Controller
 
     public function products()
     {
+        DB::statement("SET SQL_MODE=''");
         $products = DB::table('order_products')->select('id', 'name')->groupBy('name')->get();
         return response()->json(['status' => true, 'data' => $products]);
     }

@@ -76,10 +76,7 @@
                     <mat-label>Product</mat-label>
                     <mat-select [formControl]="product" (selectionChange)="commonFilter($event.value, 'products')"
                       #singleSelect>
-                      <!-- <mat-option>
-                        <ngx-mat-select-search [formControl]="filterProduct" placeholderLabel="Search..."></ngx-mat-select-search>
-                      </mat-option> -->
-                      <!-- <mat-option [value]="">ALL Products</mat-option> -->
+                     
                       <mat-option class="uppercase-options" *ngFor="let product of productOptions " [value]="product['name']">{{product['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>

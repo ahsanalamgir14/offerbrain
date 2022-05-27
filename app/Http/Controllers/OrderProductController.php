@@ -19,8 +19,12 @@ class OrderProductController extends Controller
     {
         $data = OrderProduct::pluck('name')->toArray();
         $data = array_unique($data);
-        // dd($data);
         return response()->json(['status' => true, 'data' => $data]);
+
+
+        DB::statement("SET SQL_MODE=''");
+        $products = DB::table('order_products')->select('id', 'name')->groupBy('name')->get();
+        return response()->json(['status' => true, 'data' => $products]);
     }
 
     /**

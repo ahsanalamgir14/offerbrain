@@ -211,6 +211,38 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isLoading = false;
     });
     this.countContent();
+    // for (let i = 0; i < this.mids.length; i++) {
+    // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
+    // this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
+
+    // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
+    // }
+  }
+  getProducts() {
+    this.midsService.getProducts();
+  }
+
+  getTooltipDeclines(mid) {
+    var productNames = [];
+    // let data = {};
+    // if (mid.decline_orders.decline_data) {
+    //   data = mid.decline_orders.decline_data;
+    // }
+    // let totalDeclinedOrders = mid.decline_orders.total_declined;
+    // if (totalDeclinedOrders != 0) {
+    //   Object.values(data).forEach(v => {
+    //     if (v['name'] != undefined) {
+    //       let list = '';
+    //       list += v['name'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['count'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['percentage'] + '%';
+    //       if (!productNames.includes(list)) {
+    //         productNames.push(list);
+    //       }
+    //     }
+    //   });
+    //   productNames.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalDeclinedOrders + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalDeclinedOrders / 100).toFixed(2) + '%');
+    // }
+    return productNames;
+  }
 
   }
 
@@ -520,9 +552,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.listService.searchResponse.next([]);
       this.searchSubscription.unsubscribe();
     }
+
     this._onDestroy.next();
     this._onDestroy.complete();
   }
+
 
   async getMidOptions() {
     this.midsService.getMidOptions().then(data => {

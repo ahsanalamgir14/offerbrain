@@ -109,6 +109,9 @@
   text-align: center !important;
   // justify-content: flex-center !important;
 }
+::ng-deep .mat-sort-header-content {
+  display: block !important;
+}
 td.mat-column-current_monthly_amount {
   padding-right: 50px !important;
 }
@@ -166,4 +169,6 @@ table {
 .show-link:hover {
   text-decoration: underline;
 }
-
+.test {
+  display: block !important;
+}

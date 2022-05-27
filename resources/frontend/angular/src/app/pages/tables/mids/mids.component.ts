@@ -1,46 +1,30 @@
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
 import { formatDate } from '@angular/common';
-import { FormGroup, FormControl } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, Pipe, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSelect } from '@angular/material/select';
 import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { Notyf } from 'notyf';
+import { Observable, of, ReplaySubject, Subject, Subscription, timer } from 'rxjs';
+import { filter, takeUntil, map } from 'rxjs/operators';
+import { ListComponent } from 'src/@fury/shared/list/list.component';
+import { ListService } from 'src/@fury/shared/list/list.service';
+import { ApiService } from 'src/app/api.service';
+import { environment } from 'src/environments/environment';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
+import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { MidDetailDialogComponent } from '../../mid-detail-dialog/mid-detail-dialog.component';
 import { ProductFilterDialogComponent } from '../../product-filter-dialog/product-filter-dialog.component';
-import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
-import { GroupDialogComponent } from './group-dialog/group-dialog.component';
-import { GroupDialogModel } from './group-dialog/group-dialog';
 import { MidGroupsComponent } from '../mid-groups/mid-groups.component';
-import { Pipe, PipeTransform } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { ApiService } from 'src/app/api.service';
-import { MidsService } from './mids.service';
+import { GroupDialogModel } from './group-dialog/group-dialog';
+import { GroupDialogComponent } from './group-dialog/group-dialog.component';
 import { Mid } from './mid.model';
-import { Notyf } from 'notyf';
-import { ListService } from 'src/@fury/shared/list/list.service';
-import { ListComponent } from 'src/@fury/shared/list/list.component';
-// import { RevenueDialogModel } from './revenue-dialog/revenue-dialog.model';
-// import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
-
-//to be deleted
-@Pipe({ name: 'tooltipList' })
-export class TooltipListPipe implements PipeTransform {
-
-  transform(lines: string[]): string {
-    let list: string = '';
-    lines.forEach(line => {
-      list += '• ' + line + '\n';
-    });
-    return list;
-  }
-}
-//up to here
+import { MidsService } from './mids.service';
 
 @Component({
   selector: 'fury-mids',
@@ -53,8 +37,10 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   subject$: ReplaySubject<Mid[]> = new ReplaySubject<Mid[]>(1);
   data$: Observable<Mid[]> = this.subject$.asObservable();
+  filteredProducts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  filteredMids: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  _onDestroy: Subject<void> = new Subject<void>();
   mids: Mid[];
-  savedMids: Mid[];
 
   range = new FormGroup({
     start: new FormControl(),
@@ -68,21 +54,24 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   columnsSubscription: Subscription;
   searchSubscription: Subscription;
   getProductsSubscription: Subscription;
+  resetInitialsSubscription: Subscription;
+  timerSubscription: Subscription;
+  refreshInitialsSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
   pageSize = 25;
   currentPage = 0;
   all_fields = [];
   all_values = [];
-  filterData: any = [];
   filters = {};
   endPoint = '';
   start_date = '';
   end_date = '';
-  filteredProduct = '';
-  // product = "allProducts";
   selectedMids = '';
-
+  filteredProduct = '';
+  filteredMid = new FormControl();
+  productSearchCtrl: FormControl = new FormControl();
+  midSearchCtrl: FormControl = new FormControl();
   skeletonLoader = true;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   totalMids: number = 0;
@@ -98,23 +87,21 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   isProductLoaded: boolean = false;
   columns: any = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
-  toolTipDeclines = [];
-  toolTipMidCount = [];
   productOptions = [];
   filterProducts = [];
   midOptions = [];
   timer = null;
   productId = [];
   products = [];
-  // pageSize = 20000;
   dataSource: MatTableDataSource<Mid> | null;
 
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ListComponent, { static: true }) ListComponent: ListComponent;
+  @ViewChild('singleSelect', { static: true }) singleSelect: MatSelect;
 
-  constructor(private dialog: MatDialog, private midsService: MidsService, private apiService: ApiService, private router: Router, public midGroupComponent: MidGroupsComponent, private listService: ListService) {
+  constructor(private dialog: MatDialog, public midsService: MidsService, private apiService: ApiService, private router: Router, public midGroupComponent: MidGroupsComponent, private listService: ListService) {
     this.endPoint = environment.endpoint;
     this.notyf.dismissAll();
   }
@@ -126,13 +113,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignSubscription = this.midsService.assignGroupResponse$.subscribe(data => this.manageAssignResponse(data))
     this.unAssignSubscription = this.midsService.unAssignGroupResponse$.subscribe(data => this.manageUnassignResponse(data))
     this.bulkUpdateSubscription = this.midsService.assignBulkGroupResponse$.subscribe(data => this.manageBulkGroupResponse(data))
-    // this.searchSubscription = this.listService.searchResponse$.subscribe(data => this.manageSearchResponse(data))
+    this.getProductsSubscription = this.midsService.getProductsResponse$.subscribe(data => this.manageProductsResponse(data))
+    this.resetInitialsSubscription = this.midsService.resetInitialsResponse$.subscribe(data => this.manageResetInitialsResponse(data))
+    this.refreshInitialsSubscription = this.midsService.refreshInitialsResponse$.subscribe(data => this.manageRefreshInitialsResponse(data))
     this.selectDate('thisMonth');
     this.getMidOptions();
     this.getProductFilterData();
-    // this.getProducts();
     this.getData();
-    this.getProductsName();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
       filter(data => !!data)
@@ -140,6 +127,24 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mids = mids;
       this.dataSource.data = mids;
     });
+
+    this.productSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterProductOptions();
+      });
+
+    this.midSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterMidOptions();
+      });
+
+    this.timerSubscription = timer(0, 3600 * 1000).pipe(
+      map(() => {
+        this.midsService.refreshInitials();
+      })
+    ).subscribe();
   }
 
   get visibleColumns() {
@@ -191,7 +196,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     await this.midsService.getMids(this.filters).then(mids => {
       this.mids = mids.data
-      this.savedMids = mids.data;
       this.totalMids = mids.data.length
       this.mapData().subscribe(mids => {
         this.subject$.next(mids);
@@ -207,77 +211,20 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isLoading = false;
     });
     this.countContent();
-    // for (let i = 0; i < this.mids.length; i++) {
-    // this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
-    // this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
 
-    // this.filterProducts.indexOf(this.mids[i].product_name) === -1 ? this.filterProducts.push(this.mids[i].product_name) : console.log("This item already exists");
-    // }
-  }
-  async getProducts() {
-    await this.midsService.getProducts().then(products => {
-      this.products = products.data;
-    });
-  }
-
-  getTooltipDeclines(mid) {
-    var productNames = [];
-    // let data = {};
-    // if (mid.decline_orders.decline_data) {
-    //   data = mid.decline_orders.decline_data;
-    // }
-    // let totalDeclinedOrders = mid.decline_orders.total_declined;
-    // if (totalDeclinedOrders != 0) {
-    //   Object.values(data).forEach(v => {
-    //     if (v['name'] != undefined) {
-    //       let list = '';
-    //       list += v['name'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['count'] + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v['percentage'] + '%';
-    //       if (!productNames.includes(list)) {
-    //         productNames.push(list);
-    //       }
-    //     }
-    //   });
-    //   productNames.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalDeclinedOrders + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalDeclinedOrders / 100).toFixed(2) + '%');
-    // }
-    return productNames;
-  }
-
-  getTooltipMidCounts(mid) {
-    // var midCountArray = [];
-    // let data = [];
-    // if (mid.mid_count.mid_count_data) {
-    //   data = mid.mid_count.mid_count_data.sort((a, b) => (a.name > b.name) ? 1 : -1);
-    //   console.log('data :', data);
-    // }
-    // let totalMids = mid.mid_count.mid_count;
-    // if (totalMids != 0) {
-    //   data.forEach(function (v) {
-    //     if (v.name != undefined) {
-    //       let list = '';
-    //       list += v.name + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.count + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + v.percentage + '%';
-    //       if (!midCountArray.includes(list)) {
-    //         midCountArray.push(list);
-    //       }
-    //     }
-    //   });
-    //   midCountArray.push('Total: ' + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + totalMids + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + (totalMids / 100).toFixed(2) + '%');
-    // }
-    // return midCountArray;
   }
 
   openDialog(id, gateway_id, evt, total_count, status, type) {
-    let targetAttr = evt.target.getBoundingClientRect();
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      const target = new ElementRef(evt.currentTarget);
-      const dialogRef = this.dialog.open(MidDetailDialogComponent, {
-        // position: {
-        //   top: targetAttr.y + targetAttr.height + 10 + "px",
-        //   left: targetAttr.x - targetAttr.width - 20 + "px"
-        // },s
-        data: { trigger: target, id: id, gateway_id: gateway_id, start_date: this.start_date, end_date: this.end_date, total_count: total_count, status: status, type: type, product: this.filteredProduct }
-      });
-    }, 500)
+    // if (total_count != 0) {
+      let targetAttr = evt.target.getBoundingClientRect();
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        const target = new ElementRef(evt.currentTarget);
+        const dialogRef = this.dialog.open(MidDetailDialogComponent, {
+          data: { trigger: target, id: id, gateway_id: gateway_id, start_date: this.start_date, end_date: this.end_date, total_count: total_count, status: status, type: type, product: this.filteredProduct }
+        });
+      }, 500)
+    // }
   }
 
   openDialogForProductFilter(event, start_date, end_date, field) {
@@ -285,10 +232,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     let targetAttr = event.target.getBoundingClientRect();
     const dialogRef = this.dialog.open(ProductFilterDialogComponent, {
       height: '500px',
-      // position: {
-      //   top: targetAttr.y + targetAttr.height + 10 + "px",
-      //   left: targetAttr.x - targetAttr.width - 20 + "px"
-      // },
       data: { start_date: start_date, end_date: end_date, field: field, filterProducts: filterProducts }
     })
     dialogRef.afterClosed().subscribe(id => {
@@ -300,7 +243,9 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async getProductFilterData() {
-    await this.midsService.getProducts().then(products => {
+    const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
+    const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
+    await this.midsService.getProducts(startDate, endDate).then(products => {
       this.filterProducts = products.data;
       this.isProductLoaded = true;
     })
@@ -333,23 +278,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
-  async getDropData() {
-    const response = fetch(`${this.endPoint}/api/getDropDownContent`)
-      .then(res => res.json()).then((data) => {
-        this.filterData = data;
-      });
-  }
-
-  // manageGetResponse(mids) {
-  //   if (mids.status) {
-  //     this.mids = mids.data;
-  //     this.dataSource.data = mids.data;
-  //     this.isLoading = false;
-  //   } else {
-  //     this.isLoading = false;
-  //   }
-  // }
 
   commonFilter(value, field) {
     this.filteredProduct = value;
@@ -393,27 +321,27 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // manageSearchResponse(mids) {
-  //   if (mids.status) {
-  //     this.mids = mids.data
-  //     this.totalMids = mids.data.length
-  //     this.mapData().subscribe(mids => {
-  //       this.subject$.next(mids);
-  //     });
-  //     this.skeletonLoader = false;
-  //     this.isLoading = false;
-  //     this.selectAll = false;
-  //     this.isBulkUpdate = false;
-  //     this.selectedRows = [];
+  manageProductsResponse(data) {
+    if (data.status) {
+      this.productOptions = data.data;
+      this.filteredProducts.next(this.productOptions.slice());
+      console.log(' this.productOptions  :', this.productOptions);
+    }
+  }
 
-  //     this.countContent();
-  //     for (let i = 0; i < this.mids.length; i++) {
-  //       this.toolTipDeclines[i] = this.getTooltipDeclines(this.mids[i]);
-  //       this.toolTipMidCount[i] = this.getTooltipMidCounts(this.mids[i]);
-  //     }
-  //   }
-  //   console.log('search data :', mids);
-  // }
+  manageResetInitialsResponse(data) {
+    if (data.status) {
+      this.getData();
+      this.notyf.success(data.message);
+    }
+  }
+
+  manageRefreshInitialsResponse(data) {
+    if (data.status) {
+      this.getData();
+      this.notyf.success(data.message);
+    }
+  }
 
   async manageRefreshResponse(data) {
     if (data.status) {
@@ -451,14 +379,11 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
         this.midsService.deleteData(alias);
-        // this.isLoading = true;
-        // this.dataSource.data = [];
-        // this.idArray = [];
       }
     });
   }
 
-  selectDate(param) {
+  async selectDate(param) {
     var startDate = new Date();
     var endDate = new Date();
     if (param == 'today') {
@@ -486,6 +411,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
       this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
     }
+    return;
   }
 
   handleBulkDeleteAction() {
@@ -516,21 +442,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
-  //To be removed not required
-  // openRevenueDialog(mid) {
-  //   const dialogData = new RevenueDialogModel('Revenue Details: ' + mid.gateway_alias, '', mid);
-  //   const dialogRef = this.dialog.open(RevenueDialogComponent, {
-  //     maxWidth: '500px',
-  //     closeOnNavigation: true,
-  //     data: dialogData
-  //   })
-  //   dialogRef.afterClosed().subscribe(groupName => {
-  //     // if (groupName) {
-  //     //   this.midsService.assignGroup(alias, groupName);
-  //     // }
-  //   });
-  // }
 
   updateCheck() {
     this.selectedRows = [];
@@ -609,39 +520,61 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.listService.searchResponse.next([]);
       this.searchSubscription.unsubscribe();
     }
-  }
-
-  async getProductsName() {
-    const response = fetch(`${this.endPoint}/api/order-products`)
-      .then(res => res.json()).then((data) => {
-        this.productOptions = data.data;
-        this.productOptions = Object.entries(this.productOptions).map(([type, value]) => ({ type, value }));
-      });
-    return this.productOptions;
+    this._onDestroy.next();
+    this._onDestroy.complete();
   }
 
   async getMidOptions() {
     this.midsService.getMidOptions().then(data => {
       this.midOptions = data.data;
+      this.filteredMids.next(data.data);
     });
   }
 
   reset() {
     this.selectedMids = '';
     this.filteredProduct = '';
+    this.getMidOptions();
+    this.getProductFilterData();
     this.selectDate('thisMonth');
   }
 
-  // commonFilter(value, field) {
-  //   // console.log(this.all_fields.indexOf(field));
-  //   if (this.all_fields.indexOf(field) === -1) {
-  //     this.all_fields.push(field);
-  //     this.all_values.push(value);
-  //   } else {
-  //     let index = this.all_fields.indexOf(field);
-  //     this.all_values[index] = value;
-  //   }
-  //   // this.getData();
-  // }
+  handleDateChange() {
+    if (this.range.get('end').value != null) {
+      this.getProductFilterData();
+    }
+  }
 
+  protected filterProductOptions() {
+    if (!this.productOptions) {
+      return;
+    }
+    // get the search keyword
+    let search = this.productSearchCtrl.value;
+    if (!search) {
+      this.filteredProducts.next(this.productOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredProducts.next(
+      this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+
+  protected filterMidOptions() {
+    if (!this.midOptions) {
+      return;
+    }
+    let search = this.midSearchCtrl.value;
+    if (!search) {
+      this.filteredMids.next(this.midOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredMids.next(
+      this.midOptions.filter(bank => bank.gateway_alias.toLowerCase().indexOf(search) > -1)
+    );
+  }
 }

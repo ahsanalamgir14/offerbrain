@@ -20,6 +20,8 @@ export class MidsService {
   public assignBulkGroupResponse = new BehaviorSubject({});
   public removeBulkGroupResponse = new BehaviorSubject({});
   public columnsResponse = new BehaviorSubject([]);
+  public resetInitialsResponse = new BehaviorSubject([]);
+  public refreshInitialsResponse = new BehaviorSubject([]);
 
   getResponse$ = this.getResponse.asObservable();
   refreshResponse$ = this.refreshResponse.asObservable();
@@ -29,6 +31,8 @@ export class MidsService {
   removeBulkGroupResponse$ = this.removeBulkGroupResponse.asObservable();
   columnsResponse$ = this.columnsResponse.asObservable();
   getProductsResponse$ = this.getProductsResponse.asObservable();
+  resetInitialsResponse$ = this.resetInitialsResponse.asObservable();
+  refreshInitialsResponse$ = this.refreshInitialsResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -72,10 +76,10 @@ export class MidsService {
     return this.columns;
   }
 
-  async getProducts(): Promise<any> {
-    await this.apiService.getData(`products`).then(res => res.json()).then((data) => {
-      this.products = data;
-      // this.columnsResponse.next(data);
+  async getProducts(start_date, end_date): Promise<any> {
+    await this.apiService.getData(`date-range-products?start_date=${start_date}&end_date=${end_date}`).then(res => res.json()).then((data) => {
+      // this.products = data;
+      this.getProductsResponse.next(data);
     });
     return this.products;
   }
@@ -85,5 +89,17 @@ export class MidsService {
       this.midOptions = data;
     });
     return this.midOptions;
+  }
+
+  async refreshInitials(): Promise<any> {
+    await this.apiService.getData(`refresh-initials`).then(res => res.json()).then((data) => {
+      this.refreshInitialsResponse.next(data); 
+    });
+  }
+
+  async resetInitials(): Promise<any> {
+    await this.apiService.getData(`reset-initials`).then(res => res.json()).then((data) => {
+      this.resetInitialsResponse.next(data);     
+    });
   }
 }

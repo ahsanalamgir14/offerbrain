@@ -76,4 +76,8 @@
       padding-left: $sidenav-item-padding-left-level4;
     }
   }
+
+  &.add-background {
+    background: grey !important;
+  }
 }

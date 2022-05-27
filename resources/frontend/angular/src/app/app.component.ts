@@ -40,19 +40,19 @@ export class AppComponent {
     }
 
     this.sidenavService.addItems([
-      {
-        name: 'APPS',
-        position: 5,
-        type: 'subheading',
-        customClass: 'first-subheading'
-      },
       // {
-      //   name: 'Dashboard',
-      //   routeOrFunction: '/',
-      //   icon: 'dashboard',
-      //   position: 6,
-      //   pathMatchExact: true
+      //   name: 'APPS',
+      //   position: 5,
+      //   type: 'subheading',
+      //   customClass: 'first-subheading'
       // },
+      {
+        name: 'Dashboard',
+        // routeOrFunction: '/',
+        icon: 'dashboard',
+        position: 6,
+        // pathMatchExact: true
+      },
       {
         name: 'Customers',
         // routeOrFunction: '/customer',
@@ -110,55 +110,50 @@ export class AppComponent {
           }
         ]
       },
-      {
-        name: 'Campaigns Menu',
-        icon: 'equalizer',
-        position: 12,
-        subItems: [
-          // {
-          //   name: 'Campaign Builder',
-          //   routeOrFunction: '/campaigns-network',
-          //   position: 13
-          // },
-          {
-            name: 'Campaign Builder',
-            routeOrFunction: '/not-implements',
-            position: 13
-          },
-          {
-            name: 'My Campaigns',
-            routeOrFunction: '/not-implements',
-            position: 14
-          },
-        ]
-      },
-      {
-        name: 'Formula Section',
-        position: 12,
-        type: 'subheading',
-      },
-      {
-        name: 'Formulas Builder',
-        routeOrFunction: '/create/formula',
-        icon: 'functions',
-        badgeColor: '#2196F3',
-        position: 13,
-      },
-      {
-        name: 'View Formulas',
-        routeOrFunction: '/view/formulas',
-        icon: 'assignment',
-        badgeColor: '#2196F3',
-        position: 14,
-      },
-      {
-        name: 'Campaigns Section',
-        type: 'subheading',
-        position: 30
-      },
+      // {
+      //   name: 'Campaigns Menu',
+      //   icon: 'equalizer',
+      //   position: 12,
+      //   subItems: [
+      //     {
+      //       name: 'Campaign Builder',
+      //       routeOrFunction: '/not-implements',
+      //       position: 13
+      //     },
+      //     {
+      //       name: 'My Campaigns',
+      //       routeOrFunction: '/not-implements',
+      //       position: 14
+      //     },
+      //   ]
+      // },
+      // {
+      //   name: 'Formula Section',
+      //   position: 12,
+      //   type: 'subheading',
+      // },
+      // {
+      //   name: 'Formulas Builder',
+      //   routeOrFunction: '/create/formula',
+      //   icon: 'functions',
+      //   badgeColor: '#2196F3',
+      //   position: 13,
+      // },
+      // {
+      //   name: 'View Formulas',
+      //   routeOrFunction: '/view/formulas',
+      //   icon: 'assignment',
+      //   badgeColor: '#2196F3',
+      //   position: 14,
+      // },
+      // {
+      //   name: 'Campaigns Section',
+      //   type: 'subheading',
+      //   position: 30
+      // },
       {
         name: 'All Campaigns',
-        icon: 'star',
+        icon: 'local_mall',
         position: 31,
         subItems: [
           {
@@ -183,6 +178,42 @@ export class AppComponent {
           }
         ]
       },
+      {
+        name: 'Rewards',
+        type: 'item',
+        icon: 'whatshot',
+        customClass: 'add-background',
+        badgeColor: '#fffff',
+        position: 40
+      },
+      {
+        name: 'Library',
+        type: 'item',
+        icon: 'library_add',
+        customClass: 'add-background',
+        position: 41
+      },
+      {
+        name: 'Alerts',
+        type: 'item',
+        icon: 'alarm',
+        customClass: 'add-background',
+        position: 42
+      },
+      {
+        name: 'Support',
+        type: 'item',
+        icon: 'insert_emoticon',
+        customClass: 'add-background',
+        position: 43
+      },
+      {
+        name: 'Reporting',
+        type: 'item',
+        icon: 'zoom_in',
+        customClass: 'add-background',
+        position: 44
+      }
     ]);
   }
 }

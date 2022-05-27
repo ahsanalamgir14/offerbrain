@@ -16,6 +16,8 @@ export class Mid {
     created_on: string;
     campaign_id: string;
     gateway_id: string;
+    initials: string;
+    subscr: string;
     gateway_alias: string;
     global_monthly_cap: string;
     current_monthly_amount: string;
@@ -47,6 +49,8 @@ export class Mid {
         this.created_on = datePipe.transform(mid.created_on, 'MM-dd-yyyy');
         this.campaign_id = mid.campaign_id;
         this.gateway_id = mid.gateway_id;
+        this.initials = mid.initials;
+        this.subscr = mid.subscr;
         this.gateway_alias = mid.gateway_alias;
         this.global_monthly_cap = '$' + nf.format(mid.global_monthly_cap);
         this.current_monthly_amount = mid.gross_revenue;

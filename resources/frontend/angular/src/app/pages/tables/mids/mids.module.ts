@@ -21,10 +21,10 @@ import { ListModule } from '../../../../@fury/shared/list/list.module';
 import { MaterialModule } from '../../../../@fury/shared/material-components.module';
 import { MidsRoutingModule } from './mids-routing.module';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
-import { MidsComponent, TooltipListPipe } from './mids.component';
+import { MidsComponent } from './mids.component';
 import { GroupDialogComponent } from './group-dialog/group-dialog.component';
-import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.component';
-// import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { MatSelectSearchVersion } from 'ngx-mat-select-search';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   imports: [
@@ -51,10 +51,12 @@ import { RevenueDialogComponent } from './revenue-dialog/revenue-dialog.componen
     MatPaginatorModule,
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
-    // NgMultiSelectDropDownModule.forRoot()
+    NgxMatSelectSearchModule
   ],
-  declarations: [MidsComponent, GroupDialogComponent, TooltipListPipe, RevenueDialogComponent],
+  declarations: [MidsComponent, GroupDialogComponent],
   exports: [MidsComponent],
 
 })
-export class MidsModule { }
+export class MidsModule { 
+  matSelectSearchVersion = MatSelectSearchVersion;
+}

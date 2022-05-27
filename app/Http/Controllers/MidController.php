@@ -48,10 +48,12 @@ class MidController extends Controller
             ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
             ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
             ->addSelect('mids.mid_group as group_name')
+            // ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
+            // ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
+            // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
             ->groupBy('mids.id');
-            // ->join('order_products','orders.order_id','=','order_products.order_id')
             // ->addSelect('order_products.id as product_id','order_products.name as product_name')
-            // ->groupBy('order_products.name');
+            // ->groupBy('order_products.name')
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
@@ -101,7 +103,13 @@ class MidController extends Controller
             ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
             ->select('order_products.name as name')
             ->addSelect(DB::raw('COUNT(order_products.name) as total_count'));
-        $query->where("orders.$request->type", $status);
+        if ($request->type == 'initials') {
+            $query->where('order_products.name', 'LIKE', '%(c)%');
+        } else if ($request->type == 'subscr') {
+            $query->where('orders.is_recurring', 1);
+        } else {
+            $query->where("orders.$request->type", $status);
+        }
         if ($request->product != null) {
             $nameArray = explode(",", $request->product);
             $query->whereIn("order_products.name", $nameArray);
@@ -371,6 +379,8 @@ class MidController extends Controller
         return response()->json(['status' => true]);
     }
 
+
+
     public function sub_affiliate_gross_revenue(Request $request)
     {
         if ($request->start_date != '' && $request->end_date != '') {
@@ -393,5 +403,47 @@ class MidController extends Controller
     {
         $data = Mid::where(['is_active' => 1])->get();
         return response()->json(['status' => true, 'data' => $data]);
+    }
+
+    public function refresh_initials()
+    {
+        $last_reset = DB::table('settings')->where(['key' => 'order_limit_reset_date'])->pluck('value')->first();
+        if (Carbon::parse($last_reset)->isCurrentMonth()) {
+            $start_date = Carbon::parse($last_reset)->format('Y-m-d');
+            // dd($start_date);
+        } else {
+            $start_date = Carbon::now()->startOfMonth();
+        }
+        $end_date = Carbon::now()->endOfMonth();
+        $query = DB::table('mids')->where(['is_active' => 1])
+            ->join('orders', function ($join) use ($start_date, $end_date) {
+                $join->on('orders.gateway_id', '=', 'mids.gateway_id')
+                    ->where('orders.time_stamp', '>=', $start_date)
+                    ->where('orders.time_stamp', '<=', $end_date);
+            })
+            ->select(DB::raw('mids.*'))
+            ->join('order_products', function ($join) use ($start_date, $end_date) {
+                $join->on('orders.order_id', '=', 'order_products.order_id')
+                    ->where('orders.time_stamp', '>=', $start_date)
+                    ->where('orders.time_stamp', '<=', $end_date);
+            })
+            ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
+            ->selectRaw('count(case when orders.is_recurring = 1 then 0 end) as subscr')
+            ->groupBy('mids.id')->chunkById(200, function ($mids) {
+                foreach ($mids as $mid) {
+                    DB::table('mids')
+                        ->where('mids.id', $mid->id)
+                        ->update(['initials' => $mid->initials, 'subscr' => $mid->subscr]);
+                }
+            });
+        return response()->json(['status' => 'true', 'message' => 'Order Limits Refreshed']);
+    }
+
+    public function reset_initials()
+    {
+        $date_now = Carbon::now();
+        DB::table('settings')->where(['key' => 'order_limit_reset_date'])->update(['value' => $date_now]);
+        DB::table('mids')->update(['initials' => 0, 'subscr' => 0]);
+        return response()->json(['status' => true, 'message' => 'Initials Reset Successfully']);
     }
 }

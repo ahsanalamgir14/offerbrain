@@ -118,3 +118,6 @@ Route::get('order_history', [OrdersController::class, 'order_history']);
 Route::get('daily_order_history', [OrdersController::class, 'daily_order_history']);
 Route::post('sub_affiliate_gross_revenue', [SubAffiliateController::class, 'sub_affiliate_gross_revenue']);
 Route::get('get-active-mids', [MidController::class, 'get_active_mids']);
+Route::get('refresh-initials', [MidController::class, 'refresh_initials']);
+Route::get('reset-initials', [MidController::class, 'reset_initials']);
+Route::get('date-range-products', [OrderProductController::class, 'date_range_products']);

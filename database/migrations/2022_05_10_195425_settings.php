@@ -15,7 +15,9 @@ class Settings extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_last_page');
+            $table->string('key');
+            $table->string('value')->nullable()->default(null);
+            $table->string('compound')->nullable()->default(null);
             $table->timestamps();
         });
     }

@@ -6,8 +6,8 @@
   <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
     <div class="content" layout="column" class="full-width">
       <!-- 
-                ?Add [expanded]="0" in below line to to show filters
-             -->
+        ?Add [expanded]="0" in below line to to show filters
+      -->
       <mat-expansion-panel [expanded]="0" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -39,7 +39,7 @@
                   <mat-label>Enter a date range</mat-label>
                   <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
                     <input matStartDate formControlName="start" placeholder="Start date">
-                    <input matEndDate formControlName="end" placeholder="End date">
+                    <input matEndDate formControlName="end" placeholder="End date" (dateChange)="handleDateChange()">
                   </mat-date-range-input>
                   <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-date-range-picker #picker></mat-date-range-picker>
@@ -64,7 +64,9 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Select Gateway</mat-label>
                     <mat-select [(ngModel)]="selectedMids" multiple>
-                      <mat-option *ngFor="let mid of midOptions" [value]="mid.gateway_id">{{mid.gateway_alias}}</mat-option>
+                      <ngx-mat-select-search [formControl]="midSearchCtrl" placeholderLabel="Search..."
+                        noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      <mat-option *ngFor="let mid of filteredMids | async" [value]="mid.gateway_id">{{mid.gateway_alias}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -79,41 +81,18 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Product</mat-label>
                     <mat-select [(ngModel)]="filteredProduct" multiple>
-                      <!-- <mat-option [value]="">All Products</mat-option> -->
-                      <mat-option *ngFor="let product of productOptions" [value]="product['name']">{{product['name']}}</mat-option>
+                      <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
+                        noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      <mat-option [value]="" *ngIf="productOptions.length == 0">No Product Found</mat-option>
+                      <mat-option style="width:380px;" *ngFor="let product of filteredProducts | async" [value]="product['name']">{{product['name']}}
+                        ({{product['product_id']}}) - {{product['price']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
               </div>
             </div>
           </div>
-          <!-- *ngIf="!skeletonLoader" -->
-
-          <div fxLayout="row" fxLayoutAlign="end end">
-            <!-- <ngx-skeleton-loader count="2" fxLayoutGap="10px" appearance="line" animation="progress"
-                            [theme]="{ height: '30px', width: '80px', 'border-radius': 0 }" *ngIf="skeletonLoader"></ngx-skeleton-loader> -->
-          </div>
         </div>
-        <!-- <div fxFlex="100" fxFlex.xs="55">
-                    <div [@fadeInUp]>
-                      <h3>Other Options</h3>
-                    </div>
-                    <div fxLayout="row" fxLayoutGap="30px">
-                     
-                      <div fxLayout="column" fxLayoutGap="0px">
-                        <div>
-                          <mat-form-field appearance="fill">
-                            <mat-label>Product</mat-label>
-                            <mat-select [(value)]="product" (selectionChange)="commonFilter($event.value, 'products')">
-                              <mat-option [value]="">All Products</mat-option>
-                              <mat-option *ngFor="let product of products" [value]="product.name">{{product.name}}</mat-option>
-                            </mat-select>
-                          </mat-form-field>
-                        </div>
-                      </div>
-                   
-                    </div>
-                </div>                 -->
         <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
           <div><button mat-raised-button color="accent" (click)="reset()">Reset</button></div>
           <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
@@ -202,6 +181,28 @@
           </ng-container>
 
           <!-- Group name column -->
+          <div class="test" style="display: block;">
+            <ng-container matColumnDef="order_limits">
+              <th class="btn-reset" *matHeaderCellDef mat-header-cell mat-sort-header>
+                Order Limits
+                <div>
+                  <a href="javascript:void(0)" (click)="this.midsService.resetInitials()">Reset</a> | 
+                  <a href="javascript:void(0)" (click)="this.midsService.refreshInitials()">Refresh</a>
+                </div>
+              </th>
+              <td *matCellDef="let row" mat-cell>
+                <div>
+                  Initials: <a href="javascript:void(0)" (click)="openDialog(row.id, row.gateway_id, $event, row.initials, 1, 'initials')">{{
+                    row.initials }}</a>
+                </div>
+                <div>
+                  Subscr: <a href="javascript:void(0)" (click)="openDialog(row.id, row.gateway_id, $event, row.subscr, 1, 'subscr')">{{row.subscr}}</a>
+                </div>
+              </td>
+            </ng-container>
+          </div>
+
+          <!-- Group name column -->
           <ng-container matColumnDef="gateway_alias">
             <th *matHeaderCellDef mat-header-cell mat-sort-header>Gateway Alias</th>
             <td *matCellDef="let row" (click)="openRevenueDialog(row)" mat-cell [ngClass]="row.gateway_alias.indexOf('CLOSED') !== -1 ? 'highlight-grey' : row.current_monthly_amount == '0.00' ? 'highlight-orange' : ''">
@@ -276,12 +277,12 @@
 
           <!-- Decline % -->
           <!-- <ng-container matColumnDef="decline_per">
-                        <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline %</th>
-                        <td *matCellDef="let row, index as i" [matTooltip]="toolTipDeclines[i] | tooltipList"
-                            matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-                            {{ row.decline_per | number }}
-                        </td>
-                    </ng-container> -->
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Decline %</th>
+            <td *matCellDef="let row, index as i" [matTooltip]="toolTipDeclines[i] | tooltipList"
+                matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+                {{ row.decline_per | number }}
+            </td>
+          </ng-container> -->
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Actions </th>

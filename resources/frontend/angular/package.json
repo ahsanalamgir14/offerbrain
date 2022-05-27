@@ -43,6 +43,7 @@
     "moment": "^2.29.1",
     "ndjson-parse": "^1.0.4",
     "ng2-charts": "~2.4.3",
+    "ngx-mat-select-search": "^4.1.1",
     "ngx-quill": "~16.0.1",
     "ngx-skeleton-loader": "^5.0.0",
     "ngx-ui-loader": "^13.0.0",

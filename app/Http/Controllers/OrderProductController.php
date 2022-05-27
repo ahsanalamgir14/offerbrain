@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OrderProduct;
 use App\Models\Order;
+use Carbon\Carbon;
 use DB;
 
 class OrderProductController extends Controller
@@ -143,5 +144,17 @@ class OrderProductController extends Controller
                 }
             }
         });
+    }
+
+    public function date_range_products(Request $request) {
+
+        $start_date = Carbon::parse($request->start_date)->startOfDay();
+        $end_date = Carbon::parse($request->end_date)->endOfDay();
+        $data = Order::where('orders.time_stamp', '>=', $start_date)->where('orders.time_stamp', '<=', $end_date)
+        ->select(DB::raw('order_products.product_id, order_products.name, order_products.price'))
+        ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
+        ->groupBy('order_products.name')->get();
+        
+        return response()->json(['status' => true, 'data' => $data]);   
     }
 }

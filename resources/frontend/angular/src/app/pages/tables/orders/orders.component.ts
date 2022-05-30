@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+  import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -187,10 +187,6 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getData() {
-
-    console.log(' affiliate:', this.affiliate);
-    console.log(' sub-affiliate:', this.subAffiliate);
-    // return;
     this.isLoading = true;
     if (!this.is_filtered) {
       if (this.range.get('start').value != null) {
@@ -218,7 +214,6 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ordersService.getOrders(this.filters)
       .then(orders => {
         this.orders = orders.data.data;
-        // this.dataSource.data = orders.data;
         setTimeout(() => {
           this.paginator.pageIndex = this.currentPage;
           this.paginator.length = orders.pag.count;

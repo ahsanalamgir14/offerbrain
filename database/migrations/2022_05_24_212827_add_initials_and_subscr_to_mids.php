@@ -15,8 +15,7 @@ class AddInitialsAndSubscrToMids extends Migration
     {
         Schema::table('mids', function (Blueprint $table) {
             $table->string('initials')->after('gateway_id')->nullable()->default(null)->comment('self-added');           
-            $table->string('subscr')->after('initials')->nullable()->default(null)->comment('self-added');           
-
+            $table->string('subscr')->after('initials')->nullable()->default(null)->comment('self-added');
         });
     }
 

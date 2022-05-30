@@ -147,7 +147,7 @@ class OrderProductController extends Controller
     }
 
     public function date_range_products(Request $request) {
-
+        DB::statement("SET SQL_MODE=''");
         $start_date = Carbon::parse($request->start_date)->startOfDay();
         $end_date = Carbon::parse($request->end_date)->endOfDay();
         $data = Order::where('orders.time_stamp', '>=', $start_date)->where('orders.time_stamp', '<=', $end_date)

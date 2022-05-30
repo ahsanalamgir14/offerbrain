@@ -99,20 +99,28 @@ class OrdersController extends Controller
             $field_array = explode(',', $request->fields);
             $value_array = explode(',', $request->values);
             for ($i = 0; $i < count($value_array); $i++) {
-                if ($value_array[$i] != '' && $field_array[$i] != 'products') {
+                if ($value_array[$i] != '' && $field_array[$i] != 'products' && $value_array[$i] != 7) {
                     $query->where('orders.' . $field_array[$i], $value_array[$i]);
                 }
                 if ($field_array[$i] == 'products') {
                     $query->where('orders.products', 'like', '%' . $value_array[$i] . '%');
                 }
+                if ($field_array[$i] == 'order_status' && $value_array[$i] == 7) {
+                    $query->where('orders.order_status', 7);
+                } else {
+                    $query->where('orders.order_status', '!=', 7);
+                }
             }
+        } else {
+            $query->where('orders.order_status', '!=', 7);
         }
         if ($request->filteredProduct != '') {
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->where('order_products.name', $request->filteredProduct);
         }
         $total_rows = $query->count('orders.id');
        
-        $rows = $query->orderBy('orders.id', 'desc')->SimplePaginate($no_of_records_per_page);
+        $rows = $query->where('orders.order_status','!=', 11)
+        ->orderBy('orders.id', 'desc')->SimplePaginate($no_of_records_per_page);
 
         $total_pages = ceil($total_rows / $rows->perPage());
 
@@ -866,16 +874,15 @@ class OrdersController extends Controller
 
     public static function pull_cron_orders()
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
+        // ini_set('memory_limit', '512M');
+        // set_time_limit(0);
         $new_orders = 0;
         $updated_orders = 0;
         $start = Carbon::today();
         $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
         $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
-
         $db_order_ids = Order::pluck('order_id')->toArray();
-
+    
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v1/order_find';
@@ -889,7 +896,7 @@ class OrdersController extends Controller
                 'criteria' => 'all'
             ]
         )->getBody()->getContents());
-
+        return response()->json(['status' => false, 'message' => $api_data]);
         $order_ids = $api_data->order_id;
         $total_orders = $api_data->total_orders;
         // dd($total_orders);

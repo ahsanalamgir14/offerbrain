@@ -86,6 +86,10 @@ const routes: Routes = [
         path: 'campaigns/ticket-monthly',
         loadChildren: () => import('./pages/campaigns/ticket-monthly/ticket-monthly.module').then(m => m.TicketMonthlyModule),
       },
+      {
+        path: 'campaign-builder',
+        loadChildren: () => import('./pages/campaign-builder/campaign-builder.module').then(m => m.CampaignBuilderModule),
+      },
     ]
   }
 ];

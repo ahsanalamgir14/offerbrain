@@ -29,7 +29,8 @@
 
 <fury-page-layout mode="simple">
   <fury-page-layout-content [@fadeInUp]>
-    <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh</button>
+    <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Current Month</button>
+    <button class="mb ml" mat-raised-button color="accent" (click)="refreshAll()">Refresh All</button>
     <fury-list name="Golden Ticket (Monthly)" [columns]="columns" (filterChange)="onFilterChange($event)">
       <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
       <table [dataSource]="dataSource" mat-table matSort>
@@ -74,7 +75,7 @@
         </ng-container>
 
         <tr *matHeaderRowDef="visibleColumns" mat-header-row></tr>
-        <tr (click)="updateCustomer(row)" *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
+        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
           mat-row></tr>
       </table>
 

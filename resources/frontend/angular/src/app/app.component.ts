@@ -110,23 +110,23 @@ export class AppComponent {
           }
         ]
       },
-      // {
-      //   name: 'Campaigns Menu',
-      //   icon: 'equalizer',
-      //   position: 12,
-      //   subItems: [
-      //     {
-      //       name: 'Campaign Builder',
-      //       routeOrFunction: '/not-implements',
-      //       position: 13
-      //     },
-      //     {
-      //       name: 'My Campaigns',
-      //       routeOrFunction: '/not-implements',
-      //       position: 14
-      //     },
-      //   ]
-      // },
+      {
+        name: 'Campaigns Menu',
+        icon: 'device_hub',
+        position: 12,
+        subItems: [
+          {
+            name: 'Campaign Builder',
+            routeOrFunction: '/campaign-builder',
+            position: 13
+          },
+          // {
+          //   name: 'My Campaigns',
+          //   routeOrFunction: '/not-implements',
+          //   position: 14
+          // },
+        ]
+      },
       // {
       //   name: 'Formula Section',
       //   position: 12,

@@ -20,6 +20,10 @@ class CreateSticketMonthlyTable extends Migration
             $table->integer('initials')->nullable()->default(0)->comment("Initials");
             $table->integer('rebills')->nullable()->default(0)->comment("Rebills");
             $table->decimal('cycle_1_per', 10, 2)->nullable()->default(null)->comment("Cycle 1 %");
+            $table->integer('cycle_2')->nullable()->default(null)->comment("Cycle 2");
+            $table->decimal('cycle_2_per', 10, 2)->nullable()->default(null)->comment("Cycle 2 %");
+            $table->integer('cycle_3_plus')->nullable()->default(null)->comment("Cycle 3 plus");
+            $table->decimal('cycle_3_plus_per', 10, 2)->nullable()->default(null)->comment("Cycle 3+ %");
             $table->decimal('avg_day', 10, 2)->nullable()->default(null)->comment("AVG Day");
             $table->integer('filled_per')->nullable()->default(0)->comment("Filled %");
             $table->decimal('avg_ticket', 10, 2)->nullable()->default(null)->comment('Avg Ticket');
@@ -29,6 +33,7 @@ class CreateSticketMonthlyTable extends Migration
             $table->integer('CBs')->nullable()->default(0)->comment('CBs');
             $table->decimal('CB_per', 10, 2)->nullable()->default(0)->comment('CB %');
             $table->decimal('CB_currency', 10, 2)->nullable()->default(null)->comment('CB $');
+            $table->string('COGS')->nullable()->default(null)->comment('COGS(-initials)');
             $table->decimal('fulfillment', 10, 2)->nullable()->default(null)->comment('Fulfillment');
             $table->decimal('processing', 10, 2)->nullable()->default(null)->comment('Processing');
             $table->decimal('cpa', 10, 2)->nullable()->default(null)->comment('CPA');

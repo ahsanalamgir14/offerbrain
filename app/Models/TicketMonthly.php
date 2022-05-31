@@ -16,6 +16,10 @@ class TicketMonthly extends Model
         'initials',
         'rebills',
         'cycle_1_per',
+        'cycle_2',
+        'cycle_2_per',
+        'cycle_3_plus',
+        'cycle_3_plus_per',
         'avg_day',
         'filled_per',
         'avg_ticket',
@@ -31,5 +35,5 @@ class TicketMonthly extends Model
         'cpa_avg',
         'net',
         'clv',
-     ];
+    ];
 }

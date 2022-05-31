@@ -1,0 +1,53 @@
+@use 'sass:math';
+@use '@angular/material' as mat;
+@import "var";
+
+:host {
+  background: url("/assets/img/backgrounds/2.jpg");
+  background-size: cover;
+  display: block;
+  height: 100%;
+}
+
+.title {
+  color: white;
+}
+
+.card {
+  margin: $spacing;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  border-radius: $border-radius;
+  overflow: hidden;
+
+  @include mat.elevation(10);
+
+  .heading {
+    font: var(--font-title);
+  }
+
+  .subheading {
+    font: var(--font-subheading-1);
+  }
+
+  .content {
+    margin: math.div($spacing, 2) 0;
+
+    .checkbox {
+      margin-top: math.div($spacing, 2);
+    }
+  }
+
+  .actions {
+    margin-top: $spacing;
+    padding: $spacing math.div($spacing, 3) 0;
+  }
+}
+
+.copyright {
+  position: absolute;
+  bottom: $spacing;
+  right: $spacing;
+  color: white;
+}

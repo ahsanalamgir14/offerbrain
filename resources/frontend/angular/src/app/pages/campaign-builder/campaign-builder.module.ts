@@ -1,12 +1,12 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BreadcrumbsModule } from '../../../../@fury/shared/breadcrumbs/breadcrumbs.module';
-import { ListModule } from '../../../../@fury/shared/list/list.module';
-import { MaterialModule } from '../../../../@fury/shared/material-components.module';
-import { TicketMonthlyRoutingModule } from './ticket-monthly-routing.module';
-import { TicketMonthlyComponent } from './ticket-monthly.component';
-import { FurySharedModule } from '../../../../@fury/fury-shared.module';
+import { BreadcrumbsModule } from '../../../@fury/shared/breadcrumbs/breadcrumbs.module';
+import { ListModule } from '../../../@fury/shared/list/list.module';
+import { MaterialModule } from '../../../@fury/shared/material-components.module';
+import { CampaignBuilderRoutingModule } from './campaign-builder-routing.module';
+import { CampaignBuilderComponent } from './campaign-builder.component';
+import { FurySharedModule } from '../../../@fury/fury-shared.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -14,18 +14,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
-import {MatDatepickerModule} from '@angular/material/datepicker';
-import {MatNativeDateModule} from '@angular/material/core';
-import {MatExpansionModule} from '@angular/material/expansion'
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatExpansionModule } from '@angular/material/expansion'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+
 
 @NgModule({
   imports: [
     CommonModule,
-    TicketMonthlyRoutingModule,
+    CampaignBuilderRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
@@ -46,9 +48,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatTableModule,
     MatPaginatorModule,
     MatProgressBarModule,
+    NgxSkeletonLoaderModule,
   ],
-  declarations: [TicketMonthlyComponent],
-  exports: [TicketMonthlyComponent],
-  
+  declarations: [CampaignBuilderComponent],
+  exports: [CampaignBuilderComponent],
+
 })
-export class TicketMonthlyModule { }
+export class CampaignBuilderModule { }

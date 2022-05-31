@@ -101,4 +101,11 @@ export class CampaignService {
     });
     return this.data;
   }
+  async refreshAllMonthlyTicket(): Promise<any> {
+    await this.apiService.getData(`refresh-all-monthly`).then(res => res.json()).then((data) => {
+      this.data = data;
+      // this.ticketMonthlyResponse.next(data);
+    });
+    return this.data;
+  }
 }

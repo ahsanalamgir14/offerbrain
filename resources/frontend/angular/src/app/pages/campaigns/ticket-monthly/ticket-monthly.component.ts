@@ -12,6 +12,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { TicketMonthlyService } from './ticket-monthly.service';
 import { CampaignService } from './../campaign.service';
 import { TicketMonthly } from './ticket-monthly.model';
+import { filter, takeUntil, map } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { Notyf } from 'notyf';
@@ -35,23 +36,22 @@ export class TicketMonthlyComponent implements OnInit {
   currentPage = 0;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   filters = {};
-  // month: string = null;
-  // months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  // year: string = null;
-  // years: number[] = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
 
   @Input()
   columns: ListColumn[] = [
-
     { name: 'Checkbox', property: 'checkbox', visible: false },
     { name: 'Month', property: 'month', visible: true, isModelProperty: true },
     // { name: 'Year', property: 'year', visible: true, isModelProperty: true },
     { name: 'Initials', property: 'initials', visible: true, isModelProperty: true },
     { name: 'Rebills', property: 'rebills', visible: true, isModelProperty: true },
     { name: 'Cycle 1 %', property: 'cycle_1_per', visible: true, isModelProperty: true },
-    { name: 'AVG Day %', property: 'avg_day', visible: true, isModelProperty: true },
-    { name: '% Filled', property: 'filled_per', visible: true, isModelProperty: true },
+    { name: 'Cycle 2', property: 'cycle_2', visible: true, isModelProperty: true },
+    { name: 'Cycle 2 %', property: 'cycle_2_per', visible: true, isModelProperty: true },
+    { name: 'Cycle 3+', property: 'cycle_3_plus', visible: true, isModelProperty: true },
+    { name: 'Cycle 3+ %', property: 'cycle_3_plus_per', visible: true, isModelProperty: true },
+    { name: 'AVG Day', property: 'avg_day', visible: false, isModelProperty: true },
+    { name: '% Filled', property: 'filled_per', visible: false, isModelProperty: true },
     { name: 'Avg Ticket', property: 'avg_ticket', visible: true, isModelProperty: true },
     { name: 'Revenue', property: 'revenue', visible: true, isModelProperty: true },
     { name: 'Refund', property: 'refund', visible: true, isModelProperty: true },
@@ -59,16 +59,16 @@ export class TicketMonthlyComponent implements OnInit {
     { name: 'CBs', property: 'CBs', visible: true, isModelProperty: true },
     { name: 'CB %', property: 'CB_per', visible: true, isModelProperty: true },
     { name: 'CB $', property: 'CB_currency', visible: true, isModelProperty: true },
-    { name: 'Fulfillment', property: 'fulfillment', visible: true, isModelProperty: true },
+    { name: 'COGS', property: 'COGS', visible: true, isModelProperty: true },
+    // { name: 'Fulfillment', property: 'fulfillment', visible: false, isModelProperty: true },
     { name: 'Processing', property: 'processing', visible: true, isModelProperty: true },
     { name: 'CPA', property: 'cpa', visible: true, isModelProperty: true },
     { name: 'CPA AVG', property: 'cpa_avg', visible: true, isModelProperty: true },
     { name: 'Net', property: 'net', visible: true, isModelProperty: true },
     { name: 'CLV', property: 'clv', visible: true, isModelProperty: true },
-
   ] as ListColumn[];
 
-  dataSource: MatTableDataSource<TicketMonthly>| null;
+  dataSource: MatTableDataSource<TicketMonthly> | null;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -80,17 +80,21 @@ export class TicketMonthlyComponent implements OnInit {
     return this.columns.filter(column => column.visible).map(column => column.property);
   }
 
-
-  /**
-   * Example on how to get data and pass it to the table - usually you would want a dedicated service with a HTTP request for this
-   * We are simulating this request here.
-   */
+  mapData() {
+    return of(this.tickets.map(ticket => new TicketMonthly(ticket)));
+  }
 
   ngOnInit() {
-    this.getSubscription = this.campaignService.ticketMonthlyResponse$.subscribe(data => this.manageGetResponse(data));
+    // this.getSubscription = this.campaignService.ticketMonthlyResponse$.subscribe(data => this.manageGetResponse(data));
     this.getData();
 
     this.dataSource = new MatTableDataSource();
+    this.data$.pipe(
+      filter(data => !!data)
+    ).subscribe((tickets) => {
+      this.tickets = tickets;
+      this.dataSource.data = tickets;
+    });
   }
 
   ngAfterViewInit() {
@@ -110,9 +114,8 @@ export class TicketMonthlyComponent implements OnInit {
       .then(tickets => {
         this.tickets = tickets.data;
         this.dataSource.data = tickets.data;
-        setTimeout(() => {
-          // this.paginator.pageIndex = this.currentPage;
-          // this.paginator.length = tickets.pag.count;
+        this.mapData().subscribe(tickets => {
+          this.subject$.next(tickets);
         });
         this.isLoading = false;
       }, error => {
@@ -120,13 +123,12 @@ export class TicketMonthlyComponent implements OnInit {
       });
   }
 
-  manageGetResponse(tickets) {
-    if (tickets.status) {
-      this.tickets = tickets.data;
-      this.dataSource.data = tickets.data;
-      setTimeout(() => {
-        // this.paginator.pageIndex = this.currentPage;
-        // this.paginator.length = tickets.pag.count;
+  manageGetResponse(data) {
+    if (data.status) {
+      this.tickets = data.data;
+      this.dataSource.data = data.data;
+      this.mapData().subscribe(tickets => {
+        this.subject$.next(tickets);
       });
       this.isLoading = false;
     } else {
@@ -149,10 +151,20 @@ export class TicketMonthlyComponent implements OnInit {
     this.isLoading = true;
     await this.campaignService.refreshMonthlyTicket()
       .then(tickets => {
-        this.tickets = tickets.data;
-        this.dataSource.data = tickets.data;
+        this.manageGetResponse(tickets)
+        this.notyf.success('Records are updated successfully')
+      }, error => {
+        this.isLoading = false
+      });
+  }
+
+  async refreshAll() {
+    this.notyf.open({ type: 'info', message: 'Records will be refreshed soon...' });
+    this.isLoading = true;
+    await this.campaignService.refreshAllMonthlyTicket()
+      .then(tickets => {
+        this.manageGetResponse(tickets)
         this.notyf.success('Records are updated successfully');
-        this.isLoading = false;
       }, error => {
         this.isLoading = false;
       });

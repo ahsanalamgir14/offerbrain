@@ -79,6 +79,7 @@ export class MidsService {
   async getProducts(start_date, end_date): Promise<any> {
     await this.apiService.getData(`date-range-products?start_date=${start_date}&end_date=${end_date}`).then(res => res.json()).then((data) => {
       // this.products = data;
+      console.log(data);
       this.getProductsResponse.next(data);
     });
     return this.products;

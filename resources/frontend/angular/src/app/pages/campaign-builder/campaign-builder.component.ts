@@ -31,11 +31,20 @@ export class CampaignBuilderComponent implements OnInit {
   cyclesFormGroup: FormGroup;
   miscFormGroup: FormGroup;
 
+  noOfUpsells: number = 1;
+  noOfDownsells: number = 0;
+  noOfCycles: number = 0;
+  upsellProductsList1 = [];
+  downsellsProductsList1 = [];
+  cycleProductsList = [];
 
-  phonePrefixOptions = ['1', '2', '3', '4', '5'];
-  campaignTypeOptions = ['type1', 'type2'];
+  campaignTypeOptions = ['Straight Sale'];
   trackingCampaignOptions = ['type1', 'type2'];
   trackingNetworkOptions = ['network1', 'network2'];
+  noOfUpsellsOptions = ['0', '1', '2', '3', '4', '5'];
+  noOfDownsellsOptions = ['0', '1', '2', '3', '4', '5'];
+  noOfCyclesOptions = ['0', '1', '2', '3', '4', '5'];
+  productOptions = ['product1', 'product2', 'product3'];
 
   passwordInputType = 'password';
 
@@ -51,21 +60,32 @@ export class CampaignBuilderComponent implements OnInit {
      */
     this.campaignFormGroup = this.fb.group({
       campaignName: [null, Validators.required],
-      campaignType: [null, Validators.required],
+      campaignType: ['Straight Sale', Validators.required],
       trackingCampaigns: [null, Validators.required],
       trackingNetworks: [null, Validators.required],
-      phonePrefix: [this.phonePrefixOptions[3]],
-      phone: [],
     });
 
     this.upsellFormGroup = this.fb.group({
+      noOfUpsells: [null, Validators.required],
+      noOfDownsells: [null, Validators.required],
+      // upsellProductsList1: [null, Validators.required],
+      // upsellProductsList2: [null, Validators.required],
     });
 
     this.cyclesFormGroup = this.fb.group({
+      noOfCycles: [null, Validators.required],
+
     });
 
     this.miscFormGroup = this.fb.group({
+      // cogsTrack: [null, Validators.required],
+      // cpaTrack: [null, Validators.required],
+      // thirdPartyTrack: [null, Validators.required],
     });
+  }
+
+  counter(N: number) {
+    return Array.from({ length: N }, (v, i) => i);
   }
 
   showPassword() {
@@ -76,6 +96,15 @@ export class CampaignBuilderComponent implements OnInit {
   hidePassword() {
     this.passwordInputType = 'password';
     this.cd.markForCheck();
+  }
+
+  clearSelection() {
+    // this.noOfUpsells = null;
+    this.upsellProductsList1 = [];
+  }
+
+  AddProductList1() {
+    console.log(this.upsellProductsList1);
   }
 
   submit() {

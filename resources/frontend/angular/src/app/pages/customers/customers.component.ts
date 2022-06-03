@@ -53,10 +53,13 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   columns: ListColumn[] = [
     { name: 'Checkbox', property: 'checkbox', visible: true },
     { name: 'Customer Id', property: 'id', visible: true, isModelProperty: true },
-    { name: 'Email', property: 'email', visible: true, isModelProperty: true },
+    // { name: 'Date Last Order', property: 'order_last_date', visible: true, isModelProperty: true },
+    { name: 'Orders Count', property: 'orders_count', visible: true, isModelProperty: true },
     { name: 'First Name', property: 'first_name', visible: true, isModelProperty: true },
     { name: 'Last Name', property: 'last_name', visible: true, isModelProperty: true },
+    { name: 'Email', property: 'email', visible: true, isModelProperty: true },
     { name: 'Phone', property: 'phone', visible: true, isModelProperty: true },
+    // { name: 'Type', property: 'type', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
   ] as ListColumn[];
   dataSource: MatTableDataSource<Customer> | null;
@@ -118,8 +121,8 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
           this.paginator.pageIndex = this.currentPage;
           this.paginator.length = customers.pag.count;
         });
-        this.mapData().subscribe(prospects => {
-          this.subject$.next(prospects);
+        this.mapData().subscribe(customers => {
+          this.subject$.next(customers);
         });
         for (var i = 0; i < customers.data.data.length; i++) {
           this.allIdArray.push(customers.data.data[i].id);

@@ -48,7 +48,7 @@ export class AppComponent {
       // },
       {
         name: 'Dashboard',
-        // routeOrFunction: '/',
+        routeOrFunction: '/dashboard',
         icon: 'dashboard',
         position: 6,
         // pathMatchExact: true

@@ -140,7 +140,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.filterMidOptions();
       });
 
-    this.timerSubscription = timer(0, 3600 * 1000).pipe(
+      this.timerSubscription = timer(3600 * 1000, 3600 * 1000).pipe(
       map(() => {
         this.midsService.refreshInitials();
       })
@@ -174,6 +174,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async getData() {
+    this.getProductFilterData();
     this.isLoading = true;
     if (this.range.get('start').value != null) {
       this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')

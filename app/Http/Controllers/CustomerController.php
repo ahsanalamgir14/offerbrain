@@ -42,15 +42,25 @@ class CustomerController extends Controller
     {
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-        $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
-        $total_rows = $query->count('id');
+        // $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
+        // dd('die');
+        $query = DB::table('customers')
+        ->select(DB::raw('customers.*'))
+        ->join('orders', function ($join) {
+        $join->on('orders.customer_id', '=', 'customers.id');
+        // ->where('orders.order_status', '=', 2);
+        })
+        ->addSelect(DB::raw('COUNT(orders.id) as orders_count'))
+        ->groupBy('customers.id');
+
+        $total_rows = $query->get()->count('customers.id');
 
         if ($request->search != '') {
-            $query->Where('email', 'like', '%' . $request->search . '%')
-            ->orWhere('first_name', 'like', '%' . $request->search . '%')
-            ->orWhere('last_name', 'like', '%' . $request->search . '%');
+            $query->Where('customers.email', 'like', '%' . $request->search . '%')
+                ->orWhere('customers.first_name', 'like', '%' . $request->search . '%')
+                ->orWhere('customers.last_name', 'like', '%' . $request->search . '%');
         }
-        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
+        $data = $query->orderBy('customers.id', 'desc')->SimplePaginate($no_of_records_per_page); //data is ok
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
@@ -132,7 +142,7 @@ class CustomerController extends Controller
             return response()->json(['status' => true, 'message' => $total_records . ' Customers Deleted Successfully']);
         }
     }
-    public static function refresh_customers()
+    public static function refresh_customers_bk()
     {
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
@@ -192,7 +202,70 @@ class CustomerController extends Controller
                 }
             }
         }
-        Setting::update(['customer_last_page'=>$last_page]);
+        Setting::update(['customer_last_page' => $last_page]);
+        return response()->json(['status' => true, 'new customers created' => $created, 'Updated customers' => $updated]);
+    }
+    public static function refresh_customers()
+    {
+        // ini_set('memory_limit', '512M');
+        // set_time_limit(0);
+        $setting = Setting::where('key','customer_last_page')->first();
+        $created = 0;
+        $updated = 0;
+        $db_customers = Customer::pluck('id')->toArray();
+        $username = "yasir_dev";
+        $password = "yyutmzvRpy5TPU";
+        $url = 'https://thinkbrain.sticky.io/api/v2/contacts';
+        $previousPage = $setting->value;
+
+        $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage]);
+        $response['customers'] = $api_data['data'];
+        $last_page = $api_data['last_page'];
+
+        if ($response['customers']) {
+            foreach ($response['customers'] as $result) {
+
+                $result['customer_id'] = $result['id'];
+                $result['custom_fields'] = json_encode($result['custom_fields']);
+                $result['addresses'] = json_encode($result['addresses']);
+                $result['notes'] = json_encode($result['notes']);
+
+                if (in_array($result['id'], $db_customers)) {
+                    $updated++;
+                    $customer = Customer::where(['customer_id' => $result['id']])->first();
+                    $customer->update($result);
+                } else {
+                    $created++;
+                    Customer::create($result);
+                }
+            }
+            if ($last_page > $previousPage) {
+                $previousPage++;
+                for ($previousPage; $previousPage <= $last_page; $previousPage++) {
+
+                    $response['customers'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage])['data'];
+
+                    foreach ($response['customers'] as $result) {
+
+                        $result['customer_id'] = $result['id'];
+                        $result['custom_fields'] = json_encode($result['custom_fields']);
+                        $result['addresses'] = json_encode($result['addresses']);
+                        $result['notes'] = json_encode($result['notes']);
+
+                        if (in_array($result['id'], $db_customers)) {
+                            $updated++;
+                            $customer = Customer::where(['customer_id' => $result['id']])->first();
+                            $customer->update($result);
+                        } else {
+                            $created++;
+                            Customer::create($result);
+                        }
+                        $response = null;
+                    }
+                    Setting::where('key','customer_last_page')->update(['value'=>$previousPage]);
+                }
+            }
+        }
         return response()->json(['status' => true, 'new customers created' => $created, 'Updated customers' => $updated]);
     }
 }

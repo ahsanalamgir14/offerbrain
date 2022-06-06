@@ -7,11 +7,11 @@ const routes: Routes = [
     path: '',
     component: LayoutComponent,
     children: [
-      // {
-      //   path: '',
-      //   loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
-      //   pathMatch: 'full'
-      // },
+      {
+        path: 'dashboard',
+        loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
+        // pathMatch: 'full'
+      },
       {
         // path: 'customers',
         path: 'customer',

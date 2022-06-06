@@ -84,34 +84,52 @@
             <div class="heading">All Upsells</div>
             <div class="subheading">Add New Upsells.</div>
 
-            <!-- <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-form-field fxFlex="auto">
-                <mat-label>Password</mat-label>
-                <input [type]="passwordInputType" formControlName="password" matInput required>
-                <button (click)="showPassword()" *ngIf="passwordInputType === 'password'" mat-icon-button matSuffix
-                  type="button">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button (click)="hidePassword()" *ngIf="passwordInputType === 'text'" mat-icon-button matSuffix type="button">
-                  <mat-icon>visibility_off</mat-icon>
-                </button>
-                <mat-hint>Your password should be atleast 6 characters long.</mat-hint>
-              </mat-form-field>
+            <div class="content" fxLayout="row" fxLayoutGap="30px">
 
-              <mat-form-field fxFlex="auto">
-                <mat-label>Confirm Password</mat-label>
-                <input [type]="passwordInputType" formControlName="passwordConfirm" matInput required>
-                <button (click)="showPassword()" *ngIf="passwordInputType === 'password'" mat-icon-button matSuffix
-                  type="button">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button (click)="hidePassword()" *ngIf="passwordInputType === 'text'" mat-icon-button matSuffix type="button">
-                  <mat-icon>visibility_off</mat-icon>
-                </button>
-                <mat-hint>Please type in your password again.</mat-hint>
-              </mat-form-field>
+              <div fxLayout="column">
+                <mat-form-field>
+                  <mat-label>Select Number of Upsells</mat-label>
+                  <mat-select formControlName="noOfUpsells" [(ngModel)]="noOfUpsells" required (selectionChange)="clearSelection()">
+                    <mat-option *ngFor="let option of noOfUpsellsOptions" [value]="option">{{ option }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div *ngFor='let operand of counter(noOfUpsells); let i = index'>
+                  <div fxLayout="row">
+                    <mat-form-field>
+                      <mat-label>Select Product for Upsell {{i+1}}</mat-label>
+                      <mat-select [(ngModel)]="upsellProductsList1[i]" (selectionChange)="AddProductList1()"
+                        [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <div fxLayout="column">
+                <mat-form-field>
+                  <mat-label>Select Number of Downsells</mat-label>
+                  <mat-select formControlName="noOfDownsells" [(ngModel)]="noOfDownsells" required>
+                    <mat-option *ngFor="let option of noOfDownsellsOptions" [value]="option">{{ option }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div *ngFor='let operand of counter(noOfDownsells); let i = index'>
+                  <div fxLayout="row">
+                    <mat-form-field>
+                      <mat-label>Select Product for Downsells {{i+1}}</mat-label>
+                      <mat-select [(ngModel)]="downsellsProductsList1[i]" (selectionChange)="AddProductList1()"
+                        [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
             </div>
-            -->
+
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
               <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT
@@ -124,15 +142,32 @@
           <form [formGroup]="cyclesFormGroup">
             <ng-template matStepLabel>Cycles</ng-template>
 
-            <!-- <div class="heading">You're almost there!</div>
-            <div class="subheading">To finish registration, accept our terms of service and click on "Create Account".
-            </div>
+            <div class="heading">Cycles</div>
+            <div class="subheading">Add Cycles</div>
 
-            <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="terms">
-                I agree to the terms of service and the usual stuff. *
-              </mat-checkbox>
-            </div> -->
+            <div class="content" fxLayout="row" fxLayoutGap="30px">
+
+              <div fxLayout="column">
+                <mat-form-field>
+                  <mat-label>Select Number of Cycles</mat-label>
+                  <mat-select formControlName="noOfCycles" [(ngModel)]="noOfCycles" required (selectionChange)="clearSelection()">
+                    <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div *ngFor='let operand of counter(noOfCycles); let i = index'>
+                  <div fxLayout="row">
+                    <mat-form-field>
+                      <mat-label>Select Product for Cycle {{i+1}}</mat-label>
+                      <mat-select [(ngModel)]="cycleProductsList[i]" (selectionChange)="AddProductList1()"
+                        [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
@@ -146,20 +181,24 @@
           <form [formGroup]="miscFormGroup">
             <ng-template matStepLabel>Misc</ng-template>
 
-            <!-- <div class="heading">You're almost there!</div>
-              <div class="subheading">To finish registration, accept our terms of service and click on "Create Account".
-              </div>
-  
-              <div class="content" fxLayout="column" fxLayoutGap="8px">
-                <mat-checkbox class="checkbox" formControlName="terms">
-                  I agree to the terms of service and the usual stuff. *
-                </mat-checkbox>
-              </div> -->
+            <div class="heading">Misc Options</div>
+            <div class="subheading">Select Options.</div>
+
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+              <mat-checkbox class="checkbox" formControlName="cogsTrack">Track COGS for Products</mat-checkbox>
+            </div>
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+              <mat-checkbox class="checkbox" formControlName="cpaTrack">Track CPA for cycles</mat-checkbox>
+            </div>
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+              <mat-checkbox class="checkbox" formControlName="thirdPartyTrack">Track 3rd Party Offers for Thank You page</mat-checkbox>
+            </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button (click)="submit()" [disabled]="miscFormGroup.invalid" color="primary" mat-raised-button matStepperNext>
-                Create Campaign
+              <button (click)="submit()" [disabled]="miscFormGroup.invalid" color="primary" mat-raised-button
+                matStepperNext>
+                Complete
               </button>
             </div>
           </form>

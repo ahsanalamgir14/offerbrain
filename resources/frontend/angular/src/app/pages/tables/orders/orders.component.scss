@@ -49,3 +49,11 @@
 ::ng-deep .mat-form-field-type-mat-date-range-input .mat-form-field-infix {
   width: 200px !important;
 }
+
+.sticky-columns {
+  // display: flex;
+  // flex-direction: column;
+  height: 700px;
+  max-width: 100%;
+  overflow: auto;
+}

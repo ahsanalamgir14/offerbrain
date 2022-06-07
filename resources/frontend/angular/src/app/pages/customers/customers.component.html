@@ -2,7 +2,53 @@
   <fury-breadcrumbs current="Golden Ticket"></fury-breadcrumbs>
 </div> -->
 
-<fury-page-layout-content fxLayout fxLayoutAlign="space-between center">
+<fury-page-layout-content fxLayout fxLayoutAlign="space-between center" style="padding-top: 20px;">
+
+<mat-expansion-panel [expanded]="0" hideToggle>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Filters
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div fxLayoutGap="50px">
+          <div fxFlex="100" fxFlex.xs="55">
+            <div [@fadeInUp]>
+              <h3 class="mb-5">Other Options</h3>
+            </div>
+            <div fxLayout="row" fxLayoutGap="30px">
+              <div fxLayout="column" fxLayoutGap="0px">
+
+                <div>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Order Count</mat-label>
+                    <mat-select [(value)]="customer_id" (selectionChange)="commonFilter($event.value, 'customer_id')">
+                      <!-- <mat-option [value]="">ALL</mat-option> -->
+                      <mat-option value=1>Customers With order_count</mat-option>
+                      <mat-option value=0>Customers Without order_count</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <!-- <div>
+                  <ng-multiselect-dropdown placeholder="'Select Gateway'" [settings]="dropdownSettings" [data]="midOptions"
+                    [(ngModel)]="selectedMids" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)">
+                  </ng-multiselect-dropdown>
+                </div> -->
+              </div>
+           
+            </div>
+          </div>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
+          <!-- <div><button mat-raised-button color="accent" (click)="reset()">Reset</button></div> -->
+          <div><button mat-raised-button color="accent" (click)="getData()">Apply</button></div>
+        </div>
+      </mat-expansion-panel>
+
+
+
+
+
   <div class="mt" *ngIf="isChecked">
     <button class="ml-1" mat-raised-button color="warn" (click)="deleteRecord()">Delete {{idArray?.length}} Selected
       Record</button>

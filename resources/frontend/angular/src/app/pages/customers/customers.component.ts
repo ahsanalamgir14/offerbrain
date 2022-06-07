@@ -37,6 +37,8 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   address = [];
   idArray = [];
   allIdArray = [];
+  all_fields = [];
+  all_values = [];
   id: number;
   totalRows = 0;
   pageSize = 25;
@@ -48,13 +50,18 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   isDeleting: boolean = false;
   timer: any;
   notyf = new Notyf();
+  customer_id = '';
+
+
+
 
   @Input()
   columns: ListColumn[] = [
     { name: 'Checkbox', property: 'checkbox', visible: true },
     { name: 'Customer Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'Date Last Order', property: 'order_last_date', visible: true, isModelProperty: true },
-    { name: 'Orders Count', property: 'orders_count', visible: true, isModelProperty: true },
+    { name: 'Email', property: 'email', visible: true, isModelProperty: true },
+    { name: 'Orders Count', property: 'orders_count', visible: true, isModelProperty: true }, //by zahid
     { name: 'First Name', property: 'first_name', visible: true, isModelProperty: true },
     { name: 'Last Name', property: 'last_name', visible: true, isModelProperty: true },
     { name: 'Email', property: 'email', visible: true, isModelProperty: true },
@@ -90,6 +97,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
+      
       filter(data => !!data)
     ).subscribe((customers) => {
       this.customers = customers;
@@ -111,6 +119,9 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
       "currentPage": this.currentPage,
       "pageSize": this.pageSize,
       "search": this.search,
+      'all_fields': this.all_fields,
+      'all_values': this.all_values,
+      'customer_id': this.customer_id,
     }
     await this.customersService.getCustomers(this.filters)
       .then(customers => {
@@ -132,7 +143,19 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoading = false;
       });
   }
+  commonFilter(value, field) {
 
+    if (this.all_fields.indexOf(field) === -1) {
+      this.all_fields.push(field);
+      this.all_values.push(value);
+    } else {
+      let index = this.all_fields.indexOf(field);
+      this.all_values[index] = value;
+    }
+
+  }
+
+  
   onFilterChange(value) {
     // if (!this.dataSource) {
     //   return;

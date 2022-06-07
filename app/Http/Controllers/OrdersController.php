@@ -107,8 +107,6 @@ class OrdersController extends Controller
                 }
                 if ($field_array[$i] == 'order_status' && $value_array[$i] == 7) {
                     $query->where('orders.order_status', 7);
-                } else {
-                    $query->where('orders.order_status', '!=', 7);
                 }
             }
         } else {

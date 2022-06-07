@@ -16,7 +16,7 @@ export class CustomersService {
   constructor(private apiService: ApiService) { }
 
   async getCustomers(filters): Promise<any> {
-    await this.apiService.getData(`customers?page=${filters.currentPage}&per_page=${filters.pageSize}&search=${filters.search}`)
+    await this.apiService.getData(`customers?page=${filters.currentPage}&per_page=${filters.pageSize}&search=${filters.search}&customer_id=${filters.customer_id}`)
       .then(res => res.json()).then((data) => {
         this.customers = data;
         this.customersGetResponse.next(data);

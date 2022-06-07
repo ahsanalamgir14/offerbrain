@@ -34,7 +34,7 @@ export class CampaignService {
   async filterGoldenTicket(month, year): Promise<any> {
     await this.apiService.getData(`filter-golden-ticket/${month}/${year}`).then(res => res.json()).then((data) => {
       this.data = data;
-      // this.ticketsGetResponse.next(data);
+      this.ticketsGetResponse.next(data);
     });
     return this.data;
   }
@@ -55,7 +55,7 @@ export class CampaignService {
   async getWeeklyTicket(): Promise<any> {
     await this.apiService.getData(`ticket-weekly`).then(res => res.json()).then((data) => {
       this.data = data;
-      this.ticketWeeklyResponse.next(data);
+      // this.ticketWeeklyResponse.next(data);
     });
     return this.data;
   }
@@ -91,6 +91,13 @@ export class CampaignService {
     await this.apiService.getData(`refresh-weekly`).then(res => res.json()).then((data) => {
       this.data = data;
       this.ticketWeeklyResponse.next(data);
+    });
+    return this.data;
+  }
+  async refreshAllWeeklyTicket(): Promise<any> {
+    await this.apiService.getData(`refresh-all-weekly`).then(res => res.json()).then((data) => {
+      this.data = data;
+      // this.ticketWeeklyResponse.next(data);
     });
     return this.data;
   }

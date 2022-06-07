@@ -6,6 +6,8 @@ export class Customer {
     last_name: string;
     phone: string;
     addresses: string;
+    orders_count: string;
+    
     constructor(customer) {
         this.id = customer.id;
         this.orders_count = customer.orders_count; // by zahid
@@ -14,5 +16,6 @@ export class Customer {
         this.last_name = customer.last_name;
         this.phone = customer.phone;
         this.addresses = customer.addresses;
+        this.orders_count = customer.orders_count;
     }
 }

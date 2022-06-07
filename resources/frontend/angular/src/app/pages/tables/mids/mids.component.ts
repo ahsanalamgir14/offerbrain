@@ -140,13 +140,13 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.filterMidOptions();
       });
 
-    this.timerSubscription = timer(0, 3600 * 1000).pipe(
+    this.timerSubscription = timer(3600 * 1000, 3600 * 1000).pipe(
       map(() => {
         this.midsService.refreshInitials();
       })
     ).subscribe();
   }
-
+  
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property);
   }

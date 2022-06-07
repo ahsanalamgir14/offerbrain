@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,35 +11,7 @@ use Illuminate\Support\Facades\Http;
 
 class CustomerController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $pageno = isset($request->page) ? $request->page : 1;
-    //     $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-    //     $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
-    //     $total_rows = $query->count('id');
-
-    //     if ($request->search != '') {
-    //             $query->Where('email', 'like', '%' . $request->search . '%')
-    //             ->orWhere('first_name', 'like', '%' . $request->search . '%')
-    //             ->orWhere('last_name', 'like', '%' . $request->search . '%');
-    //         }
-    //         // dd($pageno);
-    //         $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
-
-    //     // $total_rows = $query->count('id');
-    //     $total_pages = ceil($total_rows / $data->perPage());
-    //     $pag['count'] = $total_rows;
-    //     $pag['total_pages'] = $total_pages;
-    //     $pag['pageno'] = $pageno;
-    //     $pag['rows_per_page'] = $no_of_records_per_page;
-    //     return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
-    // }
-
-
-
-
-
-    public function index(Request $request)
+    public function index1(Request $request)
     {
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
@@ -46,16 +19,61 @@ class CustomerController extends Controller
         $total_rows = $query->count('id');
 
         if ($request->search != '') {
-            $query->Where('email', 'like', '%' . $request->search . '%')
-            ->orWhere('first_name', 'like', '%' . $request->search . '%')
-            ->orWhere('last_name', 'like', '%' . $request->search . '%');
-        }
-        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
+                $query->Where('email', 'like', '%' . $request->search . '%')
+                ->orWhere('first_name', 'like', '%' . $request->search . '%')
+                ->orWhere('last_name', 'like', '%' . $request->search . '%');
+            }
+            // dd($pageno);
+            $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
+        // $total_rows = $query->count('id');
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
         $pag['pageno'] = $pageno;
         $pag['rows_per_page'] = $no_of_records_per_page;
+        return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
+    }
+
+
+    public function index(Request $request)
+    {
+
+        $is_count = $request->customer_id; 
+        DB::statement("SET SQL_MODE=''");
+        DB::enableQueryLog();
+        $pageno = isset($request->page) ? $request->page : 1;
+        $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
+        
+        if($is_count == 0 && $is_count != 1 && $is_count != ''){
+            ini_set('memory_limit', '512M');
+            set_time_limit(0);
+            $query = Customer::doesnthave('customers')
+            ->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at')
+            ->addSelect(DB::raw('0 as orders_count'));
+            $total_rows = $query->count('customers.id');
+        } else {
+            $query = DB::table('customers')
+            ->select(DB::raw('customers.*'))
+            ->join('orders', function ($join) {
+                $join->on('orders.customer_id', '=','customers.id');
+            })
+            ->addSelect(DB::raw('COUNT(orders.id) as orders_count'))
+            ->groupBy('customers.id');    
+            $total_rows = $query->get()->count('customers.id');
+        }
+                
+        if ($request->search != '') {
+            $query->Where('customers.email', 'like', '%' . $request->search . '%')
+            ->orWhere('customers.first_name', 'like', '%' . $request->search . '%')
+            ->orWhere('customers.last_name', 'like', '%' . $request->search . '%');
+        }
+        $data = $query->orderBy('customers.id', 'desc')->SimplePaginate($no_of_records_per_page);
+        $total_pages = ceil($total_rows / $data->perPage());
+        $pag['count'] = $total_rows;
+        $pag['total_pages'] = $total_pages;
+        $pag['pageno'] = $pageno;
+        $pag['rows_per_page'] = $no_of_records_per_page;
+        // dd(DB::getQueryLog());
         return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
     }
 

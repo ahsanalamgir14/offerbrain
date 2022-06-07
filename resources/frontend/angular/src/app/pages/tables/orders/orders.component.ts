@@ -237,7 +237,6 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   commonFilter(value, field) {
-
     if (this.all_fields.indexOf(field) === -1) {
       this.all_fields.push(field);
       this.all_values.push(value);

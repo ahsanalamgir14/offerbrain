@@ -35,5 +35,8 @@ class Customer extends Model
         'is_sms_communication_enabled',
         'created_at',
     ];
+    public function customers(){
+        return $this->hasMany(Order::class, 'customer_id');
+    }
 
 }

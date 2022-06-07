@@ -19,12 +19,14 @@ import { Notyf } from 'notyf';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
 
+
 @Component({
   selector: 'fury-prospects',
   templateUrl: './prospects.component.html',
   styleUrls: ['./prospects.component.scss'],
   animations: [fadeInRightAnimation, fadeInUpAnimation]
 })
+
 export class ProspectsComponent implements OnInit {
 
   subject$: ReplaySubject<Prospect[]> = new ReplaySubject<Prospect[]>(1);

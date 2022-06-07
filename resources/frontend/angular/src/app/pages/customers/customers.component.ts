@@ -60,8 +60,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Checkbox', property: 'checkbox', visible: true },
     { name: 'Customer Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'Date Last Order', property: 'order_last_date', visible: true, isModelProperty: true },
-    { name: 'Email', property: 'email', visible: true, isModelProperty: true },
-    { name: 'Orders Count', property: 'orders_count', visible: true, isModelProperty: true }, //by zahid
+    { name: 'Orders Count', property: 'orders_count', visible: true, isModelProperty: true },
     { name: 'First Name', property: 'first_name', visible: true, isModelProperty: true },
     { name: 'Last Name', property: 'last_name', visible: true, isModelProperty: true },
     { name: 'Email', property: 'email', visible: true, isModelProperty: true },

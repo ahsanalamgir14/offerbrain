@@ -117,23 +117,23 @@ class CampaignsController extends Controller
                 $result['created_at'] = $result['created_at']['date'];
                 if ($result['updated_at']) {
                     $result['updated_at'] = $result['updated_at']['date'];
-                    $result['updator'] = serialize($result['updator']);
+                    // $result['updator'] = serialize($result['updator']);
                 }
-                $result['creator'] = serialize($result['creator']);
-                $result['countries'] = serialize($result['countries']);
-                $result['offers'] = serialize($result['offers']);
-                $result['channel'] = serialize($result['channel']);
-                $result['payment_methods'] = serialize($result['payment_methods']);
-                if ($result['gateway']) {
-                    $result['gateway'] = serialize($result['gateway']);
-                }
-                $result['alternative_payments'] = serialize($result['alternative_payments']);
-                $result['shipping_profiles'] = serialize($result['shipping_profiles']);
-                $result['return_profiles'] = serialize($result['return_profiles']);
-                $result['postback_profiles'] = serialize($result['postback_profiles']);
-                $result['coupon_profiles'] = serialize($result['coupon_profiles']);
-                $result['fraud_providers'] = serialize($result['fraud_providers']);
-                $result['volume_discounts'] = serialize($result['volume_discounts']);
+                // $result['creator'] = serialize($result['creator']);
+                // $result['countries'] = serialize($result['countries']);
+                // $result['offers'] = serialize($result['offers']);
+                // $result['channel'] = serialize($result['channel']);
+                // $result['payment_methods'] = serialize($result['payment_methods']);
+                // if ($result['gateway']) {
+                //     $result['gateway'] = serialize($result['gateway']);
+                // }
+                // $result['alternative_payments'] = serialize($result['alternative_payments']);
+                // $result['shipping_profiles'] = serialize($result['shipping_profiles']);
+                // $result['return_profiles'] = serialize($result['return_profiles']);
+                // $result['postback_profiles'] = serialize($result['postback_profiles']);
+                // $result['coupon_profiles'] = serialize($result['coupon_profiles']);
+                // $result['fraud_providers'] = serialize($result['fraud_providers']);
+                // $result['volume_discounts'] = serialize($result['volume_discounts']);
                 if (in_array($result['campaign_id'], $db_campaign_ids)) {
                     $campaign->where(['campaign_id' => $result['campaign_id']])->get();
                     $campaign->update($result);
@@ -156,23 +156,23 @@ class CampaignsController extends Controller
                         $result['created_at'] = $result['created_at']['date'];
                         if ($result['updated_at']) {
                             $result['updated_at'] = $result['updated_at']['date'];
-                            $result['updator'] = serialize($result['updator']);
+                            // $result['updator'] = serialize($result['updator']);
                         }
-                        $result['creator'] = serialize($result['creator']);
-                        $result['countries'] = serialize($result['countries']);
-                        $result['offers'] = serialize($result['offers']);
-                        $result['channel'] = serialize($result['channel']);
-                        $result['payment_methods'] = serialize($result['payment_methods']);
-                        if ($result['gateway']) {
-                            $result['gateway'] = serialize($result['gateway']);
-                        }
-                        $result['alternative_payments'] = serialize($result['alternative_payments']);
-                        $result['shipping_profiles'] = serialize($result['shipping_profiles']);
-                        $result['return_profiles'] = serialize($result['return_profiles']);
-                        $result['postback_profiles'] = serialize($result['postback_profiles']);
-                        $result['coupon_profiles'] = serialize($result['coupon_profiles']);
-                        $result['fraud_providers'] = serialize($result['fraud_providers']);
-                        $result['volume_discounts'] = serialize($result['volume_discounts']);
+                        // $result['creator'] = serialize($result['creator']);
+                        // $result['countries'] = serialize($result['countries']);
+                        // $result['offers'] = serialize($result['offers']);
+                        // $result['channel'] = serialize($result['channel']);
+                        // $result['payment_methods'] = serialize($result['payment_methods']);
+                        // if ($result['gateway']) {
+                        //     $result['gateway'] = serialize($result['gateway']);
+                        // }
+                        // $result['alternative_payments'] = serialize($result['alternative_payments']);
+                        // $result['shipping_profiles'] = serialize($result['shipping_profiles']);
+                        // $result['return_profiles'] = serialize($result['return_profiles']);
+                        // $result['postback_profiles'] = serialize($result['postback_profiles']);
+                        // $result['coupon_profiles'] = serialize($result['coupon_profiles']);
+                        // $result['fraud_providers'] = serialize($result['fraud_providers']);
+                        // $result['volume_discounts'] = serialize($result['volume_discounts']);
                         if (in_array($result['campaign_id'], $db_campaign_ids)) {
                             $campaign->where(['campaign_id' => $result['campaign_id']])->get();
                             $campaign->update($result);

@@ -19,14 +19,14 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Campaign Name</mat-label>
-                  <input formControlName="campaignName" matInput required>
+                  <input formControlName="name" matInput required>
                   <!-- <mat-hint>Enter New Campaign Name.</mat-hint> -->
                 </mat-form-field>
               </div>
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select Campaign Type</mat-label>
-                  <mat-select formControlName="campaignType" required>
+                  <mat-select formControlName="campaign_type" required>
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                   <!-- <mat-hint>Required</mat-hint> -->
@@ -36,8 +36,8 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Campaigns for Tracking</mat-label>
-                  <mat-select formControlName="trackingCampaigns">
-                    <mat-option *ngFor="let option of trackingCampaignOptions" [value]="option">{{ option }}</mat-option>
+                  <mat-select formControlName="tracking_campaigns" multiple>
+                    <mat-option *ngFor="let option of trackingCampaignOptions" [value]="option">{{ option.name }}</mat-option>
                   </mat-select>
                   <!-- <mat-hint align="end">example@example.com</mat-hint> -->
                 </mat-form-field>
@@ -46,26 +46,12 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Networks for Tracking</mat-label>
-                  <mat-select formControlName="trackingNetworks">
-                    <mat-option *ngFor="let option of trackingNetworkOptions" [value]="option">{{ option }}</mat-option>
+                  <mat-select formControlName="tracking_networks" multiple>
+                    <mat-option *ngFor="let option of trackingNetworkOptions" [value]="option">{{ option.name }}</mat-option>
                   </mat-select>
                   <!-- <mat-hint align="end">example@example.com</mat-hint> -->
                 </mat-form-field>
               </div>
-
-              <!-- <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
-                <mat-form-field fxFlex="1 1 auto">
-                  <mat-label>Code</mat-label>
-                  <mat-select formControlName="phonePrefix">
-                    <mat-option *ngFor="let option of phonePrefixOptions" [value]="option">{{ option }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field fxFlex="2 1 auto">
-                  <mat-label>Phone Number</mat-label>
-                  <input formControlName="phone" matInput>
-                  <mat-hint align="end"></mat-hint>
-                </mat-form-field>
-              </div> -->
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
@@ -89,18 +75,17 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Upsells</mat-label>
-                  <mat-select formControlName="noOfUpsells" [(ngModel)]="noOfUpsells" required (selectionChange)="clearSelection()">
+                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells" required (selectionChange)="clearSelection()">
                     <mat-option *ngFor="let option of noOfUpsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
-                <div *ngFor='let operand of counter(noOfUpsells); let i = index'>
+                <div *ngFor='let operand of counter(no_of_upsells); let i = index'>
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Upsell {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="upsellProductsList1[i]" (selectionChange)="AddProductList1()"
-                        [ngModelOptions]="{standalone: true}">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
@@ -110,18 +95,17 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Downsells</mat-label>
-                  <mat-select formControlName="noOfDownsells" [(ngModel)]="noOfDownsells" required>
+                  <mat-select formControlName="no_of_downsells" [(ngModel)]="no_of_downsells" required>
                     <mat-option *ngFor="let option of noOfDownsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
-                <div *ngFor='let operand of counter(noOfDownsells); let i = index'>
+                <div *ngFor='let operand of counter(no_of_downsells); let i = index'>
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Downsells {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="downsellsProductsList1[i]" (selectionChange)="AddProductList1()"
-                        [ngModelOptions]="{standalone: true}">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
@@ -150,18 +134,17 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Cycles</mat-label>
-                  <mat-select formControlName="noOfCycles" [(ngModel)]="noOfCycles" required (selectionChange)="clearSelection()">
+                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" required (selectionChange)="clearSelection()">
                     <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
-                <div *ngFor='let operand of counter(noOfCycles); let i = index'>
+                <div *ngFor='let operand of counter(no_of_cycles); let i = index'>
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Cycle {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="cycleProductsList[i]" (selectionChange)="AddProductList1()"
-                        [ngModelOptions]="{standalone: true}">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option }}</mat-option>
+                      <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}">
+                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
@@ -185,13 +168,13 @@
             <div class="subheading">Select Options.</div>
 
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="cogsTrack">Track COGS for Products</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="cogs_track">Track COGS for Products</mat-checkbox>
             </div>
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="cpaTrack">Track CPA for cycles</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="cpa_track">Track CPA for cycles</mat-checkbox>
             </div>
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="thirdPartyTrack">Track 3rd Party Offers for Thank You page</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="third_party_track">Track 3rd Party Offers for Thank You page</mat-checkbox>
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">

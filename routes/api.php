@@ -20,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SubAffiliateController;
+use App\Http\Controllers\CampaignBuilderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,8 @@ Route::resource('profiles', ProfileController::class);
 Route::resource('columns', ColumnController::class);
 Route::resource('sub-affiliates', SubAffiliateController::class);
 Route::resource('networks', NetworkController::class);
+Route::resource('campaigns_builder', CampaignBuilderController::class);
+Route::get('campaign-builder-options', [CampaignBuilderController::class, 'campaign_builder_options']);
 Route::get('golden-ticket/create/{month}/{year}', [GoldenTicketController::class, 'create']);
 Route::get('get_campaigns', [CampaignsController::class, 'get_campaigns']);
 Route::get('get_campaign_columns/{campaign_name}', [CampaignsController::class, 'get_campaign_columns']);

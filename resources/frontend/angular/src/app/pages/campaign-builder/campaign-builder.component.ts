@@ -7,10 +7,9 @@ import { Observable, of, ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ListColumn } from '../../../@fury/shared/list/list-column.model';
-// import { Order } from './order.model';
 import { fadeInRightAnimation } from '../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl, NgForm, FormGroupDirective } from '@angular/forms';
 import { CampaignBuilderService } from './campaign-builder.service';
 import { Subscription } from 'rxjs';
 import { formatDate } from '@angular/common';
@@ -18,98 +17,135 @@ import { environment } from '../../../environments/environment';
 import { ApiService } from 'src/app/api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { scaleInAnimation } from '../../../@fury/animations/scale-in.animation';
-
+import { Notyf } from "notyf";
+import { MatStepper } from '@angular/material/stepper';
+// import { ErrorStateMatcher } from '@angular/material';
 
 @Component({
   selector: 'fury-campaign-builder',
   templateUrl: './campaign-builder.component.html',
-  styleUrls: ['./campaign-builder.component.scss']
+  styleUrls: ['./campaign-builder.component.scss'],
+  // providers: [{ provide: CdkStepper }],
 })
-export class CampaignBuilderComponent implements OnInit {
+export class CampaignBuilderComponent implements OnInit, OnDestroy {
   campaignFormGroup: FormGroup;
   upsellFormGroup: FormGroup;
   cyclesFormGroup: FormGroup;
   miscFormGroup: FormGroup;
 
-  noOfUpsells: number = 1;
-  noOfDownsells: number = 0;
-  noOfCycles: number = 0;
-  upsellProductsList1 = [];
-  downsellsProductsList1 = [];
-  cycleProductsList = [];
+  getProductsSubscription: Subscription;
+  getOptionsSubscription: Subscription;
+  saveSubscription: Subscription;
+
+  /** snake case due to back-end variables */
+  no_of_upsells: number = 1;
+  no_of_downsells: number = 0;
+  no_of_cycles: number = 0;
+  upsell_products = [];
+  downsell_products = [];
+  cycle_products = [];
 
   campaignTypeOptions = ['Straight Sale'];
-  trackingCampaignOptions = ['type1', 'type2'];
-  trackingNetworkOptions = ['network1', 'network2'];
+  trackingCampaignOptions = [];
+  trackingNetworkOptions = [];
   noOfUpsellsOptions = ['0', '1', '2', '3', '4', '5'];
   noOfDownsellsOptions = ['0', '1', '2', '3', '4', '5'];
   noOfCyclesOptions = ['0', '1', '2', '3', '4', '5'];
-  productOptions = ['product1', 'product2', 'product3'];
+  productOptions = [];
 
-  passwordInputType = 'password';
+  notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
+  @ViewChild('stepper', { read: MatStepper }) stepper: MatStepper;
 
   constructor(private fb: FormBuilder,
     private cd: ChangeDetectorRef,
-    private snackbar: MatSnackBar) {
+    private snackbar: MatSnackBar,
+    public campaignBuilderService: CampaignBuilderService) {
   }
 
   ngOnInit() {
-    /**
-     * Horizontal Stepper
-     * @type {FormGroup}
-     */
+
+    this.getOptionsSubscription = this.campaignBuilderService.getOptionsResponse$.subscribe(data => this.manageOptionsResponse(data))
+    this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
+
     this.campaignFormGroup = this.fb.group({
-      campaignName: [null, Validators.required],
-      campaignType: ['Straight Sale', Validators.required],
-      trackingCampaigns: [null, Validators.required],
-      trackingNetworks: [null, Validators.required],
+      name: [null, Validators.required],
+      campaign_type: ['Straight Sale', Validators.required],
+      tracking_campaigns: [null, Validators.required],
+      tracking_networks: [null, Validators.required],
     });
 
     this.upsellFormGroup = this.fb.group({
-      noOfUpsells: [null, Validators.required],
-      noOfDownsells: [null, Validators.required],
-      // upsellProductsList1: [null, Validators.required],
-      // upsellProductsList2: [null, Validators.required],
+      no_of_upsells: [null, Validators.required],
+      no_of_downsells: [null, Validators.required],
+      upsell_products: [null],
+      downsell_products: [null],
     });
 
     this.cyclesFormGroup = this.fb.group({
-      noOfCycles: [null, Validators.required],
-
+      no_of_cycles: [null, Validators.required],
+      cycle_products: [null],
     });
 
     this.miscFormGroup = this.fb.group({
-      // cogsTrack: [null, Validators.required],
-      // cpaTrack: [null, Validators.required],
-      // thirdPartyTrack: [null, Validators.required],
+      cogs_track: [null],
+      cpa_track: [null],
+      third_party_track: [null],
     });
+
+    this.campaignBuilderService.getOptionsData();
+  }
+
+  manageOptionsResponse(data) {
+    if (data.status) {
+      this.productOptions = data.data.products;
+      this.trackingCampaignOptions = data.data.campaigns;
+      this.trackingNetworkOptions = data.data.networks;
+    }
+  }
+
+  manageSaveResponse(data) {
+    console.log('inside');
+    if (data.status) {
+      this.notyf.success(data.message);
+      this.stepper.reset();
+      this.campaignFormGroup.reset();
+      // this.campaignBuilderService.markAllAsUntouched();
+      // Object.keys(this.campaignFormGroup.controls).forEach(key => {
+      //   this.campaignFormGroup.get(key).setErrors(null);
+      // });
+    }
+    else if (!data.status) {
+      this.notyf.error(data.message);
+    }
   }
 
   counter(N: number) {
     return Array.from({ length: N }, (v, i) => i);
   }
 
-  showPassword() {
-    this.passwordInputType = 'text';
-    this.cd.markForCheck();
-  }
-
-  hidePassword() {
-    this.passwordInputType = 'password';
-    this.cd.markForCheck();
-  }
-
   clearSelection() {
     // this.noOfUpsells = null;
-    this.upsellProductsList1 = [];
+    // this.upsell_products.setValue('');
   }
 
   AddProductList1() {
-    console.log(this.upsellProductsList1);
+    // console.log(this.upsell_products);
   }
 
   submit() {
-    this.snackbar.open('You successfully created new campaign.', null, {
-      duration: 5000
-    });
+    this.upsellFormGroup.get('upsell_products').setValue(this.upsell_products);
+    this.upsellFormGroup.get('downsell_products').setValue(this.downsell_products);
+    this.cyclesFormGroup.get('cycle_products').setValue(this.cycle_products);
+    this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
+    // this.snackbar.open('You successfully created new campaign.', null, {
+    //   duration: 5000
+    // });
+  }
+
+  ngOnDestroy() {
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe();
+      this.campaignBuilderService.saveResponse.next([]);
+    }
   }
 }

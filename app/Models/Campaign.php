@@ -10,6 +10,28 @@ class Campaign extends Model
     public $timestamps = false;
     protected $guarded = [];
     protected $table = 'campaigns';
+    protected $casts = [
+        'creator' => 'array',
+        'updator' => 'array',
+        'countries' => 'array',
+        'offers' => 'array',
+        'channel' => 'array',
+        'payment_methods' => 'array',
+        'gateway' => 'array',
+        'alternative_payments' => 'array',
+        'shipping_profiles' => 'array',
+        'return_profiles' => 'array',
+        'postback_profiles' => 'array',
+        'coupon_profiles' => 'array',
+        'fraud_providers' => 'array',
+        'volume_discounts' => 'array',
+        //added only for OfferBrain campaigns
+        'tracking_campaigns' => 'array',
+        'tracking_networks'  => 'array',
+        'upsell_products' => 'array', 
+        'downsell_products' => 'array',
+        'cycle_products' => 'array',
+    ];
     protected $fillable = [
         'id',
         'campaign_id',
@@ -50,5 +72,17 @@ class Campaign extends Model
         'coupon_profiles',
         'fraud_providers',
         'volume_discounts',
+        'campaign_type',
+        'tracking_campaigns',
+        'tracking_networks',
+        'no_of_upsells',
+        'no_of_downsells',
+        'upsell_products',
+        'downsell_products',
+        'no_of_cycles',
+        'cycle_products',
+        'cogs_track',
+        'cpa_track',
+        'third_party_track',
     ];
 }

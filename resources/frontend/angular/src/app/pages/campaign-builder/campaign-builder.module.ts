@@ -22,6 +22,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatStepperModule } from '@angular/material/stepper';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatPaginatorModule,
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
+    MatStepperModule
   ],
   declarations: [CampaignBuilderComponent],
   exports: [CampaignBuilderComponent],

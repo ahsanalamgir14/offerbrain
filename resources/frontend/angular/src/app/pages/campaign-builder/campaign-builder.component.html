@@ -9,7 +9,7 @@
     <div [@fadeInUp] class="card">
       <mat-horizontal-stepper #stepper="matHorizontalStepper" [linear]="true">
         <mat-step [stepControl]="campaignFormGroup">
-          <form [formGroup]="campaignFormGroup">
+          <form [formGroup]="campaignFormGroup"  #postForm="ngForm">
             <ng-template matStepLabel>Campaign</ng-template>
 
             <div class="heading">Campaign</div>
@@ -19,14 +19,14 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Campaign Name</mat-label>
-                  <input formControlName="name" matInput required>
+                  <input formControlName="name" matInput>
                   <!-- <mat-hint>Enter New Campaign Name.</mat-hint> -->
                 </mat-form-field>
               </div>
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select Campaign Type</mat-label>
-                  <mat-select formControlName="campaign_type" required>
+                  <mat-select formControlName="campaign_type">
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                   <!-- <mat-hint>Required</mat-hint> -->
@@ -74,8 +74,8 @@
 
               <div fxLayout="column">
                 <mat-form-field>
-                  <mat-label>Select Number of Upsells</mat-label>
-                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells" required (selectionChange)="clearSelection()">
+                  <mat-label>Select Number of Upsells</mat-label> 
+                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells" (selectionChange)="clearSelection()">
                     <mat-option *ngFor="let option of noOfUpsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -84,7 +84,7 @@
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Upsell {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}">
+                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}" (selectionChange)="avoidDuplication($event, 'upsell',i)">
                         <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
@@ -95,7 +95,7 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Downsells</mat-label>
-                  <mat-select formControlName="no_of_downsells" [(ngModel)]="no_of_downsells" required>
+                  <mat-select formControlName="no_of_downsells" [(ngModel)]="no_of_downsells">
                     <mat-option *ngFor="let option of noOfDownsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -104,7 +104,7 @@
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Downsells {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}">
+                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}" (selectionChange)="avoidDuplication($event, 'downsell',i)">
                         <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
@@ -134,7 +134,8 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Cycles</mat-label>
-                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" required (selectionChange)="clearSelection()">
+                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" (selectionChange)="clearSelection()"Fchange
+                  >
                     <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -143,7 +144,7 @@
                   <div fxLayout="row">
                     <mat-form-field>
                       <mat-label>Select Product for Cycle {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}">
+                      <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"  (selectionChange)="avoidDuplication($event, 'cycleproducts',i)">
                         <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
                       </mat-select>
                     </mat-form-field>
@@ -179,7 +180,7 @@
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button (click)="submit()" [disabled]="miscFormGroup.invalid" color="primary" mat-raised-button
+              <button (click)="submit()" (click)="clear(postForm)" [disabled]="miscFormGroup.invalid" color="primary" mat-raised-button
                 matStepperNext>
                 Complete
               </button>

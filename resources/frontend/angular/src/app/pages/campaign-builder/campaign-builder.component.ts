@@ -44,6 +44,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   upsell_products = [];
   downsell_products = [];
   cycle_products = [];
+  array = [];
+  arr_upsell = [];
+  arr_downsell = []; 
+  arr_cycle = [];
 
   campaignTypeOptions = ['Straight Sale'];
   trackingCampaignOptions = [];
@@ -75,14 +79,14 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     });
 
     this.upsellFormGroup = this.fb.group({
-      no_of_upsells: [null, Validators.required],
-      no_of_downsells: [null, Validators.required],
+      no_of_upsells: [null],
+      no_of_downsells: [null],
       upsell_products: [null],
       downsell_products: [null],
     });
 
     this.cyclesFormGroup = this.fb.group({
-      no_of_cycles: [null, Validators.required],
+      no_of_cycles: [null],
       cycle_products: [null],
     });
 
@@ -94,6 +98,8 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
 
     this.campaignBuilderService.getOptionsData();
   }
+
+
 
   manageOptionsResponse(data) {
     if (data.status) {
@@ -109,6 +115,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.notyf.success(data.message);
       this.stepper.reset();
       this.campaignFormGroup.reset();
+      this.upsellFormGroup.reset();
+      this.cyclesFormGroup.reset();
+      this.miscFormGroup.reset();
       // this.campaignBuilderService.markAllAsUntouched();
       // Object.keys(this.campaignFormGroup.controls).forEach(key => {
       //   this.campaignFormGroup.get(key).setErrors(null);
@@ -128,15 +137,61 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     // this.upsell_products.setValue('');
   }
 
+  avoidDuplication(value, param, index) {
+    let item = value.value;
+    if(param == 'cycleproducts'){
+      if(this.arr_cycle.indexOf(item) !== -1){
+        this.notyf.error('Value already selected');
+        this.cycle_products[index] = [];
+      }
+       else {
+        this.arr_cycle.push(item);
+      }
+    }
+    if(param == 'upsell'){
+      if(this.arr_upsell.indexOf(item) !== -1){
+        this.notyf.error('Value already existed in upsell');
+        this.upsell_products[index] = [];
+      } else if(this.arr_downsell.indexOf(item) !== -1){
+        this.notyf.error('Value already exists in downcell');
+        this.upsell_products[index] = [];
+      } else {
+        this.arr_upsell.push(item);
+      }
+    } else if(param == 'downsell'){
+      if(this.arr_downsell.indexOf(item) !== -1){
+        this.notyf.error('Value already exists in downcell');
+        this.downsell_products[index] = [];
+      } else if(this.arr_upsell.indexOf(item) !== -1){
+        this.notyf.error('Value already existed in upsell');
+        this.downsell_products[index] = [];
+      } else {
+        this.arr_downsell.push(item);
+      }
+    }
+  }
   AddProductList1() {
     // console.log(this.upsell_products);
+  }
+
+  clear(form: NgForm): void {
+    form.resetForm();
+    Object.keys(form.controls).forEach(key =>{
+       form.controls[key].setErrors(null)
+    });
+
   }
 
   submit() {
     this.upsellFormGroup.get('upsell_products').setValue(this.upsell_products);
     this.upsellFormGroup.get('downsell_products').setValue(this.downsell_products);
     this.cyclesFormGroup.get('cycle_products').setValue(this.cycle_products);
-    this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
+    let saved =  this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
+    if(saved){
+      this.upsell_products = [];
+      this.downsell_products = [];
+      this.cycle_products = [];
+    } 
     // this.snackbar.open('You successfully created new campaign.', null, {
     //   duration: 5000
     // });

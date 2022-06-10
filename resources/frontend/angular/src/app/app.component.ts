@@ -120,11 +120,11 @@ export class AppComponent {
             routeOrFunction: '/campaign-builder',
             position: 13
           },
-          // {
-          //   name: 'My Campaigns',
-          //   routeOrFunction: '/not-implements',
-          //   position: 14
-          // },
+          {
+            name: 'My Campaigns',
+            routeOrFunction: '/my-campaigns',
+            position: 14
+          },
         ]
       },
       // {

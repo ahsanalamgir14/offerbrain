@@ -15,6 +15,7 @@ class AddColumnsToCampaignsTable extends Migration
     {
         Schema::table('campaigns', function (Blueprint $table) {
             // $table->string('name')->nullable()->default(null);
+            $table->unsignedBigInteger('user_id')->nullable()->after('gateway_id')->default(null);
             $table->string('campaign_type')->nullable()->default(null);
             $table->json('tracking_campaigns')->nullable()->default(null);
             $table->json('tracking_networks')->nullable()->default(null);

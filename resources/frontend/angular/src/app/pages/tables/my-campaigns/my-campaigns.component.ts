@@ -7,24 +7,28 @@ import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
 import { FormGroup, FormControl } from '@angular/forms';
-import { CampaignsMenuService } from './campaigns-menu.service';
+import { MyCampaignsService } from './my-campaigns.service';
 import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
-import { Campaign } from './campaigns.model';
+import { Campaign } from './my-campaigns.model';
 // import { CustomerDetailComponent } from './campaign-detail/campaign-detail.component';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Notyf } from 'notyf';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
+import { Pipe, PipeTransform } from '@angular/core';
 import { Location } from '@angular/common';
+import { TooltipListPipe } from './tooltip-list.pipe';
 
 @Component({
   selector: 'fury-campaigns',
-  templateUrl: './campaigns.component.html',
-  styleUrls: ['./campaigns.component.scss']
+  templateUrl: './my-campaigns.component.html',
+  styleUrls: ['./my-campaigns.component.scss'],
+  providers: [TooltipListPipe]
 })
-export class CampaignsComponent implements OnInit {
+
+export class MyCampaignsComponent implements OnInit {
   subject$: ReplaySubject<Campaign[]> = new ReplaySubject<Campaign[]>(1);
   data$: Observable<Campaign[]> = this.subject$.asObservable();
   getSubscription: Subscription;
@@ -49,53 +53,62 @@ export class CampaignsComponent implements OnInit {
 
   @Input()
   columns: ListColumn[] = [
-    { name: 'id', property: 'id', visible: true, isModelProperty: true },
+    // { name: 'id', property: 'id', visible: false, isModelProperty: true },
     { name: 'campaign_id', property: 'campaign_id', visible: true, isModelProperty: true },
     // { name: 'gateway_id', property: 'gateway_id', visible: true, isModelProperty: true },
     // { name: 'is_active', property: 'is_active', visible: true, isModelProperty: true},
-    { name: 'tax_provider_id', property: 'tax_provider_id', visible: false, isModelProperty: false },
-    { name: 'data_verification_provider_id', property: 'data_verification_provider_id', visible: false, isModelProperty: false },
-    { name: 'site_url', property: 'site_url', visible: false, isModelProperty: false },
-    { name: 'is_archived', property: 'is_archived', visible: false, isModelProperty: false },
-    { name: 'is_archivedprepaid_blocked', property: 'is_archivedprepaid_blocked', visible: false, isModelProperty: false },
-    { name: 'is_custom_price_allowed', property: 'is_custom_price_allowed', visible: false, isModelProperty: false },
-    { name: 'is_avs_enabled', property: 'is_avs_enabled', visible: false, isModelProperty: false },
-    { name: 'is_collections_enabled', property: 'is_collections_enabled', visible: false, isModelProperty: false },
-    { name: 'archived_at', property: 'archived_at', visible: false, isModelProperty: false },
-    { name: 'name', property: 'name', visible: true, isModelProperty: true },
-    { name: 'description', property: 'description', visible: true, isModelProperty: true },
-    { name: 'pre_auth_amount', property: 'pre_auth_amount', visible: false, isModelProperty: false },
-    { name: 'creator', property: 'creator', visible: false, isModelProperty: false },
-    { name: 'updator', property: 'updator', visible: false, isModelProperty: false },
-    { name: 'countries', property: 'countries', visible: false, isModelProperty: false },
-    { name: 'fulfillment_id', property: 'fulfillment_id', visible: false, isModelProperty: false },
-    { name: 'check_provider_id', property: 'check_provider_id', visible: false, isModelProperty: false },
-    { name: 'membership_provider_id', property: 'membership_provider_id', visible: false, isModelProperty: false },
-    { name: 'call_confirm_provider_id', property: 'call_confirm_provider_id', visible: false, isModelProperty: false },
-    { name: 'chargeback_provider_id', property: 'chargeback_provider_id', visible: false, isModelProperty: false },
-    { name: 'prospect_provider_id', property: 'prospect_provider_id', visible: false, isModelProperty: false },
-    { name: 'email_provider_id', property: 'email_provider_id', visible: false, isModelProperty: false },
-    { name: 'offers', property: 'offers', visible: false, isModelProperty: false },
-    { name: 'channel', property: 'channel', visible: false, isModelProperty: false },
-    { name: 'payment_methods', property: 'payment_methods', visible: false, isModelProperty: false },
-    { name: 'gateway', property: 'gateway', visible: false, isModelProperty: false },
-    { name: 'alternative_payments', property: 'alternative_payments', visible: false, isModelProperty: false },
-    { name: 'shipping_profiles', property: 'shipping_profiles', visible: false, isModelProperty: false },
-    { name: 'return_profiles', property: 'return_profiles', visible: false, isModelProperty: false },
-    { name: 'postback_profiles', property: 'postback_profiles', visible: false, isModelProperty: false },
-    { name: 'coupon_profiles', property: 'coupon_profiles', visible: false, isModelProperty: false },
-    { name: 'fraud_providers', property: 'fraud_providers', visible: false, isModelProperty: false },
-    { name: 'volume_discounts', property: 'volume_discounts', visible: false, isModelProperty: false },
-    { name: 'created_at', property: 'created_at', visible: true, isModelProperty: true },
+    // { name: 'tax_provider_id', property: 'tax_provider_id', visible: false, isModelProperty: false },
+    // { name: 'data_verification_provider_id', property: 'data_verification_provider_id', visible: false, isModelProperty: false },
+    // { name: 'site_url', property: 'site_url', visible: false, isModelProperty: false },
+    // { name: 'is_archived', property: 'is_archived', visible: false, isModelProperty: false },
+    // { name: 'is_archivedprepaid_blocked', property: 'is_archivedprepaid_blocked', visible: false, isModelProperty: false },
+    // { name: 'is_custom_price_allowed', property: 'is_custom_price_allowed', visible: false, isModelProperty: false },
+    // { name: 'is_avs_enabled', property: 'is_avs_enabled', visible: false, isModelProperty: false },
+    // { name: 'is_collections_enabled', property: 'is_collections_enabled', visible: false, isModelProperty: false },
+    // { name: 'archived_at', property: 'archived_at', visible: false, isModelProperty: false },
+    { name: 'Name', property: 'name', visible: true, isModelProperty: true },
+    // { name: 'description', property: 'description', visible: false, isModelProperty: true },
+    // { name: 'pre_auth_amount', property: 'pre_auth_amount', visible: false, isModelProperty: false },
+    // { name: 'creator', property: 'creator', visible: false, isModelProperty: false },
+    // { name: 'updator', property: 'updator', visible: false, isModelProperty: false },
+    // { name: 'countries', property: 'countries', visible: false, isModelProperty: false },
+    // { name: 'fulfillment_id', property: 'fulfillment_id', visible: false, isModelProperty: false },
+    // { name: 'check_provider_id', property: 'check_provider_id', visible: false, isModelProperty: false },
+    // { name: 'membership_provider_id', property: 'membership_provider_id', visible: false, isModelProperty: false },
+    // { name: 'call_confirm_provider_id', property: 'call_confirm_provider_id', visible: false, isModelProperty: false },
+    // { name: 'chargeback_provider_id', property: 'chargeback_provider_id', visible: false, isModelProperty: false },
+    // { name: 'prospect_provider_id', property: 'prospect_provider_id', visible: false, isModelProperty: false },
+    // { name: 'email_provider_id', property: 'email_provider_id', visible: false, isModelProperty: false },
+    // { name: 'offers', property: 'offers', visible: false, isModelProperty: false },
+    // { name: 'channel', property: 'channel', visible: false, isModelProperty: false },
+    // { name: 'payment_methods', property: 'payment_methods', visible: false, isModelProperty: false },
+    // { name: 'gateway', property: 'gateway', visible: false, isModelProperty: false },
+    // { name: 'alternative_payments', property: 'alternative_payments', visible: false, isModelProperty: false },
+    // { name: 'shipping_profiles', property: 'shipping_profiles', visible: false, isModelProperty: false },
+    // { name: 'return_profiles', property: 'return_profiles', visible: false, isModelProperty: false },
+    // { name: 'postback_profiles', property: 'postback_profiles', visible: false, isModelProperty: false },
+    // { name: 'coupon_profiles', property: 'coupon_profiles', visible: false, isModelProperty: false },
+    // { name: 'fraud_providers', property: 'fraud_providers', visible: false, isModelProperty: false },
+    // { name: 'volume_discounts', property: 'volume_discounts', visible: false, isModelProperty: false },
+    { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: true, isModelProperty: false },
+    { name: 'Tracking Networks', property: 'tracking_networks', visible: true, isModelProperty: false },
+    { name: 'Upsell Poducts', property: 'upsell_products', visible: true, isModelProperty: false },
+    { name: 'Downsell Products', property: 'downsell_products', visible: true, isModelProperty: false },
+    { name: 'Cycle Products', property: 'cycle_products', visible: true, isModelProperty: false },
+    { name: 'Cogs Track', property: 'cogs_track', visible: true, isModelProperty: true },
+    { name: 'Cpa Track', property: 'cpa_track', visible: true, isModelProperty: true },
+    { name: 'Third Party Track', property: 'third_party_track', visible: true, isModelProperty: true },
+    { name: 'Created At', property: 'created_at', visible: true, isModelProperty: true },
     // { name: 'updated_at', property: 'updated_at', visible: true, isModelProperty: true },
   ] as ListColumn[];
+  
   dataSource: MatTableDataSource<Campaign> | null;
   selection = new SelectionModel<Campaign>(true, []);
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private campaignsService: CampaignsMenuService, private location: Location) { }
+  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe) { }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property); ''

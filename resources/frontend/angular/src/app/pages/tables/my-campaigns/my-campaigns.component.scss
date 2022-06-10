@@ -1,0 +1,32 @@
+.mt {
+  padding-top: 20px;
+}
+.view-link {
+  color: #6495ed;
+}
+.delete-link {
+  color: #f62217;
+}
+.clickable {
+  cursor: pointer;
+}
+.sticky-columns {
+  height: 550px;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.list-items > li{
+  font-weight: 600;
+    font-size: 12px;
+}
+
+:host ::ng-deep .mat-sort-header-container {
+  display: flex;
+  justify-content: center;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  text-align: center;
+}

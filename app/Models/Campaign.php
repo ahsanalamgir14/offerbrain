@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+// use Laravel\Sanctum\HasApiTokens;
+// use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Campaign extends Model
 {
+    // use HasApiTokens, HasFactory, Notifiable;
+
     public $timestamps = false;
     protected $guarded = [];
     protected $table = 'campaigns';
@@ -27,15 +31,19 @@ class Campaign extends Model
         'volume_discounts' => 'array',
         //added only for OfferBrain campaigns
         'tracking_campaigns' => 'array',
-        'tracking_networks'  => 'array',
-        'upsell_products' => 'array', 
+        'tracking_networks' => 'array',
+        'upsell_products' => 'array',
         'downsell_products' => 'array',
         'cycle_products' => 'array',
+        'cogs_track' => 'boolean',
+        'cpa_track' => 'boolean',
+        'third_party_track' => 'boolean',
     ];
     protected $fillable = [
         'id',
         'campaign_id',
         'gateway_id',
+        'user_id',
         'is_active',
         'tax_provider_id',
         'data_verification_provider_id',
@@ -85,4 +93,17 @@ class Campaign extends Model
         'cpa_track',
         'third_party_track',
     ];
+
+    public function getCogsTrackAttribute($value)
+    {
+        return $value == 1 ? 1 : 0;
+    }
+    public function getCpaTrackAttribute($value)
+    {
+        return $value == 1 ? 1 : 0;
+    }
+    public function getThirdPartyTrackAttribute($value)
+    {
+        return $value == 1 ? 1 : 0;
+    }
 }

@@ -1,0 +1,168 @@
+<!-- <div class="padding">
+  <fury-breadcrumbs current="Golden Ticket"></fury-breadcrumbs>
+</div> -->
+
+<fury-page-layout-content fxLayout fxLayoutAlign="space-between center">
+  <div class="mt" *ngIf="isChecked">
+    <button class="ml-1" mat-raised-button color="warn" (click)="deleteRecord()">Delete {{idArray?.length}} Selected
+      Record</button>
+  </div>
+</fury-page-layout-content>
+
+<fury-page-layout mode="simple">
+  <fury-page-layout-content [@fadeInUp]>
+    <fury-list style="box-shadow:none;" name="My Campaigns" [columns]="columns" (filterChange)="onFilterChange($event)">
+      <mat-progress-bar mode="query" color="warn" *ngIf="isDeleting"></mat-progress-bar>
+      <!-- <ngx-ui-loader></ngx-ui-loader> -->
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+
+      <!-- Progress Spinner -->
+      <!-- <div *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center; background: white;">
+          <mat-progress-spinner color="primary" mode="indeterminate">
+          </mat-progress-spinner>http://ec2-184-72-73-137.compute-1.amazonaws.com/orders
+        </div> -->
+      <!-- <div class="sticky-columns"> -->
+      <table [dataSource]="dataSource" mat-table matSort>
+
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="checkbox">
+          <th *matHeaderCellDef class="actions-cell" mat-header-cell>
+            <mat-checkbox (change)="$event ? masterToggle($event) : null" [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+          </th>
+          <td *matCellDef="let row" class="actions-cell" mat-cell>
+            <mat-checkbox color="primary" (click)="$event.stopPropagation()" (change)="$event ? selectToggle($event, row.id) : null"
+              [checked]="selection.isSelected(row)"></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- fullName Column -->
+        <ng-container *ngFor="let column of columns">
+          <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
+            <td *matCellDef="let row" mat-cell>
+              {{ row[column.property] }}
+            </td>
+          </ng-container>
+        </ng-container>
+        <!-- 
+        <ng-container matColumnDef="tracking_campaigns">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Campaigns</th>
+          <td *matCellDef="let row" mat-cell>
+            <ul class="list-items">
+              <li *ngFor="let campaign of row.tracking_campaigns">
+                {{ campaign.name }}
+              </li>
+            </ul>
+          </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="tracking_campaigns">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Campaigns</th>
+          <!-- (click)="openDialog(row)" -->
+          <td *matCellDef="let row, index as i" [matTooltip]="row.tracking_campaigns | tooltipList" matTooltipClass="tooltip-list"
+            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+            <a routerLink="#">{{ row.tracking_campaigns.length }}</a>
+
+          </td>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="tracking_networks">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Networks</th>
+          <td *matCellDef="let row" mat-cell>
+            <ul class="list-items">
+              <li *ngFor="let network of row.tracking_networks">
+                {{ network.name }}
+              </li>
+            </ul>
+          </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="tracking_networks">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Networks</th>
+          <td *matCellDef="let row, index as i" [matTooltip]="row.tracking_networks | tooltipList" matTooltipClass="tooltip-list"
+            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+            <a routerLink="#">{{ row.tracking_networks.length }}</a>
+          </td>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="upsell_products">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell Products</th>
+          <td *matCellDef="let row" mat-cell>
+            <ul class="list-items">
+              <li *ngFor="let product of row.upsell_products">
+                {{ product.name }}
+              </li>
+            </ul>
+          </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="upsell_products">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell Products</th>
+          <td *matCellDef="let row, index as i" [matTooltip]="row.upsell_products | tooltipList" matTooltipClass="tooltip-list"
+            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+            <a routerLink="#">{{ row.upsell_products.length }}</a>
+          </td>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="downsell_products">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Downsell Products</th>
+          <td *matCellDef="let row" mat-cell>
+            <ul class="list-items">
+              <li *ngFor="let product of row.downsell_products">
+                {{ product.name }}
+              </li>
+            </ul>
+          </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="downsell_products">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Downsell Products</th>
+          <td *matCellDef="let row, index as i" [matTooltip]="row.downsell_products | tooltipList" matTooltipClass="tooltip-list"
+            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+            <a routerLink="#">{{ row.downsell_products.length }}</a>
+          </td>
+        </ng-container>
+
+         <!-- <ng-container matColumnDef="cycle_products">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Cycle Products</th>
+          <td *matCellDef="let row" mat-cell>
+            <ul class="list-items">
+              <li *ngFor="let product of row.cycle_products">
+                {{ product.name }}
+              </li>
+            </ul>
+          </td>
+        </ng-container> -->
+
+        <ng-container matColumnDef="cycle_products">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Cycle Products</th>
+            <td *matCellDef="let row, index as i" [matTooltip]="row.cycle_products | tooltipList" matTooltipClass="tooltip-list"
+              mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+              <a routerLink="#">{{ row.cycle_products.length }}</a>
+            </td>
+          </ng-container>
+
+
+        <!-- Action Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let row">
+            <a class="view-link" (click)="openDialog(row.id)">View</a> |
+            <a class="delete-link" (click)="handleDeleteAction(row.id)">Delete</a>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="visibleColumns; sticky: true" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+      </table>
+      <!-- </div> -->
+
+      <!-- <mat-paginator #paginator [length]="totalRows" [pageIndex]="currentPage" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+          (page)="pageChanged($event)" aria-label="Select page">
+        </mat-paginator> -->
+
+    </fury-list>
+
+  </fury-page-layout-content>
+</fury-page-layout>

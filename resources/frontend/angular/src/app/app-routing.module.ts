@@ -55,10 +55,6 @@ const routes: Routes = [
         loadChildren: () => import('./pages/tables/sub-affiliates/sub-affiliates.module').then(m => m.SubAffiliatesModule),
       },
       {
-        path: 'campaigns-network',
-        loadChildren: () => import('./pages/tables/campaigns/campaigns.module').then(m => m.CampaignsModule),
-      },
-      {
         path: 'orders/product-detail',
         loadChildren: () => import('./pages/tables/orders/product-detail/product-detail.module').then(m => m.ProductDetailModule),
       },
@@ -89,6 +85,10 @@ const routes: Routes = [
       {
         path: 'campaign-builder',
         loadChildren: () => import('./pages/campaign-builder/campaign-builder.module').then(m => m.CampaignBuilderModule),
+      },
+      {
+        path: 'my-campaigns',
+        loadChildren: () => import('./pages/tables/my-campaigns/my-campaigns.module').then(m => m.MyCampaignsModule),
       },
     ]
   }

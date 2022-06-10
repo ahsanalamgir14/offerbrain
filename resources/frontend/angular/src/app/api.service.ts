@@ -23,7 +23,10 @@ export class ApiService {
     const response = fetch(`${this.endPoint}/api/${url}`, {
       method: 'POST',
       body: JSON.stringify(data),
-      headers: { "Content-type": "application/json; charset=UTF-8" },
+      headers: {
+        'Accept': 'application/json',
+        "Content-type": "application/json; charset=UTF-8",
+      },
       credentials: 'same-origin'
     })
       .catch(error => {

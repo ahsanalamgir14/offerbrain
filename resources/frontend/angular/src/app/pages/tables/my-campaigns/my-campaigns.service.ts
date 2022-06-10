@@ -5,7 +5,7 @@ import { ApiService } from 'src/app/api.service';
 @Injectable({
   providedIn: 'root'
 })
-export class CampaignsMenuService {
+export class MyCampaignsService {
   campaigns: any;
   gateway: any;
   columns: any;
@@ -20,7 +20,7 @@ export class CampaignsMenuService {
   constructor(private apiService: ApiService) { }
 
   async getCampaigns(filters): Promise<any> {
-    await this.apiService.getData(`campaigns?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&search=${filters.search}`).then(res => res.json()).then((data) => {
+    await this.apiService.getData(`campaigns_builder?start_date=${filters.start}&end_date=${filters.end}&fields=${filters.all_fields}&values=${filters.all_values}&search=${filters.search}`).then(res => res.json()).then((data) => {
       this.campaigns = data;
       // this.campaignsGetResponse.next(data);
     });

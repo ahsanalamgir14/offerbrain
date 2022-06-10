@@ -4,8 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BreadcrumbsModule } from '../../../../@fury/shared/breadcrumbs/breadcrumbs.module';
 import { ListModule } from '../../../../@fury/shared/list/list.module';
 import { MaterialModule } from '../../../../@fury/shared/material-components.module';
-import { CampaignsRoutingModule } from './campaigns-routing.module';
-import { CampaignsComponent } from './campaigns.component';
+import { MyCampaignsRoutingModule } from './my-campaigns-routing.module';
+import { MyCampaignsComponent } from './my-campaigns.component';
 import { FurySharedModule } from '../../../../@fury/fury-shared.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,11 +23,15 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 // import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
+import { TooltipListPipe } from './tooltip-list.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+
 
 @NgModule({
   imports: [
     CommonModule,
-    CampaignsRoutingModule,
+    MyCampaignsRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
@@ -48,10 +52,11 @@ import { NgxUiLoaderModule } from 'ngx-ui-loader';
     MatTableModule,
     MatPaginatorModule,
     MatProgressBarModule,
-    NgxUiLoaderModule
+    NgxUiLoaderModule,
+    MatTooltipModule
   ],
-  declarations: [CampaignsComponent],
-  exports: [CampaignsComponent],
+  declarations: [MyCampaignsComponent, TooltipListPipe],
+  exports: [MyCampaignsComponent, TooltipListPipe],
 
 })
-export class CampaignsModule { }
+export class MyCampaignsModule { }

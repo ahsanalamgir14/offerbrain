@@ -32,8 +32,8 @@ class CampaignBuilderController extends Controller
         // $data = Campaign::find(250);
         // return response()->json(['status' => true, 'data' => $data]);
 
-        $data = Campaign::where(['user_id' => 1])->get();
-        // $data = Campaign::where(['user_id' => $request->user()->id])->get();
+        // $data = Campaign::where(['user_id' => 1])->get();
+        $data = Campaign::where(['user_id' => $request->user()->id])->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
 

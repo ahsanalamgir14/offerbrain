@@ -6,17 +6,34 @@ use Illuminate\Http\Request;
 use App\Models\Campaign;
 use Carbon\Carbon;
 use DB;
+use Auth;
+use Session;
+// use Illuminate\Support\Facades\Auth;
 
 class CampaignBuilderController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+
+            $this->user = Auth::user();
+
+            return $next($request);
+        });
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Campaign::find(250);
+        // $data = Campaign::find(250);
+        // return response()->json(['status' => true, 'data' => $data]);
+
+        // $data = Campaign::where(['user_id' => 1])->get();
+        $data = Campaign::where(['user_id' => $request->user()->id])->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
 
@@ -42,10 +59,8 @@ class CampaignBuilderController extends Controller
         $data = $request->all();
         $campaign = new Campaign();
         $data['campaign_id'] = rand(100000, 999999);
-        // dd($data['campaign_id']);
         $db_campaign_ids = Campaign::all()->pluck('campaign_id')->toArray();
-        // dd($data['campaign_id']);
-
+        $data['user_id'] = $request->user()->id;
         $data['created_at'] = Carbon::now();
         // if ($data['updated_at']) {
         //     $data['updated_at'] = $data['updated_at']['date'];
@@ -123,8 +138,8 @@ class CampaignBuilderController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         $data['products'] = DB::table('order_products')->select('id', 'name')->groupBy('name')->get();
-        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id','name')->groupBy('campaign_id')->get();
-        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id','name')->groupBy('network_affiliate_id')->get();
+        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->groupBy('campaign_id')->get();
+        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->groupBy('network_affiliate_id')->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
 }

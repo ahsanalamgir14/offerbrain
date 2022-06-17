@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => ['web']], function () {
     Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
 });
+
 Route::resource('dashboard', DashboardController::class);
 Route::resource('orders', OrdersController::class);
 Route::resource('customers', CustomerController::class);
@@ -126,3 +127,4 @@ Route::get('get-active-mids', [MidController::class, 'get_active_mids']);
 Route::get('refresh-initials', [MidController::class, 'refresh_initials']);
 Route::get('reset-initials', [MidController::class, 'reset_initials']);
 Route::get('date-range-products', [OrderProductController::class, 'date_range_products']);
+// Route::get('my-campaigns', [CampaignCon::class, 'get_my_campaigns']);

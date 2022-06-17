@@ -894,7 +894,6 @@ class OrdersController extends Controller
                 'criteria' => 'all'
             ]
         )->getBody()->getContents());
-        return response()->json(['status' => false, 'message' => $api_data]);
         $order_ids = $api_data->order_id;
         $total_orders = $api_data->total_orders;
         // dd($total_orders);

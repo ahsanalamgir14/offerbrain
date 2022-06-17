@@ -9,7 +9,7 @@
     <div [@fadeInUp] class="card">
       <mat-horizontal-stepper #stepper="matHorizontalStepper" [linear]="true">
         <mat-step [stepControl]="campaignFormGroup">
-          <form [formGroup]="campaignFormGroup"  #postForm="ngForm">
+          <form [formGroup]="campaignFormGroup" #postForm="ngForm">
             <ng-template matStepLabel>Campaign</ng-template>
 
             <div class="heading">Campaign</div>
@@ -24,12 +24,16 @@
                 </mat-form-field>
               </div>
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+
                 <mat-form-field fxFlex="25">
                   <mat-label>Select Campaign Type</mat-label>
                   <mat-select formControlName="campaign_type">
+
+                    <ngx-mat-select-search placeholderLabel="Search..." noEntriesFoundLabel="'Not Found'">
+                    </ngx-mat-select-search>
+
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
-                  <!-- <mat-hint>Required</mat-hint> -->
                 </mat-form-field>
               </div>
 
@@ -37,9 +41,13 @@
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Campaigns for Tracking</mat-label>
                   <mat-select formControlName="tracking_campaigns" multiple>
-                    <mat-option *ngFor="let option of trackingCampaignOptions" [value]="option">{{ option.name }}</mat-option>
+
+                    <ngx-mat-select-search [formControl]="campaignSearchCtrl" placeholderLabel="Search..."
+                      noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+
+                    <mat-option *ngFor="let option of filteredCampaigns | async" [value]="option">{{ option.name }}
+                    </mat-option>
                   </mat-select>
-                  <!-- <mat-hint align="end">example@example.com</mat-hint> -->
                 </mat-form-field>
               </div>
 
@@ -47,15 +55,20 @@
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Networks for Tracking</mat-label>
                   <mat-select formControlName="tracking_networks" multiple>
-                    <mat-option *ngFor="let option of trackingNetworkOptions" [value]="option">{{ option.name }}</mat-option>
+
+                    <ngx-mat-select-search [formControl]="networkSearchCtrl" placeholderLabel="Search..."
+                      noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+
+                    <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">{{ option.name }}
+                    </mat-option>
                   </mat-select>
-                  <!-- <mat-hint align="end">example@example.com</mat-hint> -->
                 </mat-form-field>
               </div>
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
-              <button (click)="stepper.reset()" [disabled]="campaignFormGroup.pristine" color="primary" mat-button type="button">RESET
+              <button (click)="stepper.reset()" [disabled]="campaignFormGroup.pristine" color="primary" mat-button
+                type="button">RESET
               </button>
               <button [disabled]="campaignFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT
               </button>
@@ -74,18 +87,32 @@
 
               <div fxLayout="column">
                 <mat-form-field>
-                  <mat-label>Select Number of Upsells</mat-label> 
-                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells" (selectionChange)="clearSelection()">
+                  <mat-label>Select Number of Upsells</mat-label>
+                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells"
+                    (selectionChange)="clearSelection()">
                     <mat-option *ngFor="let option of noOfUpsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
-
-                <div *ngFor='let operand of counter(no_of_upsells); let i = index'>
+                <!-- formArrayName="productSearchCtrl" -->
+                <div *ngFor='let operand of counter(no_of_upsells); let i = index' class="row-upcells">
                   <div fxLayout="row">
+                  <!-- <div  fxFlex="85" class="fx-flexs">
+                    <ng-multiselect-dropdown [placeholder]="'Select Upsell'" [settings]="dropdownSettingsForSingle"
+                      [data]="productOptions" [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
+                      (onSelect)="avoidDuplication($event, 'upsell',i)" (onDeSelect)="avoidDuplication($event, 'upsellDeSelect',i)"
+                      (click)="getSelectValue($event, 'upsell',i)">
+                    </ng-multiselect-dropdown>
+                  </div> -->
                     <mat-form-field>
                       <mat-label>Select Product for Upsell {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}" (selectionChange)="avoidDuplication($event, 'upsell',i)">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
+                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
+                        (selectionChange)="avoidDuplication($event, 'upsell',i)"(click)="getSelectValue($event, 'upsell',i)">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
+                            noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
+                        </mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
@@ -100,12 +127,25 @@
                   </mat-select>
                 </mat-form-field>
 
-                <div *ngFor='let operand of counter(no_of_downsells); let i = index'>
+                <div *ngFor='let operand of counter(no_of_downsells); let i = index' class="row-upcells">
                   <div fxLayout="row">
+                    <!-- <div  fxFlex="85" class="fx-flexs">
+                    <ng-multiselect-dropdown [placeholder]="'Select Downsell'" [settings]="dropdownSettingsForSingle"
+                    [data]="productOptions" [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
+                    (onSelect)="avoidDuplication($event, 'downsell',i)" (onDeSelect)="avoidDuplication($event, 'downsellDeSelect',i)">
+                  </ng-multiselect-dropdown>
+                  </div> -->
                     <mat-form-field>
                       <mat-label>Select Product for Downsells {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}" (selectionChange)="avoidDuplication($event, 'downsell',i)">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
+                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
+                        (selectionChange)="avoidDuplication($event, 'downsell',i)"(click)="getSelectValue($event, 'downsell',i)">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
+                            noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
+                          ({{option.id}}) - {{option.price}}
+                        </mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
@@ -134,20 +174,32 @@
               <div fxLayout="column">
                 <mat-form-field>
                   <mat-label>Select Number of Cycles</mat-label>
-                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" (selectionChange)="clearSelection()"Fchange
-                  >
+                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles"
+                    (selectionChange)="clearSelection()" Fchange>
                     <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
                 <div *ngFor='let operand of counter(no_of_cycles); let i = index'>
                   <div fxLayout="row">
-                    <mat-form-field>
+                    <div  fxFlex="85">
+                    <ng-multiselect-dropdown [placeholder]="'Select Cycle'" [settings]="dropdownSettingsForSingle"
+                    [data]="productOptions" [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
+                    (onSelect)="avoidDuplication($event, 'cycleproducts',i)">
+                  </ng-multiselect-dropdown>
+                  </div>
+                    <!-- <mat-form-field>
                       <mat-label>Select Product for Cycle {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"  (selectionChange)="avoidDuplication($event, 'cycleproducts',i)">
-                        <mat-option *ngFor="let option of productOptions" [value]="option">{{ option.name }}</mat-option>
+                      <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
+                        (selectionChange)="avoidDuplication($event, 'cycleproducts',i)">
+                        <mat-option>
+                          <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
+                            noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
+                        </mat-option>
                       </mat-select>
-                    </mat-form-field>
+                    </mat-form-field> -->
                   </div>
                 </div>
               </div>
@@ -155,7 +207,8 @@
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT</button>
+              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button
+                matStepperNext>NEXT</button>
             </div>
           </form>
 
@@ -175,13 +228,14 @@
               <mat-checkbox class="checkbox" formControlName="cpa_track">Track CPA for cycles</mat-checkbox>
             </div>
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="third_party_track">Track 3rd Party Offers for Thank You page</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="third_party_track">Track 3rd Party Offers for Thank You
+                page</mat-checkbox>
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button (click)="submit()" (click)="clear(postForm)" [disabled]="miscFormGroup.invalid" color="primary" mat-raised-button
-                matStepperNext>
+              <button (click)="submit()" (click)="clear(postForm)" [disabled]="miscFormGroup.invalid" color="primary"
+                mat-raised-button matStepperNext>
                 Complete
               </button>
             </div>

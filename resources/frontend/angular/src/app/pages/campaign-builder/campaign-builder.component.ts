@@ -3,9 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject } from 'rxjs';
+import { Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil, map } from 'rxjs/operators';
 import { ListColumn } from '../../../@fury/shared/list/list-column.model';
 import { fadeInRightAnimation } from '../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../@fury/animations/fade-in-up.animation';
@@ -20,6 +20,7 @@ import { scaleInAnimation } from '../../../@fury/animations/scale-in.animation';
 import { Notyf } from "notyf";
 import { MatStepper } from '@angular/material/stepper';
 // import { ErrorStateMatcher } from '@angular/material';
+import { IDropdownSettings } from 'ng-multiselect-dropdown';
 
 @Component({
   selector: 'fury-campaign-builder',
@@ -28,6 +29,16 @@ import { MatStepper } from '@angular/material/stepper';
   // providers: [{ provide: CdkStepper }],
 })
 export class CampaignBuilderComponent implements OnInit, OnDestroy {
+  
+  campaignSearchCtrl: FormControl = new FormControl();
+  networkSearchCtrl: FormControl = new FormControl();
+  productSearchCtrl: FormControl = new FormControl();
+
+  filteredCampaigns: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  filteredNetworks: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  filteredProducts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  _onDestroy: Subject<void> = new Subject<void>();
+
   campaignFormGroup: FormGroup;
   upsellFormGroup: FormGroup;
   cyclesFormGroup: FormGroup;
@@ -46,7 +57,8 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   cycle_products = [];
   array = [];
   arr_upsell = [];
-  arr_downsell = []; 
+  arr_downsell = [];
+  lastupSellSelected = [];
   arr_cycle = [];
 
   campaignTypeOptions = ['Straight Sale'];
@@ -56,9 +68,12 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   noOfDownsellsOptions = ['0', '1', '2', '3', '4', '5'];
   noOfCyclesOptions = ['0', '1', '2', '3', '4', '5'];
   productOptions = [];
-
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   @ViewChild('stepper', { read: MatStepper }) stepper: MatStepper;
+
+  dropdownSettings = {};
+  // dropdownSettings:IDropdownSettings;
+  dropdownSettingsForSingle:IDropdownSettings;
 
   constructor(private fb: FormBuilder,
     private cd: ChangeDetectorRef,
@@ -77,6 +92,45 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       tracking_campaigns: [null, Validators.required],
       tracking_networks: [null, Validators.required],
     });
+
+    // this.dropdownSettings = {
+    //   singleSelection: false,
+    //   idField: 'id',
+    //   textField: 'name',
+    //   selectAllText: 'Select All',
+    //   unSelectAllText: 'UnSelect All',
+    //   itemsShowLimit: 3,
+    //   allowSearchFilter: true
+    // };
+
+    this.dropdownSettingsForSingle = {
+      singleSelection: true,
+      idField: 'id',
+      textField: 'name',
+      // selectAllText: 'Select All',
+      // unSelectAllText: 'UnSelect All',
+      // itemsShowLimit: 3,
+      allowSearchFilter: true
+    };
+
+
+    this.campaignSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCampaignOptions();
+      });
+
+      this.networkSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterNetworkOptions();
+      });
+      this.productSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterProductOptions();
+      });
+
 
     this.upsellFormGroup = this.fb.group({
       no_of_upsells: [null],
@@ -106,11 +160,13 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.productOptions = data.data.products;
       this.trackingCampaignOptions = data.data.campaigns;
       this.trackingNetworkOptions = data.data.networks;
+      this.filteredCampaigns.next(this.trackingCampaignOptions.slice());
+      this.filteredNetworks.next(this.trackingNetworkOptions.slice());
+      this.filteredProducts.next(this.productOptions.slice());
     }
   }
 
   manageSaveResponse(data) {
-    console.log('inside');
     if (data.status) {
       this.notyf.success(data.message);
       this.stepper.reset();
@@ -137,47 +193,52 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     // this.upsell_products.setValue('');
   }
 
-  avoidDuplication(value, param, index) {
-    let item = value.value;
-    if(param == 'cycleproducts'){
-      if(this.arr_cycle.indexOf(item) !== -1){
-        this.notyf.error('Value already selected');
-        this.cycle_products[index] = [];
-      }
-       else {
-        this.arr_cycle.push(item);
+  avoidDuplication(event, param, index) {
+    let item = event.value.name;
+    if(param == 'upsell'){
+      if (this.arr_upsell.indexOf(item) !== -1) {
+          this.notyf.error('Value already existed in upsell');
+          this.upsell_products[index] = [];
+        } else if(this.arr_downsell.indexOf(item) !== -1){
+          this.notyf.error('Value already existed in downsell');
+          this.upsell_products[index] = [];
+        } else {
+          this.arr_upsell.push(item);
+          this.arr_upsell[index] = item;
       }
     }
+    if(param == 'downsell'){
+      if (this.arr_downsell.indexOf(item) !== -1) {
+          this.notyf.error('Value already existed in downsell');
+          this.downsell_products[index] = [];
+        } else if(this.arr_upsell.indexOf(item) !== -1){
+          this.notyf.error('Value already existed in upsell');
+          this.downsell_products[index] = [];
+        } else {
+          this.arr_downsell.push(item);
+          this.arr_downsell[index] = item;
+      }
+    }
+    console.log('Upsell Array is '+this.arr_upsell)
+  }
+  getSelectValue(event, param, index){
     if(param == 'upsell'){
-      if(this.arr_upsell.indexOf(item) !== -1){
-        this.notyf.error('Value already existed in upsell');
-        this.upsell_products[index] = [];
-      } else if(this.arr_downsell.indexOf(item) !== -1){
-        this.notyf.error('Value already exists in downcell');
-        this.upsell_products[index] = [];
-      } else {
-        this.arr_upsell.push(item);
+      if(this.arr_upsell[index] != undefined){
+        var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
+        this.arr_upsell.splice(selectedIndex,1);
       }
     } else if(param == 'downsell'){
-      if(this.arr_downsell.indexOf(item) !== -1){
-        this.notyf.error('Value already exists in downcell');
-        this.downsell_products[index] = [];
-      } else if(this.arr_upsell.indexOf(item) !== -1){
-        this.notyf.error('Value already existed in upsell');
-        this.downsell_products[index] = [];
-      } else {
-        this.arr_downsell.push(item);
+      if(this.arr_downsell[index] != undefined){
+        var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
+        this.arr_downsell.splice(selectedIndex,1);
       }
     }
-  }
-  AddProductList1() {
-    // console.log(this.upsell_products);
   }
 
   clear(form: NgForm): void {
     form.resetForm();
-    Object.keys(form.controls).forEach(key =>{
-       form.controls[key].setErrors(null)
+    Object.keys(form.controls).forEach(key => {
+      form.controls[key].setErrors(null)
     });
 
   }
@@ -186,21 +247,74 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     this.upsellFormGroup.get('upsell_products').setValue(this.upsell_products);
     this.upsellFormGroup.get('downsell_products').setValue(this.downsell_products);
     this.cyclesFormGroup.get('cycle_products').setValue(this.cycle_products);
-    let saved =  this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
-    if(saved){
+    let saved = this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
+    if (saved) {
       this.upsell_products = [];
       this.downsell_products = [];
       this.cycle_products = [];
-    } 
+    }
     // this.snackbar.open('You successfully created new campaign.', null, {
     //   duration: 5000
     // });
   }
 
   ngOnDestroy() {
+    // this._onDestroy.next();
+    // this._onDestroy.complete();
     if (this.saveSubscription) {
       this.saveSubscription.unsubscribe();
       this.campaignBuilderService.saveResponse.next([]);
     }
   }
+
+  protected filterCampaignOptions() {
+    if (!this.trackingCampaignOptions) {
+      return;
+    }
+    let search = this.campaignSearchCtrl.value;
+    // alert(typeof search);
+    if (!search) {
+      this.filteredCampaigns.next(this.trackingCampaignOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredCampaigns.next(
+      this.trackingCampaignOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+
+  protected filterNetworkOptions() {
+    if (!this.trackingNetworkOptions) {
+      return;
+    }
+    let search = this.networkSearchCtrl.value;
+    if (!search) {
+      this.filteredNetworks.next(this.trackingNetworkOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredNetworks.next(
+      this.trackingNetworkOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+
+  protected filterProductOptions() {
+    if (!this.productOptions) {
+      return;
+    }
+
+    let search = this.productSearchCtrl.value;
+    if (!search) {
+      this.filteredProducts.next(this.productOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredProducts.next(
+      this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+
 }

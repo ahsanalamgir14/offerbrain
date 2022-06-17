@@ -23,10 +23,13 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MatStepperModule } from '@angular/material/stepper';
-
+import { MatSelectSearchVersion } from 'ngx-mat-select-search';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
   imports: [
+    NgMultiSelectDropDownModule.forRoot(),
     CommonModule,
     CampaignBuilderRoutingModule,
     FormsModule,
@@ -50,10 +53,13 @@ import { MatStepperModule } from '@angular/material/stepper';
     MatPaginatorModule,
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
-    MatStepperModule
+    MatStepperModule,
+    NgxMatSelectSearchModule 
   ],
   declarations: [CampaignBuilderComponent],
   exports: [CampaignBuilderComponent],
 
 })
-export class CampaignBuilderModule { }
+export class CampaignBuilderModule {
+  matSelectSearchVersion = MatSelectSearchVersion;
+ }

@@ -15,6 +15,7 @@ class OrderProduct extends Model
     protected $table = 'order_products';
     protected $fillable = [
         'order_id',
+        'user_id',
         'product_id',
         'sku',
         'price',

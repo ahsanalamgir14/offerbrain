@@ -29,9 +29,10 @@ class CampaignBuilderController extends Controller
      */
     public function index(Request $request)
     {
+        // dd($request->all());
         // $data = Campaign::find(250);
         // return response()->json(['status' => true, 'data' => $data]);
-
+        // dd($request->user()->id);
         // $data = Campaign::where(['user_id' => 1])->get();
         $data = Campaign::where(['user_id' => $request->user()->id])->get();
         return response()->json(['status' => true, 'data' => $data]);

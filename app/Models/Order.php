@@ -14,6 +14,7 @@ class Order extends Model
     protected $table = 'orders';
     protected $fillable = [
         'order_id',
+        'user_id',
         // 'date_created_at',
         'created_by_employee_name',
         'billing_first_name',

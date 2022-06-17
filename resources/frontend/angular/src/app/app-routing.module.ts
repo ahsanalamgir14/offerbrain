@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { RoleGuard } from './role.guard';
 import { LayoutComponent } from './layout/layout.component';
+import { NotFoundComponent } from './layout/not-found/not-found.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: LayoutComponent,
+    component: LayoutComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'user'], permissions: ['can-redirect'] },
     children: [
       {
         path: 'dashboard',
@@ -91,7 +93,8 @@ const routes: Routes = [
         loadChildren: () => import('./pages/tables/my-campaigns/my-campaigns.module').then(m => m.MyCampaignsModule),
       },
     ]
-  }
+  },
+  { path: 'not-found', component: NotFoundComponent }
 ];
 
 @NgModule({

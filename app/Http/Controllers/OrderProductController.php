@@ -54,9 +54,12 @@ class OrderProductController extends Controller
      * @param  \App\Models\OrderProducts  $orderProducts
      * @return \Illuminate\Http\Response
      */
-    public function show(OrderProducts $orderProducts)
+    public function show($id)
     {
-        //
+        $order = OrderProduct::where(['order_id' => $id])->first();
+        return $order;
+        return Carbon::parse($order->updated_at)->format('Y-m-d');
+
     }
 
     /**

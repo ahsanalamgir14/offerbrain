@@ -14,7 +14,10 @@ class Setting extends Model
     
     protected $fillable = [
         'id',
-        'customer_last_page',
+        'user_id',
+        'key',
+        'value',
+        'compound',
     ];
     
 }

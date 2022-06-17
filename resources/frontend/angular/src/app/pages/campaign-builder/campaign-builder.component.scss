@@ -79,14 +79,40 @@
 
 
 ::ng-deep .multiselect-dropdown .dropdown-btn {
+  background-color: rgba(0, 0, 0, .04);
   border-bottom: 1px solid #adadad !important;
-  padding: 14px 12px !important;
-  border-radius: 0 !important;
+  padding: 12px 12px !important;
+  border-radius: 4px 4px 0 0 !important;
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
+  width: 103% !important;
+  font-size: 14px !important;
+  font-weight: 100 !important;
+  margin-bottom: 5px !important;
+}
+
+::ng-deep .dropdown-list {
+  width: 117% !important;
+  margin-top: 5px !important;
+}
+
+::ng-deep .multiselect-dropdown .dropdown-btn:hover {
+  border-bottom: 2px solid black !important;
 }
 
 ::ng-deep .multiselect-dropdown .dropdown-btn .dropdown-multiselect__caret:before {
   border-width: 5px 5px 0 !important;
+}
+
+::ng-deep .multiselect-dropdown .dropdown-btn .dropdown-multiselect--active .dropdown-multiselect__caret {
+  transform: rotateZ(0deg) !important;
+}
+
+::ng-deep .dropdown-list {
+  top: -230% !important;
+}
+
+::ng-deep .dropdown-list ul {
+  overflow-x: hidden !important;
 }

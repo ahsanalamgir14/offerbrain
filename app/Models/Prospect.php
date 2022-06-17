@@ -18,6 +18,7 @@ class Prospect extends Model
     ];
     protected $fillable = [
         'prospect_id',
+        'user_id',
         'campaign_id',
         'first_name',
         'last_name',

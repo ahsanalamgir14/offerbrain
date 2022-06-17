@@ -20,8 +20,8 @@ class Customer extends Model
     ];
     protected $guarded = [];
     protected $fillable = [
-        'id',
         'customer_id',
+        'user_id',
         'email',
         'origin_id',
         'is_member',

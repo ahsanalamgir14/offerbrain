@@ -3,20 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Prospect;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Http\Request;
-use DB;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use DB;
+use Auth;
 
 class ProspectController extends Controller
 {
     public function index(Request $request)
     {
+        // return $request->user()->id;
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
+
+        $query = Prospect::where('user_id', $request->user()->id)->select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         
-        $query = Prospect::select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         // $total_rows = Prospect::where('id', '>', 0)->count('id');
         // $total_rows = DB::table('prospects')->select('id')->count();
         // $total_rows = 200000;
@@ -34,7 +39,7 @@ class ProspectController extends Controller
         
         // $total_rows = 260466;
         $total_pages = ceil($total_rows / $rows->perPage());
-    
+
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
         $pag['pageno'] = $pageno;
@@ -122,7 +127,7 @@ class ProspectController extends Controller
             return response()->json(['status' => true, 'message' => $total_records . ' Prospects Deleted Successfully']);
         }
     }
-    
+
     public function pull_prospects_dec()
     {
         $new_prospects = 0;
@@ -248,17 +253,17 @@ class ProspectController extends Controller
         // set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
-        
+
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $model = new Prospect();
-        
+
         $startDate = Carbon::createFromFormat('Y-m-d', '2022-05-16');
         $endDate = Carbon::createFromFormat('Y-m-d', '2022-05-17');
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
-        
+
         foreach ($dateRange as $day) {
             $monthDays[] = Carbon::parse($day)->format('m/d/Y');
         }
@@ -280,7 +285,7 @@ class ProspectController extends Controller
             $prospect_ids = $api_data->prospect_id;
             $data = $api_data->data;
             $total_prospects = $api_data->total_prospects;
-            
+
             foreach ($data as $object) {
                 $results[] = (array)$object;
             }
@@ -305,7 +310,7 @@ class ProspectController extends Controller
                         $prospect->create($result);
                     }
                     $index++;
-                    if($index == 150){
+                    if ($index == 150) {
                         break;
                     }
                     return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
@@ -313,7 +318,7 @@ class ProspectController extends Controller
                 // return response()->json(['status' => true, 'New Record in todays API']);
                 $response['new_prospects'] = $new_prospects;
                 $response['updated_prospects'] = $updated_prospects;
-                
+
                 $new_prospects += $response['new_prospects'];
                 $updated_prospects += $response['updated_prospects'];
                 $results = null;
@@ -335,14 +340,14 @@ class ProspectController extends Controller
                         'return_type' => 'prospect_view'
                     ]
                 )->getBody()->getContents());
-        
+
                 $prospect_ids = $api_data->prospect_id;
                 $data = $api_data->data;
                 $total_prospects = $api_data->total_prospects;
                 foreach ($data as $object) {
                     $results[] = (array)$object;
                 }
-        
+
                 $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
                     $url,
                     [
@@ -362,7 +367,7 @@ class ProspectController extends Controller
                 foreach ($data as $object) {
                     $results[] = (array)$object;
                 }
-                
+
                 foreach ($results as $result) {
                     $prospect = new Prospect();
                     $month = Carbon::parse($result['date_created'])->format('F');
@@ -381,7 +386,7 @@ class ProspectController extends Controller
                 }
                 $response['new_prospects'] = $new_prospects;
                 $response['updated_prospects'] = $updated_prospects;
-                
+
                 $new_prospects += $response['new_prospects'];
                 $updated_prospects += $response['updated_prospects'];
                 $results = null;
@@ -396,19 +401,19 @@ class ProspectController extends Controller
         // set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
-        
+
         $username = "yasir_dev";
         $password = "yyutmzvRpy5TPU";
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $startDate = Carbon::now()->startOfDay()->format('Y-m-d');
-        
+
         $endDate = date('Y-m-d', strtotime($startDate) + 86400);
-      
+
         $startDate = Carbon::createFromFormat('Y-m-d', $startDate);
         $endDate = Carbon::createFromFormat('Y-m-d', $endDate);
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
-        
+
         foreach ($dateRange as $day) {
             $monthDays[] = Carbon::parse($day)->format('m/d/Y');
         }
@@ -430,7 +435,7 @@ class ProspectController extends Controller
             $prospect_ids = $api_data->prospect_id;
             $data = $api_data->data;
             $total_prospects = $api_data->total_prospects;
-            
+
             foreach ($data as $object) {
                 $results[] = (array)$object;
             }
@@ -455,14 +460,14 @@ class ProspectController extends Controller
                         $prospect->create($result);
                     }
                     $index++;
-                    if($index == 150){
+                    if ($index == 150) {
                         break;
                     }
                 }
                 return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
                 $response['new_prospects'] = $new_prospects;
                 $response['updated_prospects'] = $updated_prospects;
-                
+
                 $new_prospects += $response['new_prospects'];
                 $updated_prospects += $response['updated_prospects'];
                 $results = null;
@@ -484,14 +489,14 @@ class ProspectController extends Controller
                         'return_type' => 'prospect_view'
                     ]
                 )->getBody()->getContents());
-        
+
                 $prospect_ids = $api_data->prospect_id;
                 $data = $api_data->data;
                 $total_prospects = $api_data->total_prospects;
                 foreach ($data as $object) {
                     $results[] = (array)$object;
                 }
-        
+
                 $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
                     $url,
                     [
@@ -511,7 +516,7 @@ class ProspectController extends Controller
                 foreach ($data as $object) {
                     $results[] = (array)$object;
                 }
-                
+
                 foreach ($results as $result) {
                     $prospect = new Prospect();
                     $month = Carbon::parse($result['date_created'])->format('F');
@@ -530,7 +535,7 @@ class ProspectController extends Controller
                 }
                 $response['new_prospects'] = $new_prospects;
                 $response['updated_prospects'] = $updated_prospects;
-                
+
                 $new_prospects += $response['new_prospects'];
                 $updated_prospects += $response['updated_prospects'];
                 $results = null;
@@ -538,7 +543,7 @@ class ProspectController extends Controller
             }
         }
     }
-    
+
     public function get_prospect_with_time($username, $password, $url, $day)
     {
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
@@ -588,24 +593,24 @@ class ProspectController extends Controller
     {
         $updated_prospects = 0;
         $new_prospects = 0;
-        $db_prospect_ids = Prospect::pluck('prospect_id')->toArray();
+        $db_prospect_ids = Prospect::where('user_id',  Auth::id())->pluck('prospect_id')->toArray();
 
         foreach ($results as $result) {
 
-            $prospect = new Prospect();
             $month = Carbon::parse($result['date_created'])->format('F');
             $year = Carbon::parse($result['date_created'])->format('Y');
+            $result['user_id'] = Auth::id();
             $result['month_created'] = $month;
             $result['year_created'] = $year;
             $result['notes'] = json_encode($result['notes']);
 
             if (in_array($result['prospect_id'], $db_prospect_ids)) {
                 $updated_prospects++;
-                $prospect = Prospect::where(['prospect_id' => $result['prospect_id']])->first();
+                $prospect = Prospect::where(['prospect_id' => $result['prospect_id'], 'user_id'=> Auth::id()])->first();
                 $prospect->update($result);
             } else {
                 $new_prospects++;
-                $prospect->create($result);
+                Prospect::create($result);
             }
         }
         $response['new_prospects'] = $new_prospects;
@@ -626,7 +631,7 @@ class ProspectController extends Controller
         $url = 'https://thinkbrain.sticky.io/api/v1/prospect_find';
         $model = new Prospect();
 
-        $startDate = Carbon::createFromFormat('Y-m-d', '2022-05-24');
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-06-02');
         $endDate = Carbon::createFromFormat('Y-m-d', '2022-06-02');
         $dateRange = CarbonPeriod::create($startDate, $endDate);
         $dateRange->toArray();
@@ -675,6 +680,70 @@ class ProspectController extends Controller
             }
         }
         return response()->json(['status' => true, 'New Record in todays API' => $new_prospects, 'Previous prospects to be updated in prospects table' => $updated_prospects]);
+    }
+
+
+    public function pull_user_prospects(Request $request)
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
+        $new_prospects = 0;
+        $updated_prospects = 0;
+        // return Auth::id();
+        // return $request->user()->id;
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        $password = Crypt::decrypt($user->sticky_api_key);
+        $url = $user->sticky_url . '/api/v1/prospect_find';
+        $startDate = Carbon::createFromFormat('Y-m-d', '2022-03-01');
+        $endDate = Carbon::createFromFormat('Y-m-d', '2022-06-17');
+        $dateRange = CarbonPeriod::create($startDate, $endDate);
+        $dateRange->toArray();
+
+        foreach ($dateRange as $day) {
+            $monthDays[] = Carbon::parse($day)->format('m/d/Y');
+        }
+
+        foreach ($monthDays as $day) {
+
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                $url,
+                [
+                    'start_date' => $day,
+                    'end_date' => $day,
+                    'campaign_id' => 'all',
+                    'criteria' => 'all',
+                    'search_type' => 'all',
+                    'return_type' => 'prospect_view'
+                ]
+            )->getBody()->getContents());
+            if ($api_data->response_code == 602) {
+                continue;
+            }
+
+            $prospect_ids = $api_data->prospect_id;
+            $data = $api_data->data;
+            $total_prospects = $api_data->total_prospects;
+
+            foreach ($data as $object) {
+                $results[] = (array)$object;
+            }
+            if (isset($total_prospects) && $total_prospects != 0 && $total_prospects <= 10000) {
+                $response = $this->save_prospects($results);
+                $new_prospects += $response['new_prospects'];
+                $updated_prospects += $response['updated_prospects'];
+                $results = null;
+                $data = null;
+            } else {
+                $results = $this->get_prospect_with_time($username, $password, $url, $day);
+                $response = $this->save_prospects($results);
+                $new_prospects += $response['new_prospects'];
+                $updated_prospects += $response['updated_prospects'];
+                $results = null;
+                $data = null;
+            }
+        }
+        return response()->json(['status' => true, 'user_id' => Auth::id(), 'new_prospects' => $new_prospects, 'updated_prospects' => $updated_prospects]);
     }
 }
 

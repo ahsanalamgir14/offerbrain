@@ -25,4 +25,10 @@ class HomeController extends Controller
     {
         return view('angular');
     }
+
+    public function role(Request $request)
+    {
+        // return ['status' => true, 'role' => 'test'];
+        return ['status' => true, 'role' => $request->user()->roles[0]['name']];
+    }
 }

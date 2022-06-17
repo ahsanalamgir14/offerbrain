@@ -194,9 +194,23 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
 
   avoidDuplication(event, param, index) {
-    let item = event.value.name;
+    let item = event.name;
+    if(param == 'upsellDeSelect'){
+      var ind = this.arr_upsell.indexOf(item);
+      this.arr_upsell.splice(ind, 1);
+      this.upsell_products[index] = [];
+    }
+    if(param == 'downsellDeSelect'){
+      var ind = this.arr_downsell.indexOf(item);
+      this.arr_downsell.splice(ind, 1);
+      this.downsell_products[index] = [];
+    }
     if(param == 'upsell'){
-      if (this.arr_upsell.indexOf(item) !== -1) {
+      if(this.arr_upsell[index] != undefined){
+        var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
+        this.arr_upsell.splice(selectedIndex,1);
+      }
+      if(this.arr_upsell.indexOf(item) !== -1) {
           this.notyf.error('Value already existed in upsell');
           this.upsell_products[index] = [];
         } else if(this.arr_downsell.indexOf(item) !== -1){
@@ -204,11 +218,13 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
           this.upsell_products[index] = [];
         } else {
           this.arr_upsell.push(item);
-          this.arr_upsell[index] = item;
       }
-    }
-    if(param == 'downsell'){
-      if (this.arr_downsell.indexOf(item) !== -1) {
+    } else if(param == 'downsell'){
+      if(this.arr_downsell[index] != undefined){
+        var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
+        this.arr_downsell.splice(selectedIndex,1);
+      }
+      if(this.arr_downsell.indexOf(item) !== -1) {
           this.notyf.error('Value already existed in downsell');
           this.downsell_products[index] = [];
         } else if(this.arr_upsell.indexOf(item) !== -1){
@@ -216,25 +232,23 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
           this.downsell_products[index] = [];
         } else {
           this.arr_downsell.push(item);
-          this.arr_downsell[index] = item;
       }
     }
-    console.log('Upsell Array is '+this.arr_upsell)
+    console.log('Upsell Array is '+this.arr_upsell);
+    console.log('Downsell Array is '+this.arr_downsell);
   }
   getSelectValue(event, param, index){
     if(param == 'upsell'){
-      if(this.arr_upsell[index] != undefined){
-        var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
-        this.arr_upsell.splice(selectedIndex,1);
+      if(this.upsell_products[index] != undefined){
+        this.arr_upsell[index] = this.upsell_products[index][0].name;
       }
     } else if(param == 'downsell'){
       if(this.arr_downsell[index] != undefined){
-        var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
-        this.arr_downsell.splice(selectedIndex,1);
+        this.arr_downsell[index] = this.downsell_products[index][0].name;
       }
     }
   }
-
+ 
   clear(form: NgForm): void {
     form.resetForm();
     Object.keys(form.controls).forEach(key => {
@@ -304,7 +318,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     if (!this.productOptions) {
       return;
     }
-
+    
     let search = this.productSearchCtrl.value;
     if (!search) {
       this.filteredProducts.next(this.productOptions.slice());
@@ -316,5 +330,4 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
     );
   }
-
 }

@@ -6,8 +6,10 @@ use App\Models\MidGroup;
 use App\Models\Mid;
 use App\Models\Order;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Auth;
 use DB;
 
 class MidGroupController extends Controller
@@ -19,7 +21,7 @@ class MidGroupController extends Controller
      */
     public function index(Request $request)
     {
-        $query = MidGroup::select('*')->whereNull('deleted_at');
+        $query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -30,24 +32,27 @@ class MidGroupController extends Controller
         $data = $query->get();
         if ($start_date != null && $end_date != null) {
             foreach ($data as $key => $group) {
-                $mids = Mid::where(['is_active' => 1, 'mid_group' => $group['group_name']]);
+                $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
-                $group['mids_data'] = DB::table('mids')->where(['is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
+                $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $orders = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
+                    // ->where('user_id', '=', Auth::id())
                     ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
                 $group['gross_revenue'] = round($orders, 2);
             }
         } else {
             foreach ($data as $key => $group) {
-                $mids = Mid::where(['is_active' => 1, 'mid_group' => $group['group_name']]);
+                $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
-                $group['mids_data'] = DB::table('mids')->where(['is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
+                $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $orders = DB::table('orders')
-                    ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
+                    ->where(['user_id' => Auth::id()])
+                    ->whereIn('gateway_id', $group['assigned_mid_ids'])
+                    ->sum('order_total');
                 $group['gross_revenue'] = round($orders, 2);
             }
         }
@@ -83,9 +88,10 @@ class MidGroupController extends Controller
     }
     public function get_assigned_mids(Request $request)
     {
-        $data = MidGroup::where('group_name', 'like', '%' . $request->value . '%')->get('assigned_mids')->first();
-        if (isset($data)) {
-            return response()->json(['status' => true, 'mids' => $data->assigned_mids]);
+        $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1])->where('mid_group', 'like', '%' . $request->value . '%');
+        $assigned_mids = $mids->count();
+        if (isset($assigned_mids)) {
+            return response()->json(['status' => true, 'mids' => $assigned_mids]);
         } else {
             return response()->json(['status' => false, 'mids' => 0]);
         }
@@ -110,6 +116,7 @@ class MidGroupController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        $data['user_id'] = Auth::id();
         if (!$request->bank_per) {
             $data['bank_per'] = '20';
         }
@@ -178,47 +185,26 @@ class MidGroupController extends Controller
 
     public function refresh_mids_groups()
     {
-        $mid_groups = [];
-        $db_mid_group_names = MidGroup::pluck('group_name')->toArray();
-        $db_mid_groups = MidGroup::all();
+        $db_mid_group_names = MidGroup::where(['user_id' => Auth::id()])->pluck('group_name')->toArray();
+        $mid_groups = MidGroup::where(['user_id' => Auth::id()])->get();
 
-        $data = Profile::where('global_fields->mid_group', '!=', '')->whereNotNull('global_fields->mid_group')->get();
+        $created = 0;
+        $updated = 0;
+        $result = [];
 
-        if ($data) {
-            foreach ($data as $key => $profile) {
-                $mid_groups[$key]['name'] = $profile->global_fields->mid_group;
+        foreach ($mid_groups as $mid_group) {
+
+            if (in_array($mid_group->group_name, $db_mid_group_names)) {
+                $group = MidGroup::where(['user_id' => Auth::id(), 'group_name' => $mid_group->group_name])->first();
+                $group->update($result);
+                $updated++;
+            } else {
+                $result['group_name'] = $mid_group->group_name;
+                $result['user_id'] = Auth::id();
+                MidGroup::create($result);
+                $created++;
             }
-            $mid_groups = array_unique(array_column($mid_groups, 'name'));
             $result = [];
-            $created = 0;
-            $updated = 0;
-
-            if ($mid_groups) {
-                foreach ($mid_groups as $key => $mid_group_name) {
-                    $result['group_name'] = $mid_group_name;
-                    $profiles = Profile::where('global_fields->mid_group', '=', $mid_group_name);
-                    $result['assigned_mids'] = $profiles->count();
-                    $result['assigned_mid_ids'] = $profiles->pluck('profile_id')->toArray();
-                    $gross_revenue = Mid::where(['is_active' => 1])->whereIn('gateway_id', $result['assigned_mid_ids'])->sum('current_monthly_amount');
-                    $result['gross_revenue'] = $gross_revenue;
-                    // $result['target_bank_balance'] = $result['gross_revenue'] * 0.2;
-                    if (in_array($result['group_name'], $db_mid_group_names)) {
-                        $group = MidGroup::where(['group_name' => $result['group_name']])->first();
-                        $group->update($result);
-                        $updated++;
-                    } else {
-                        $model = new MidGroup();
-                        $model->create($result);
-                        $created++;
-                    }
-                    $result = [];
-                }
-            }
-        }
-        // dd($db_mid_groups[1]);
-        foreach ($db_mid_groups as $mid_group) {
-            $mid_group->target_bank_balance = ($mid_group->gross_revenue * $mid_group->bank_per) / 100;
-            $mid_group->save();
         }
         return response()->json(['status' => true, 'data' => ['new' => $created, 'updated' => $updated]]);
     }

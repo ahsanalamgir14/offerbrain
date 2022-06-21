@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+use DB;
+use Auth;
+use Carbon\Carbon;
 use App\Models\Mid;
-use App\Models\Profile;
+use App\Models\User;
 use App\Models\Order;
 use App\Models\Decline;
+use App\Models\Profile;
 use App\Models\MidCount;
-use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 
 class MidController extends Controller
 {
     public function index(Request $request)
     {
-        // dd($request->selected_mids);
+        // return Auth::id();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -29,14 +32,16 @@ class MidController extends Controller
         }
         if ($request->selected_mids) {
             $selected_mids = explode(",", $request->selected_mids);
-            $query = DB::table('mids')->whereIn('mids.gateway_id', $selected_mids);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1])->whereIn('mids.gateway_id', $selected_mids);
         } else {
-            $query = DB::table('mids')->where(['mids.is_active' => 1]);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1]);
         }
-        $query = $query
-            ->join('orders', 'orders.gateway_id', '=', 'mids.gateway_id')
-            ->where('orders.time_stamp', '>=', $start_date)
-            ->where('orders.time_stamp', '<=', $end_date)
+        $query = $query->join('orders', function ($join) use ($start_date, $end_date) {
+            $join->on('orders.gateway_id', '=', 'mids.gateway_id')
+                ->where('orders.user_id', '=', Auth::id())
+                ->where('orders.time_stamp', '>=', $start_date)
+                ->where('orders.time_stamp', '<=', $end_date);
+        })
             // ->where(['orders.order_status' => 2])
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
@@ -97,6 +102,7 @@ class MidController extends Controller
 
         $array = [];
         $query = DB::table('orders')
+            ->where('orders.user_id', Auth::id())
             ->where('orders.gateway_id', $gateway_id)
             ->where('orders.time_stamp', '>=', $start_date)
             ->where('orders.time_stamp', '<=', $end_date)
@@ -201,16 +207,16 @@ class MidController extends Controller
         return response()->json(['status' => true, 'message' => 'Mid-group removed from' . $profile->alias]);
         // dd('die');
     }
-    public function pull_payment_router_view()
+    public function pull_payment_router_view(Request $request)
     {
         $new_gateways = 0;
         $updated_gateways = 0;
         $affected = DB::table('mids')->update(['is_active' => 0]);
-        // dd('die');
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $url = 'https://thinkbrain.sticky.io/api/v1/payment_router_view';
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        $password = Crypt::decrypt($user->sticky_api_key);
+        $url = $user->sticky_url . '/api/v1/payment_router_view';
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post($url, ['payment_router_id' => 1])->getBody()->getContents());
         $routers = $api_data->data;
@@ -222,6 +228,7 @@ class MidController extends Controller
                     if (in_array($gateway->gateway_id, $db_gateway_ids)) {
                         $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
                         $gateway->router_id = $router->id;
+                        $gateway->user_id = Auth::id();
                         $gateway->router_name = $router->name;
                         $gateway->router_date_in = $router->date_in;
                         $gateway->router_desc = $router->description;
@@ -235,6 +242,7 @@ class MidController extends Controller
                     } else {
                         $mid = new Mid();
                         $gateway->router_id = $router->id;
+                        $gateway->user_id = Auth::id();
                         $gateway->router_name = $router->name;
                         $gateway->router_date_in = $router->date_in;
                         $gateway->router_desc = $router->description;
@@ -250,19 +258,7 @@ class MidController extends Controller
             }
         }
         // app(\App\Http\Controllers\ProfileController::class)->update_profiles();
-        return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'updated_mids' => $updated_gateways]]);
-    }
-    public function get_gateway_ids()
-    {
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $url = 'https://thinkbrain.sticky.io/api/v1/gateway_view';
-        $gateways = Mid::pluck('gateway_id')->toArray();
-
-        foreach ($gateways as $id) {
-            $data = json_decode(Http::withBasicAuth($username, $password)->accept('application/json')->post($url, ['gateway_id' => $id])->getBody()->getContents());
-            dd($data);
-        }
+        return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'user_id' => Auth::id(), 'updated_mids' => $updated_gateways]]);
     }
 
     public function assign_mid_group(Request $request)
@@ -289,39 +285,12 @@ class MidController extends Controller
         }
     }
 
-    public function remove_groups(Request $request)
-    {
-        $data = $request->all();
-        dd($data);
-    }
-
     public function get_first_mid()
     {
         $data = Profile::first();
         return response()->json(['status' => true, 'data' => $data]);
     }
 
-    public function refresh_mid_count()
-    {
-        $data = Mid::all();
-        foreach ($data as $mid) {
-            $mid->mid_count = Order::where(['gateway_id' => $mid->gateway_id])->count();
-            $mid->save();
-        }
-        return response()->json(['status' => true, 'data' => ['message' => "Mid Counts Refreshed Successfully."]]);
-    }
-    public function refresh_decline_percentage()
-    {
-        $data = Mid::all();
-        foreach ($data as $mid) {
-            $declined_orders = Order::with('product')->where(['gateway_id' => $mid->gateway_id, 'prepaid_match' => 'NO', 'is_test_cc' => 0, 'order_status' => 7]);
-            $mid->decline_per = ($declined_orders->count()) / 100;
-            $products_data = $declined_orders->get()->pluck('product')->toArray();
-            // dd(json_encode($products_data));
-            $mid->decline_orders = $products_data;
-            $mid->save();
-        }
-    }
     public function get_mids_decline_data()
     {
         $data = Mid::all();
@@ -378,8 +347,6 @@ class MidController extends Controller
         }
         return response()->json(['status' => true]);
     }
-
-
 
     public function sub_affiliate_gross_revenue(Request $request)
     {

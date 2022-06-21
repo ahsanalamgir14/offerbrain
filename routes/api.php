@@ -100,7 +100,6 @@ Route::get('refresh-all-monthly', [TicketMonthlyController::class, 'refresh_all_
 Route::get('populate_products_from_orders', [OrderProductController::class, 'populate_products_from_orders']);
 Route::get('pull_payment_router_view', [MidController::class, 'pull_payment_router_view']);
 Route::get('pull_profiles', [ProfileController::class, 'pull_profiles']);
-Route::get('get_gateway_ids', [MidController::class, 'get_gateway_ids']);
 Route::get('refresh_mids_groups', [MidGroupController::class, 'refresh_mids_groups']);
 Route::get('mid_group_names', [MidGroupController::class, 'mid_group_names']);
 Route::get('getMidDetail', [MidGroupController::class, 'getMidDetail']);
@@ -114,7 +113,6 @@ Route::get('user-details', [DashboardController::class, 'user_data']);
 Route::post('destroy_customers', [CustomerController::class, 'destroy_customers']);
 Route::get('destroy_affiliates', [NetworkController::class, 'destroy_affiliates']);
 Route::post('assign_bulk_group', [MidController::class, 'assign_bulk_group']);
-Route::post('remove_groups', [MidController::class, 'remove_groups']);
 Route::post('change_column', [ColumnController::class, 'change_column']);
 Route::post('delete_prospects', [ProspectController::class, 'delete_prospects']);
 Route::get('pull_affiliates', [NetworkController::class, 'pull_affiliates']);

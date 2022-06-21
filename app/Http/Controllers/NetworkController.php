@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use App\Models\Network;
-use App\Models\Order;
-use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use Carbon\Carbon;
 use DB;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Order;
+use GuzzleHttp\Client;
+use App\Models\Network;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 
 class NetworkController extends Controller
 {
@@ -33,7 +35,7 @@ class NetworkController extends Controller
             //         ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'))->count();
             // dd($query);
 
-            $query = DB::table('networks')
+            $query = DB::table('networks')->where(['user_id' => Auth::id()])
                 ->select('networks.*')
                 ->join('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affiliate', '=', 'networks.network_affiliate_id')
@@ -139,15 +141,19 @@ class NetworkController extends Controller
             return response()->json(['status' => true, 'message' => '<b>1</b> Network Deleted Successfully']);
         }
     }
-    public function pull_affiliates()
+    public function pull_affiliates(Request $request)
     {
         $new_affiliates = 0;
         $updated_affiliates = 0;
         $db_network_affiliate_ids = Network::all()->pluck('network_affiliate_id')->toArray();
         $key = "X-Eflow-API-Key";
-        $value = "nH43mlvTSCuYUOgOXrRA";
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        $value = Crypt::decrypt($user->everflow_api_key);
+        // return $value;
         $url = 'https://api.eflow.team/v1/networks/affiliates';
         $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
+        return $api_data;
         $affiliates = $api_data->affiliates;
         $paging = $api_data->paging;
 
@@ -166,6 +172,7 @@ class NetworkController extends Controller
                 [
                     'status' => true,
                     'data' => [
+                        'user_id:' => Auth::id(),
                         'New Affiliates: ' => $new_affiliates,
                         'Updates Affiliates: ' => $updated_affiliates
                     ]

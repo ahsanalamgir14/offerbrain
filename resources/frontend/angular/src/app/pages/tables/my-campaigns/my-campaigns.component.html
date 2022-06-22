@@ -154,7 +154,7 @@
         </ng-container>
 
         <tr *matHeaderRowDef="visibleColumns; sticky: true" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
+        <tr (click)="viewCampaignDetails(row.name)" *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
       </table>
       <!-- </div> -->
 

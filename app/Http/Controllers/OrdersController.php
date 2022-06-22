@@ -434,6 +434,290 @@ class OrdersController extends Controller
         return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
 
     }
+    public static function pull_cron_orders()
+    {
+        // ini_set('memory_limit', '512M');
+        // set_time_limit(0);
+        $users = User::orderBy('id','desc')->get();
+        foreach($users as $user){
+            $password = Crypt::decrypt($user->sticky_api_key);
+            $new_orders = 0;
+            $updated_orders = 0;
+            $username = $user->sticky_api_username;
+            $start = Carbon::today();
+            $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
+            $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
+
+            $db_order_ids = Order::where(['user_id' => $user->id])->pluck('order_id')->toArray();
+            $url = $user->sticky_url . '/api/v1/order_find';
+
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                $url,
+                ['start_date' => $start_date, 'end_date' => $end_date, 'campaign_id' => 'all', 'criteria' => 'all']
+            )->getBody()->getContents());
+
+            $total_orders = $api_data->total_orders;
+            if ($total_orders != 0) {
+                $order_ids = $api_data->order_id;
+
+                if ($total_orders < 50000) {
+                    $chunked_array = array_chunk($order_ids, 500);
+                    foreach ($chunked_array as $chucked_ids) {
+                        $order_view_api = $user->sticky_url . '/api/v1/order_view';
+                        $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                            ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                        $results = $order_views->data;
+                        foreach ($results as $order) {
+                            $order->user_id = $user->id;
+                            $month = Carbon::parse($order->acquisition_date)->format('F');
+                            $year = Carbon::parse($order->acquisition_date)->format('Y');
+                            $order->acquisition_month = $month;
+                            $order->acquisition_year = $year;
+                            $order->trx_month = $month;
+                            $order->billing_email = $order->email_address;
+                            $order->billing_telephone = $order->customers_telephone;
+                            $order->shipping_email = $order->email_address;
+                            $order->shipping_telephone = $order->customers_telephone;
+                            if (property_exists($order, 'employeeNotes')) {
+                                $order->employeeNotes = serialize($order->employeeNotes);
+                            }
+                            $order->utm_info = serialize($order->utm_info);
+                            if (property_exists($order, 'products')) {
+                                $order->products = serialize($order->products);
+                            }
+                            if (property_exists($order, 'systemNotes')) {
+                                $order->systemNotes = serialize($order->systemNotes);
+                            }
+                            $order->totals_breakdown = serialize($order->totals_breakdown);
+                            if (in_array($order->order_id, $db_order_ids)) {
+                                $updated_orders++;
+                                $db_order = Order::where(['order_id' => $order->order_id])->first();
+                                $db_order->update((array)$order);
+
+                                $order->products = unserialize($order->products);
+                                $mass_assignment['order_id'] = $order->order_id;
+                                $mass_assignment['product_id'] = $order->products[0]->product_id;
+                                $mass_assignment['sku'] = $order->products[0]->sku;
+                                $mass_assignment['price'] = $order->products[0]->price;
+                                $mass_assignment['product_qty'] = $order->products[0]->product_qty;
+                                $mass_assignment['name'] = $order->products[0]->name;
+                                $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
+                                $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
+                                $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
+                                $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
+                                $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
+                                $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+                                $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+                                $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+                                $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
+                                $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
+                                $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
+                                $mass_assignment['step_number'] = $order->products[0]->step_number;
+                                $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
+                                $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
+                                $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
+                                $mass_assignment['on_hold'] = $order->products[0]->on_hold;
+                                $mass_assignment['hold_date'] = $order->products[0]->hold_date;
+                                if (isset($order->products[0]->billing_model)) {
+                                    $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
+                                    $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
+                                    $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
+                                }
+                                if (isset($order->products[0]->offer)) {
+                                    $mass_assignment['offer_id'] = $order->products[0]->offer->id;
+                                    $mass_assignment['offer_name'] = $order->products[0]->offer->name;
+                                }
+
+                                $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+                            } else {
+                                $new_orders++;
+                                Order::create((array)$order);
+                                
+                                $order->products = unserialize($order->products);
+                                $mass_assignment['order_id'] = $order->order_id;
+                                $mass_assignment['product_id'] = $order->products[0]->product_id;
+                                $mass_assignment['sku'] = $order->products[0]->sku;
+                                $mass_assignment['price'] = $order->products[0]->price;
+                                $mass_assignment['product_qty'] = $order->products[0]->product_qty;
+                                $mass_assignment['name'] = $order->products[0]->name;
+                                $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
+                                $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
+                                $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
+                                $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
+                                $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
+                                $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+                                $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+                                $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+                                $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
+                                $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
+                                $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
+                                $mass_assignment['step_number'] = $order->products[0]->step_number;
+                                $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
+                                $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
+                                $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
+                                $mass_assignment['on_hold'] = $order->products[0]->on_hold;
+                                $mass_assignment['hold_date'] = $order->products[0]->hold_date;
+                                if (isset($order->products[0]->billing_model)) {
+                                    $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
+                                    $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
+                                    $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
+                                }
+                                if (isset($order->products[0]->offer)) {
+                                    $mass_assignment['offer_id'] = $order->products[0]->offer->id;
+                                    $mass_assignment['offer_name'] = $order->products[0]->offer->name;
+                                }
+
+                                OrderProduct::create($mass_assignment);
+                            }
+                        }
+                        $data = null;
+                        $results = null;
+                    }
+                    return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+                } else {
+                    $startDate = Carbon::createFromFormat('m/d/Y', $start_date);
+                    $endDate = Carbon::createFromFormat('m/d/Y', $end_date);
+                    $date_range = CarbonPeriod::create($startDate, $endDate);
+                    $date_range->toArray();
+
+                    foreach ($date_range as $day) {
+                        $days[] = Carbon::parse($day)->format('m/d/Y');
+                    }
+                    foreach ($days as $key => $day) {
+                        //Order_ids for a single day
+                        $start_of_day = Carbon::parse($day)->startOfDay()->format('m/d/Y');
+                        $end_of_day = Carbon::parse($day)->endOfDay()->format('m/d/Y');
+                        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                            $url,
+                            ['start_date' => $start_of_day, 'end_date' => $end_of_day, 'campaign_id' => 'all', 'criteria' => 'all']
+                        )->getBody()->getContents());
+
+                        $total_orders = $api_data->total_orders;
+                        if ($total_orders != 0) {
+                            $order_ids = $api_data->order_id;
+                            //order_view and array of 500 api call
+                            $chunked_array = array_chunk($order_ids, 500);
+                            // dd($chunked_array);
+                            foreach ($chunked_array as $chucked_ids) {
+                                $order_view_api = $user->sticky_url . '/api/v1/order_view';
+                                $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                                    ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                                $results = $order_views->data;
+                                foreach ($results as $order) {
+                                    $order->user_id = $user->id;
+                                    $month = Carbon::parse($order->acquisition_date)->format('F');
+                                    $year = Carbon::parse($order->acquisition_date)->format('Y');
+                                    $order->acquisition_month = $month;
+                                    $order->acquisition_year = $year;
+                                    $order->trx_month = $month;
+                                    $order->billing_email = $order->email_address;
+                                    $order->billing_telephone = $order->customers_telephone;
+                                    $order->shipping_email = $order->email_address;
+                                    $order->shipping_telephone = $order->customers_telephone;
+                                    if (property_exists($order, 'employeeNotes')) {
+                                        $order->employeeNotes = serialize($order->employeeNotes);
+                                    }
+                                    $order->utm_info = serialize($order->utm_info);
+                                    if (property_exists($order, 'products')) {
+                                        $order->products = serialize($order->products);
+                                    }
+                                    if (property_exists($order, 'systemNotes')) {
+                                        $order->systemNotes = serialize($order->systemNotes);
+                                    }
+                                    $order->totals_breakdown = serialize($order->totals_breakdown);
+                                    if (in_array($order->order_id, $db_order_ids)) {
+                                        $updated_orders++;
+                                        $db_order = Order::where(['order_id' => $order->order_id])->first();
+                                        $db_order->update((array)$order);
+                                        
+                                        $order->products = unserialize($order->products);
+                                        $mass_assignment['order_id'] = $order->order_id;
+                                        $mass_assignment['product_id'] = $order->products[0]->product_id;
+                                        $mass_assignment['sku'] = $order->products[0]->sku;
+                                        $mass_assignment['price'] = $order->products[0]->price;
+                                        $mass_assignment['product_qty'] = $order->products[0]->product_qty;
+                                        $mass_assignment['name'] = $order->products[0]->name;
+                                        $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
+                                        $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
+                                        $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
+                                        $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
+                                        $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
+                                        $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+                                        $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+                                        $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+                                        $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
+                                        $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
+                                        $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
+                                        $mass_assignment['step_number'] = $order->products[0]->step_number;
+                                        $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
+                                        $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
+                                        $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
+                                        $mass_assignment['on_hold'] = $order->products[0]->on_hold;
+                                        $mass_assignment['hold_date'] = $order->products[0]->hold_date;
+                                        if (isset($order->products[0]->billing_model)) {
+                                            $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
+                                            $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
+                                            $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
+                                        }
+                                        if (isset($order->products[0]->offer)) {
+                                            $mass_assignment['offer_id'] = $order->products[0]->offer->id;
+                                            $mass_assignment['offer_name'] = $order->products[0]->offer->name;
+                                        }
+                                        
+                                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+                                    } else {
+                                        $new_orders++;
+                                        Order::create((array)$order);
+                                        
+                                        $order->products = unserialize($order->products);
+                                        $mass_assignment['order_id'] = $order->order_id;
+                                        $mass_assignment['product_id'] = $order->products[0]->product_id;
+                                        $mass_assignment['sku'] = $order->products[0]->sku;
+                                        $mass_assignment['price'] = $order->products[0]->price;
+                                        $mass_assignment['product_qty'] = $order->products[0]->product_qty;
+                                        $mass_assignment['name'] = $order->products[0]->name;
+                                        $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
+                                        $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
+                                        $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
+                                        $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
+                                        $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
+                                        $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+                                        $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+                                        $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+                                        $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
+                                        $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
+                                        $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
+                                        $mass_assignment['step_number'] = $order->products[0]->step_number;
+                                        $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
+                                        $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
+                                        $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
+                                        $mass_assignment['on_hold'] = $order->products[0]->on_hold;
+                                        $mass_assignment['hold_date'] = $order->products[0]->hold_date;
+                                        if (isset($order->products[0]->billing_model)) {
+                                            $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
+                                            $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
+                                            $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
+                                        }
+                                        if (isset($order->products[0]->offer)) {
+                                            $mass_assignment['offer_id'] = $order->products[0]->offer->id;
+                                            $mass_assignment['offer_name'] = $order->products[0]->offer->name;
+                                        }
+
+                                        OrderProduct::create($mass_assignment);
+                                    }
+                                }
+                                $data = null;
+                                $results = null;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+    }
 
     public function get_order_product_mass($order)
     {
@@ -474,7 +758,7 @@ class OrdersController extends Controller
         return $result;
     }
 
-    public static function pull_cron_orders()
+    public static function pull_cron_orders_bk()
     {
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
@@ -1090,74 +1374,114 @@ class OrdersController extends Controller
     {
         ini_set('memory_limit', '512M');
         set_time_limit(0);
-        $new_orders = 0;
-        $updated_orders = 0;
-        $order_ids = [];
+        $users = User::orderBy('id','desc')->get();
+        foreach($users as $user){
+            $new_orders = 0;
+            $updated_orders = 0;
+            $order_ids = [];
 
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $start_date = Carbon::now()->startOfDay();
-        $end_date = Carbon::now()->endOfDay();
-        $url = 'https://thinkbrain.sticky.io/api/v2/orders/histories?start_at=' . $start_date . '&end_at=' . $end_date;
+            $username = $user->sticky_api_username;
+            $password = Crypt::decrypt($user->sticky_api_key);
+            $start_date = Carbon::now()->startOfDay();
+            $end_date = Carbon::now()->endOfDay();
+            $url = $user->sticky_url.'/api/v2/orders/histories?start_at=' . $start_date . '&end_at=' . $end_date;
 
-        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
-            ->get($url)->getBody()->getContents());
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                ->get($url)->getBody()->getContents());
 
-        if ($api_data->status == "SUCCESS") {
-            $last_page = $api_data->last_page;
-            $total = $api_data->total;
-            $orders = $api_data->data;
-            $order_ids = array_merge($order_ids, array_column($orders, 'order_id'));
-
-            for ($i = 2; $i <= $last_page; $i++) {
-                $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
-                    ->get($url . '&page=' . $i)->getBody()->getContents());
-
+            if ($api_data->status == "SUCCESS") {
+                $last_page = $api_data->last_page;
+                $total = $api_data->total;
                 $orders = $api_data->data;
                 $order_ids = array_merge($order_ids, array_column($orders, 'order_id'));
-            }
-            $order_ids = array_unique($order_ids);
-            if ($total < 50000) {
 
-                $chunked_array = array_chunk($order_ids, 500);
-                foreach ($chunked_array as $chucked_ids) {
-                    $order_view_api = 'https://thinkbrain.sticky.io/api/v1/order_view';
-                    $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
-                        ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+                for ($i = 2; $i <= $last_page; $i++) {
+                    $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                        ->get($url . '&page=' . $i)->getBody()->getContents());
 
-                    $results = $order_views->data;
-                    foreach ($results as $result) {
-                        $month = Carbon::parse($result->time_stamp)->format('F');
-                        $year = Carbon::parse($result->time_stamp)->format('Y');
-                        $result->acquisition_month = $month;
-                        $result->acquisition_year = $year;
-                        $result->trx_month = $month;
-                        $result->billing_email = $result->email_address;
-                        $result->billing_telephone = $result->customers_telephone;
-                        $result->shipping_email = $result->email_address;
-                        $result->shipping_telephone = $result->customers_telephone;
-                        if (property_exists($result, 'employeeNotes')) {
-                            $result->employeeNotes = serialize($result->employeeNotes);
-                        }
-                        $result->utm_info = serialize($result->utm_info);
-                        if (property_exists($result, 'products')) {
-                            $result->products = serialize($result->products);
-                        }
-                        $result->systemNotes = serialize($result->systemNotes);
-                        $result->totals_breakdown = serialize($result->totals_breakdown);
-                        $updated_orders++;
-                        $db_order = Order::where(['order_id' => $result->order_id])->first();
-                        $db_order->update((array)$result);
-
-                        $mass_assignment = $this->get_order_product_mass($result);
-                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
-                    }
-                    $data = null;
-                    $results = null;
+                    $orders = $api_data->data;
+                    $order_ids = array_merge($order_ids, array_column($orders, 'order_id'));
                 }
-                return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
-            } else {
-                return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
+                $order_ids = array_unique($order_ids);
+                if ($total < 50000) {
+
+                    $chunked_array = array_chunk($order_ids, 500);
+                    foreach ($chunked_array as $chucked_ids) {
+                        $order_view_api = $user->sticky_url.'/api/v1/order_view';
+                        $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                            ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                        $results = $order_views->data;
+                        foreach ($results as $order) {
+                            $month = Carbon::parse($order->time_stamp)->format('F');
+                            $year = Carbon::parse($order->time_stamp)->format('Y');
+                            $order->acquisition_month = $month;
+                            $order->acquisition_year = $year;
+                            $order->trx_month = $month;
+                            $order->billing_email = $order->email_address;
+                            $order->billing_telephone = $order->customers_telephone;
+                            $order->shipping_email = $order->email_address;
+                            $order->shipping_telephone = $order->customers_telephone;
+                            if (property_exists($order, 'employeeNotes')) {
+                                $order->employeeNotes = serialize($order->employeeNotes);
+                            }
+                            $order->utm_info = serialize($order->utm_info);
+                            if (property_exists($order, 'products')) {
+                                $order->products = serialize($order->products);
+                            }
+                            $order->systemNotes = serialize($order->systemNotes);
+                            $order->totals_breakdown = serialize($order->totals_breakdown);
+                            $updated_orders++;
+                            $db_order = Order::where(['order_id' => $order->order_id])->first();
+                            if($db_order){
+                                $db_order->update((array)$order);
+                            }
+
+                            $order->products = unserialize($order->products);
+                            $mass_assignment['order_id'] = $order->order_id;
+                            $mass_assignment['product_id'] = $order->products[0]->product_id;
+                            $mass_assignment['sku'] = $order->products[0]->sku;
+                            $mass_assignment['price'] = $order->products[0]->price;
+                            $mass_assignment['product_qty'] = $order->products[0]->product_qty;
+                            $mass_assignment['name'] = $order->products[0]->name;
+                            $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
+                            $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
+                            $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
+                            $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
+                            $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
+                            $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+                            $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+                            $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+                            $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
+                            $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
+                            $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
+                            $mass_assignment['step_number'] = $order->products[0]->step_number;
+                            $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
+                            $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
+                            $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
+                            $mass_assignment['on_hold'] = $order->products[0]->on_hold;
+                            $mass_assignment['hold_date'] = $order->products[0]->hold_date;
+                            $mass_assignment['user_id'] = $user->id;
+                            if (isset($order->products[0]->billing_model)) {
+                                $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
+                                $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
+                                $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
+                            }
+                            if (isset($order->products[0]->offer)) {
+                                $mass_assignment['offer_id'] = $order->products[0]->offer->id;
+                                $mass_assignment['offer_name'] = $order->products[0]->offer->name;
+                            }
+                            if($db_order){
+                                OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+                            }
+                        }
+                        $data = null;
+                        $results = null;
+                    }
+                    return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+                } else {
+                    return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
+                }
             }
         }
     }

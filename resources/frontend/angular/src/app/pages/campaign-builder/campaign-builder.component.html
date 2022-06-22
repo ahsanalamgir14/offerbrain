@@ -185,7 +185,8 @@
                     <div  fxFlex="85">
                     <ng-multiselect-dropdown [placeholder]="'Select Cycle'" [settings]="dropdownSettingsForSingle"
                     [data]="productOptions" [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
-                    (onSelect)="avoidDuplication($event, 'cycleproducts',i)">
+                    (onSelect)="avoidDuplication($event, 'cycleproducts',i)" (onDeSelect)="avoidDuplication($event, 'cycleproductsDeSelect',i)"
+                    (click)="getSelectValue($event, 'cycleproducts',i)">
                   </ng-multiselect-dropdown>
                   </div>
                     <!-- <mat-form-field>

@@ -28,9 +28,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        echo OrdersController::pull_cron_orders();
         echo ProspectController::pull_prospects();
         echo CustomerController::refresh_customers();
-        echo OrdersController::pull_cron_orders();
         echo OrdersController::daily_order_history_cron();
         // $schedule->command('inspire')->hourly();
         // $schedule->command('daily:orders')->cron('*/1 * * * *');

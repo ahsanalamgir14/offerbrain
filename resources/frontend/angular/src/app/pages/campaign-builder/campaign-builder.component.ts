@@ -58,6 +58,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   array = [];
   arr_upsell = [];
   arr_downsell = [];
+  arr_cycleProducts = [];
   lastupSellSelected = [];
   arr_cycle = [];
 
@@ -180,7 +181,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       // });
     }
     else if (!data.status) {
-      this.notyf.error(data.message);
+      if(data.message){
+        this.notyf.error(data.message);
+      }
     }
   }
 
@@ -205,16 +208,21 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.arr_downsell.splice(ind, 1);
       this.downsell_products[index] = [];
     }
+    if(param == 'cycleproductsDeSelect'){
+      var ind = this.arr_cycleProducts.indexOf(item);
+      this.arr_cycleProducts.splice(ind, 1);
+      this.cycle_products[index] = [];
+    }
     if(param == 'upsell'){
       if(this.arr_upsell[index] != undefined){
         var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
         this.arr_upsell.splice(selectedIndex,1);
       }
       if(this.arr_upsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already existed in upsell');
+          this.notyf.error('Value already exist in upsell');
           this.upsell_products[index] = [];
         } else if(this.arr_downsell.indexOf(item) !== -1){
-          this.notyf.error('Value already existed in downsell');
+          this.notyf.error('Value already exist in downsell');
           this.upsell_products[index] = [];
         } else {
           this.arr_upsell.push(item);
@@ -225,18 +233,33 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.arr_downsell.splice(selectedIndex,1);
       }
       if(this.arr_downsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already existed in downsell');
+          this.notyf.error('Value already exist in downsell');
           this.downsell_products[index] = [];
         } else if(this.arr_upsell.indexOf(item) !== -1){
-          this.notyf.error('Value already existed in upsell');
+          this.notyf.error('Value already exist in upsell');
           this.downsell_products[index] = [];
         } else {
           this.arr_downsell.push(item);
       }
+    } else if(param == 'cycleproducts'){
+      if(this.arr_cycleProducts[index] != undefined){
+        var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
+        this.arr_cycleProducts.splice(selectedIndex,1);
+      }
+      if(this.arr_cycleProducts.indexOf(item) !== -1) {
+          this.notyf.error('Value already exist in cycle products');
+          this.cycle_products[index] = [];
+        } else if(this.arr_upsell.indexOf(item) !== -1) {
+          this.notyf.error('Value already exist in upsell products');
+          this.cycle_products[index] = [];
+        } else if(this.arr_downsell.indexOf(item) !== -1) {
+          this.notyf.error('Value already exist in Downsell products');
+          this.cycle_products[index] = [];
+        } else {
+          this.arr_cycleProducts.push(item);
+        }
+      }
     }
-    console.log('Upsell Array is '+this.arr_upsell);
-    console.log('Downsell Array is '+this.arr_downsell);
-  }
   getSelectValue(event, param, index){
     if(param == 'upsell'){
       if(this.upsell_products[index] != undefined){
@@ -245,6 +268,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     } else if(param == 'downsell'){
       if(this.arr_downsell[index] != undefined){
         this.arr_downsell[index] = this.downsell_products[index][0].name;
+      }
+    } else if(param == 'cycleproducts'){
+      if(this.arr_cycleProducts[index] != undefined){
+        this.arr_cycleProducts[index] = this.cycle_products[index][0].name;
       }
     }
   }

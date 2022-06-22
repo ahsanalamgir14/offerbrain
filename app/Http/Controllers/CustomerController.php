@@ -161,59 +161,64 @@ class CustomerController extends Controller
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
         $setting = Setting::where('key', 'customer_last_page')->first();
-        $created = 0;
-        $updated = 0;
-        $db_customers = Customer::pluck('id')->toArray();
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $url = 'https://thinkbrain.sticky.io/api/v2/contacts';
-        $previousPage = $setting->value;
+        $users = User::orderBy('id','desc')->get();
+        foreach($users as $user){
+            $created = 0;
+            $updated = 0;
+            $db_customers = Customer::pluck('id')->toArray();
+            $username = $user->sticky_api_username;
+            $password = Crypt::decrypt($user->sticky_api_key);
+            $url = $user->sticky_url.'/api/v2/contacts';
+            $previousPage = $setting->value;
 
-        $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage]);
-        $response['customers'] = $api_data['data'];
-        $last_page = $api_data['last_page'];
+            $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage]);
+            $response['customers'] = $api_data['data'];
+            $last_page = $api_data['last_page'];
 
-        if ($response['customers']) {
-            foreach ($response['customers'] as $result) {
+            if ($response['customers']) {
+                foreach ($response['customers'] as $result) {
 
-                $result['customer_id'] = $result['id'];
-                $result['custom_fields'] = json_encode($result['custom_fields']);
-                $result['addresses'] = json_encode($result['addresses']);
-                $result['notes'] = json_encode($result['notes']);
+                    $result['customer_id'] = $result['id'];
+                    $result['custom_fields'] = json_encode($result['custom_fields']);
+                    $result['addresses'] = json_encode($result['addresses']);
+                    $result['notes'] = json_encode($result['notes']);
+                    $result['user_id'] = $user->id;
 
-                if (in_array($result['id'], $db_customers)) {
-                    $updated++;
-                    $customer = Customer::where(['customer_id' => $result['id']])->first();
-                    $customer->update($result);
-                } else {
-                    $created++;
-                    Customer::create($result);
-                }
-            }
-            if ($last_page > $previousPage) {
-                $previousPage++;
-                for ($previousPage; $previousPage <= $last_page; $previousPage++) {
-
-                    $response['customers'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage])['data'];
-
-                    foreach ($response['customers'] as $result) {
-
-                        $result['customer_id'] = $result['id'];
-                        $result['custom_fields'] = json_encode($result['custom_fields']);
-                        $result['addresses'] = json_encode($result['addresses']);
-                        $result['notes'] = json_encode($result['notes']);
-
-                        if (in_array($result['id'], $db_customers)) {
-                            $updated++;
-                            $customer = Customer::where(['customer_id' => $result['id']])->first();
-                            $customer->update($result);
-                        } else {
-                            $created++;
-                            Customer::create($result);
-                        }
-                        $response = null;
+                    if (in_array($result['id'], $db_customers)) {
+                        $updated++;
+                        $customer = Customer::where(['customer_id' => $result['id']])->first();
+                        $customer->update($result);
+                    } else {
+                        $created++;
+                        Customer::create($result);
                     }
-                    Setting::where('key', 'customer_last_page')->update(['value' => $previousPage]);
+                }
+                if ($last_page > $previousPage) {
+                    $previousPage++;
+                    for ($previousPage; $previousPage <= $last_page; $previousPage++) {
+
+                        $response['customers'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $previousPage])['data'];
+
+                        foreach ($response['customers'] as $result) {
+
+                            $result['customer_id'] = $result['id'];
+                            $result['custom_fields'] = json_encode($result['custom_fields']);
+                            $result['addresses'] = json_encode($result['addresses']);
+                            $result['notes'] = json_encode($result['notes']);
+                            $result['user_id'] = $user->id;
+
+                            if (in_array($result['id'], $db_customers)) {
+                                $updated++;
+                                $customer = Customer::where(['customer_id' => $result['id']])->first();
+                                $customer->update($result);
+                            } else {
+                                $created++;
+                                Customer::create($result);
+                            }
+                            $response = null;
+                        }
+                        Setting::where('key', 'customer_last_page')->update(['value' => $previousPage]);
+                    }
                 }
             }
         }

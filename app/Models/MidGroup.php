@@ -15,9 +15,11 @@ class MidGroup extends Model
     protected $dates = ['deleted_at'];
     protected $fillable = [
         'group_name',
-        'assigned_mids',
-        'gross_revenue',
+        'user_id',
+        // 'assigned_mids',
+        // 'gross_revenue',
         'bank_per',
-        'target_bank_balance',
+        'status',
+        // 'target_bank_balance',
     ];
 }

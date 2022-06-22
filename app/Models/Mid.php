@@ -30,6 +30,7 @@ class Mid extends Model
     // ];
     protected $fillable = [
         'router_id',
+        'user_id',
         'router_name',
         'mid_group',
         'router_date_in',

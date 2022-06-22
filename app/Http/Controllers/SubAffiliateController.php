@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
+use DB;
+use Carbon\Carbon;
+use App\Models\User;
+use GuzzleHttp\Client;
 use App\Models\SubAffiliate;
 use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 
 class SubAffiliateController extends Controller
 {
@@ -146,5 +149,14 @@ class SubAffiliateController extends Controller
             }
             return response()->json(['status' => true, 'data' => $response]);
         }
+    }
+
+    public function get_EF_key(Request $request)
+    {
+        $key = User::where(['id' => 2])->pluck('everflow_api_key')->first();
+        // $key = User::where(['id' => Auth::id()])->pluck('everflow_api_key');
+        $key = Crypt::decrypt($key);
+        // return $key;
+        return response()->json(['status' => true, 'key' => $key]);
     }
 }

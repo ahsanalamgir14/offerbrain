@@ -21,6 +21,7 @@ class Network extends Model
     protected $fillable = [
         'network_affiliate_id',
         'network_id',
+        'user_id',
         'name',
         'account_status',
         'network_employee_id',

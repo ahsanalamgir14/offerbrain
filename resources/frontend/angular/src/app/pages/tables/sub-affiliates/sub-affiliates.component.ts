@@ -60,6 +60,7 @@ export class SubAffiliatesComponent implements OnInit {
   sub1 = "";
   sub2 = "";
   sub3 = "";
+  key = '';
 
   range = new FormGroup({
     start: new FormControl(),
@@ -183,14 +184,13 @@ export class SubAffiliatesComponent implements OnInit {
     let result = [];
     this.skeletonloader = true;
     this.isLoading = true;
-    // this.isChecked = false;
+    this.key = await this.subAffiliatesService.getAPIKey();
+    console.log('key :', this.key);
     this.start_date = formatDate(this.range.get('start').value, 'yyyy-MM-dd', 'en');
     this.end_date = formatDate(this.range.get('end').value, 'yyyy-MM-dd', 'en');
-    const headers = { "Content-type": "application/json; charset=UTF-8", 'X-Eflow-API-Key': 'nH43mlvTSCuYUOgOXrRA' };
+    const headers = { "Content-type": "application/json; charset=UTF-8", 'X-Eflow-API-Key': this.key };
     this.getSummary(headers);
     result = await this.getSubAffiliates(headers);
-    console.log('result :', result);
-
     let affiliatesArray = result.map(a => [a.sub1, a.sub2, a.sub3]);
     let filter = {
       'data': affiliatesArray,
@@ -231,8 +231,6 @@ export class SubAffiliatesComponent implements OnInit {
   }
 
   async getSubAffiliates(headers) {
-    // console.log(this.affiliate.length);
-    // return;
     const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
     const body =
     {

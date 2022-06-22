@@ -26,16 +26,27 @@ export class SubAffiliatesService {
     });
     return this.affiliates;
   }
+
   async getAffiliateOptions(): Promise<any> {
     await this.apiService.getData(`networks`).then(res => res.json()).then((data) => {
       console.log(data);
       this.affOptionsResponse.next(data);
     });
   }
+
   async getGrossRevenue(data): Promise<any> {
     await this.apiService.postData(`sub_affiliate_gross_revenue`, data).then(res => res.json()).then((data) => {
       console.log(data);
       this.grossRevenueResponse.next(data);
+    });
+  }
+
+  async getAPIKey(): Promise<any> {
+    return await this.apiService.getData(`get_EF_key`).then(res => res.json()).then((data) => {
+      if(data.status){
+        console.log('return data.key; :', data.key);
+        return data.key;
+      }
     });
   }
 }

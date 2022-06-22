@@ -50,8 +50,8 @@ class CustomerController extends Controller
         if ($is_count == 0 && $is_count != 1 && $is_count != '') {
             ini_set('memory_limit', '512M');
             set_time_limit(0);
-            $query = Customer::doesnthave('customers')
-                ->where('user_id', Auth::id())
+            // $query = Customer::doesnthave('customers')
+            $query = Customer::where('user_id', Auth::id())
                 ->select('id', 'user_id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at')
                 ->addSelect(DB::raw('0 as orders_count'));
             $total_rows = $query->count('customers.id');

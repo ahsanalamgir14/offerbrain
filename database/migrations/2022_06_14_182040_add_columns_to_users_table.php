@@ -36,21 +36,21 @@ class AddColumnsToUsersTable extends Migration
         //     $table->unsignedBigInteger('user_id')->after('prospect_id')->nullable()->default(null);
         // });
 
-        // Schema::table('settings', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('user_id')->after('id')->nullable()->default(null);
-        // });
+        Schema::table('settings', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->after('id')->nullable()->default(null);
+        });
 
-        // Schema::table('mids', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('user_id')->after('router_id')->nullable()->default(null);
-        // });
+        Schema::table('mids', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->after('router_id')->nullable()->default(null);
+        });
 
-        // Schema::table('mid_groups', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('user_id')->after('id')->nullable()->default(null);
-        // });
+        Schema::table('mid_groups', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->after('id')->nullable()->default(null);
+        });
 
-        // Schema::table('networks', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('user_id')->after('network_id')->nullable()->default(null);
-        // });
+        Schema::table('networks', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->after('network_id')->nullable()->default(null);
+        });
     }
 
     /**

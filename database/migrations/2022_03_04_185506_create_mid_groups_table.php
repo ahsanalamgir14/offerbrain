@@ -18,10 +18,10 @@ class CreateMidGroupsTable extends Migration
             $table->id()->index();
             $table->string('group_name');
             $table->string('group_alias')->nullable()->default(null);
-            $table->string('assigned_mids')->nullable()->default(0);
-            $table->string('gross_revenue')->nullable()->default(0);
+            // $table->string('assigned_mids')->nullable()->default(0);
+            // $table->string('gross_revenue')->nullable()->default(0);
             $table->string('bank_per')->nullable()->default(20);
-            $table->string('target_bank_balance')->nullable()->default(0);
+            // $table->string('target_bank_balance')->nullable()->default(0);
             $table->string('status')->nullable()->default(null);
             $table->softDeletes();
             $table->timestamps();

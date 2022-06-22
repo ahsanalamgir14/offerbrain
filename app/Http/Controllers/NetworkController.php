@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-use App\Models\Network;
-use App\Models\Order;
-use Illuminate\Http\Request;
-use GuzzleHttp\Client;
-use Carbon\Carbon;
 use DB;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Order;
+use GuzzleHttp\Client;
+use App\Models\Network;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
+use Auth;
 
 class NetworkController extends Controller
 {
@@ -19,24 +22,17 @@ class NetworkController extends Controller
      */
     public function index(Request $request)
     {
-        DB::statement("SET SQL_MODE=''");
+        // DB::statement("SET SQL_MODE=''");
         if ($request->start_date != '' && $request->end_date != '') {
 
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 
-            // $query = Order::where('time_stamp', '>=', $start_date)
-            //         ->where('time_stamp', '<=', $end_date)
-            //         ->where('order_status', '=', 7)
-            //         ->where('affiliate', '=', 1)
-            //         ->select('order_status', 'order_total')
-            //         ->addSelect(DB::raw('ROUND(SUM(order_total), 2) as gross_revenue'))->count();
-            // dd($query);
-
-            $query = DB::table('networks')
+            $query = DB::table('networks')->where(['networks.user_id' => Auth::id()])
                 ->select('networks.*')
-                ->join('orders', function ($join) use ($start_date, $end_date) {
+                ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affiliate', '=', 'networks.network_affiliate_id')
+                        ->where('orders.user_id', '=', Auth::id())
                         ->where('orders.time_stamp', '>=', $start_date)
                         ->where('orders.time_stamp', '<=', $end_date)
                         ->where('orders.order_status', '=', 2)
@@ -47,9 +43,10 @@ class NetworkController extends Controller
                 ->selectRaw("ROUND(COUNT(case when orders.upsell_product_quantity != '' then 0 end), 2) as upsell_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_chargeback = 1 then 0 end) , 2) as chargeback_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'yes' then 0 end), 2) as refund_per")
-                ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
+                ->leftJoin('order_products', 'order_products.order_id', '=', 'orders.order_id')
                 ->selectRaw('COUNT(case when order_products.name NOT LIKE "%(c)%" then 0 end) as rebill_per')
-                ->groupBy('networks.network_affiliate_id');
+                ->groupBy('networks.network_affiliate_id', 'networks.user_id')
+                ->orderBy('networks.name');
 
             if ($request->fields != null) {
                 $field_array = explode(',', $request->fields);
@@ -63,7 +60,7 @@ class NetworkController extends Controller
             $data['affiliates'] = $query->get();
             // dd(DB::getQueryLog());
         } else {
-            $data['affiliates'] = Network::all();
+            $data['affiliates'] = Network::where(['user_id'=>Auth::id()])->get();
         }
         return response()->json(['status' => true, 'data' => $data]);
     }
@@ -97,7 +94,7 @@ class NetworkController extends Controller
      */
     public function show($id)
     {
-        $affiliate = Network::where(['network_affiliate_id' => $id])->first();
+        $affiliate = Network::where(['user_id' => Auth::id(), 'network_affiliate_id' => $id])->first();
         return response()->json(['status' => true, 'data' => $affiliate]);
     }
 
@@ -139,13 +136,21 @@ class NetworkController extends Controller
             return response()->json(['status' => true, 'message' => '<b>1</b> Network Deleted Successfully']);
         }
     }
-    public function pull_affiliates()
+    public function pull_affiliates(Request $request)
     {
+        // return Auth::id();
         $new_affiliates = 0;
         $updated_affiliates = 0;
-        $db_network_affiliate_ids = Network::all()->pluck('network_affiliate_id')->toArray();
+        // $db_network_affiliate_ids = Network::all()->pluck('network_affiliate_id')->toArray();
         $key = "X-Eflow-API-Key";
-        $value = "nH43mlvTSCuYUOgOXrRA";
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        if ($user->everflow_api_key) {
+            $value = Crypt::decrypt($user->everflow_api_key);
+        } else {
+            return response()->json(['status' => false, 'message' => 'No API key found for Everflow']);
+        }
+        // return $value;
         $url = 'https://api.eflow.team/v1/networks/affiliates';
         $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
         $affiliates = $api_data->affiliates;
@@ -153,9 +158,12 @@ class NetworkController extends Controller
 
         if ($affiliates) {
             foreach ($affiliates as $affiliate) {
-                if (in_array($affiliate->network_affiliate_id, $db_network_affiliate_ids)) {
-                    $update = Network::where(['network_affiliate_id' => $affiliate->network_affiliate_id])->first();
-                    $update->update((array)$affiliate);
+                $affiliate->user_id = Auth::id();
+                $network = Network::where(['user_id' => Auth::id(), 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
+                // return  $network ;
+                // if (in_array($affiliate->network_affiliate_id, $db_network_affiliate_ids)) {
+                if ($network) {
+                    $network->update((array)$affiliate);
                     $updated_affiliates++;
                 } else {
                     Network::create((array)$affiliate);
@@ -166,6 +174,7 @@ class NetworkController extends Controller
                 [
                     'status' => true,
                     'data' => [
+                        'user_id:' => Auth::id(),
                         'New Affiliates: ' => $new_affiliates,
                         'Updates Affiliates: ' => $updated_affiliates
                     ]

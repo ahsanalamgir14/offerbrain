@@ -21,7 +21,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Notyf } from 'notyf';
 import { ListService } from 'src/@fury/shared/list/list.service';
 import { ListComponent } from 'src/@fury/shared/list/list.component';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
 
 @Pipe({ name: 'tooltipList' })
 export class TooltipListPipe implements PipeTransform {
@@ -84,7 +83,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     { name: 'Gross Revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'Bank %', property: 'bank_per', visible: true, isModelProperty: true },
     { name: 'Target Bank Balance', property: 'target_bank_balance', visible: true, isModelProperty: true },
-    // { name: 'Updated_at', property: 'updated_at', visible: false, isModelProperty: false },
+    { name: 'Updated At', property: 'updated_at', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
 
   ] as ListColumn[];
@@ -308,16 +307,6 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
       dialogRef.afterClosed().subscribe(result => {
       });
     }
-  }
-
-  showMidDialogData(group_name) {
-    const dialogRef = this.dialog.open(ProductDetailComponent, {
-      disableClose: true,
-      data: { group_name: group_name }
-    });
-    dialogRef.updateSize('1000px');
-    dialogRef.afterClosed().subscribe(result => {
-    });
   }
 
   selectDate(param) {

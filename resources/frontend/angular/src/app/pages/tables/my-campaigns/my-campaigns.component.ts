@@ -20,6 +20,7 @@ import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-
 import { Pipe, PipeTransform } from '@angular/core';
 import { Location } from '@angular/common';
 import { TooltipListPipe } from './tooltip-list.pipe';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'fury-campaigns',
@@ -90,14 +91,14 @@ export class MyCampaignsComponent implements OnInit {
     // { name: 'coupon_profiles', property: 'coupon_profiles', visible: false, isModelProperty: false },
     // { name: 'fraud_providers', property: 'fraud_providers', visible: false, isModelProperty: false },
     // { name: 'volume_discounts', property: 'volume_discounts', visible: false, isModelProperty: false },
-    { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: true, isModelProperty: false },
-    { name: 'Tracking Networks', property: 'tracking_networks', visible: true, isModelProperty: false },
-    { name: 'Upsell Poducts', property: 'upsell_products', visible: true, isModelProperty: false },
-    { name: 'Downsell Products', property: 'downsell_products', visible: true, isModelProperty: false },
-    { name: 'Cycle Products', property: 'cycle_products', visible: true, isModelProperty: false },
-    { name: 'Cogs Track', property: 'cogs_track', visible: true, isModelProperty: true },
-    { name: 'Cpa Track', property: 'cpa_track', visible: true, isModelProperty: true },
-    { name: 'Third Party Track', property: 'third_party_track', visible: true, isModelProperty: true },
+    { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: false, isModelProperty: false },
+    { name: 'Tracking Networks', property: 'tracking_networks', visible: false, isModelProperty: false },
+    { name: 'Upsell Poducts', property: 'upsell_products', visible: false, isModelProperty: false },
+    { name: 'Downsell Products', property: 'downsell_products', visible: false, isModelProperty: false },
+    { name: 'Cycle Products', property: 'cycle_products', visible: false, isModelProperty: false },
+    { name: 'Cogs Track', property: 'cogs_track', visible: false, isModelProperty: true },
+    { name: 'Cpa Track', property: 'cpa_track', visible: false, isModelProperty: true },
+    { name: 'Third Party Track', property: 'third_party_track', visible: false, isModelProperty: true },
     { name: 'Created At', property: 'created_at', visible: true, isModelProperty: true },
     // { name: 'updated_at', property: 'updated_at', visible: true, isModelProperty: true },
   ] as ListColumn[];
@@ -108,7 +109,7 @@ export class MyCampaignsComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe) { }
+  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe, private router: Router, private route: ActivatedRoute,) { }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property); ''
@@ -282,5 +283,9 @@ export class MyCampaignsComponent implements OnInit {
       // this.campaignsService.deleteResponse.next([]);
       this.deleteSubscription.unsubscribe();
     }
+  }
+  viewCampaignDetails(name) {
+    // alert(name);
+    this.router.navigate(['campaign-view', name]);
   }
 }

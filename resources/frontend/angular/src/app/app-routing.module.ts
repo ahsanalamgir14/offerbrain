@@ -92,6 +92,10 @@ const routes: Routes = [
         path: 'my-campaigns',
         loadChildren: () => import('./pages/tables/my-campaigns/my-campaigns.module').then(m => m.MyCampaignsModule),
       },
+      {
+        path: 'campaign-view/:name',
+        loadChildren: () => import('./pages/tables/my-campaigns/campaign-view/campaign-view.module').then(m => m.CampaignViewModule),
+      },
     ]
   },
   { path: 'not-found', component: NotFoundComponent }

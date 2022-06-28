@@ -64,6 +64,7 @@ class MidController extends Controller
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
         }
         $data = $query->get();
+        // dd($data);
         return response()->json(['status' => true, 'data' => $data]);
     }
 
@@ -211,51 +212,62 @@ class MidController extends Controller
     {
         $new_gateways = 0;
         $updated_gateways = 0;
-        $affected = DB::table('mids')->update(['is_active' => 0]);
+        // $affected = DB::table('mids')->update(['is_active' => 0]);
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
         $url = $user->sticky_url . '/api/v1/payment_router_view';
 
-        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post($url, ['payment_router_id' => 1])->getBody()->getContents());
-        $routers = $api_data->data;
-        if ($routers) {
-            foreach ($routers as $router) {
+        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post($url, ['payment_router_id' => 1, 'gateway_status' => 1])->getBody()->getContents());
+        $router = $api_data;
+        if ($router) {
+            // foreach ($routers as $router) {
                 $gateways = $router->gateways;
-
+                
                 foreach ($gateways as $gateway) {
+                    if($gateway->gateway_status == 'Active'){
+                        $is_active = 1;
+                    } else {
+                        $is_active = 0;
+                    }
                     if (in_array($gateway->gateway_id, $db_gateway_ids)) {
                         $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
-                        $gateway->router_id = $router->id;
-                        $gateway->user_id = Auth::id();
-                        $gateway->router_name = $router->name;
-                        $gateway->router_date_in = $router->date_in;
-                        $gateway->router_desc = $router->description;
-                        $gateway->mid_group_setting_id = $router->mid_group_setting_id;
-                        $gateway->mid_group_setting = $router->mid_group_setting;
-                        $gateway->is_three_d_routed = $router->is_three_d_routed;
-                        $gateway->is_active = 1;
-                        $gateway->is_strict_preserve = $router->is_strict_preserve;
-                        $update->update((array)$gateway);
+                        $update->router_id = $router->id;
+                        $update->user_id = Auth::id();
+                        $update->router_name = $router->name;
+                        $update->router_date_in = $router->date_in;
+                        $update->router_desc = $router->description;
+                        $update->mid_group_setting_id = $router->mid_group_setting_id;
+                        $update->mid_group_setting = $router->mid_group_setting;
+                        $update->is_three_d_routed = $router->is_three_d_routed;
+                        // $gateway->is_active = 1;
+                        $update->initials = $gateway->initial_order_count;
+                        $update->subscr = $gateway->rebill_order_count;
+                        $update->is_strict_preserve = $router->is_strict_preserve;
+                        $update->is_active = $is_active;
+                        $update->save();
                         $updated_gateways++;
                     } else {
                         $mid = new Mid();
-                        $gateway->router_id = $router->id;
-                        $gateway->user_id = Auth::id();
-                        $gateway->router_name = $router->name;
-                        $gateway->router_date_in = $router->date_in;
-                        $gateway->router_desc = $router->description;
-                        $gateway->mid_group_setting_id = $router->mid_group_setting_id;
-                        $gateway->mid_group_setting = $router->mid_group_setting;
-                        $gateway->is_three_d_routed = $router->is_three_d_routed;
-                        $gateway->is_active = 1;
-                        $gateway->is_strict_preserve = $router->is_strict_preserve;
-                        $mid->create((array)$gateway);
+                        $mid->router_id = $router->id;
+                        $mid->user_id = Auth::id();
+                        $mid->router_name = $router->name;
+                        $mid->router_date_in = $router->date_in;
+                        $mid->router_desc = $router->description;
+                        $mid->mid_group_setting_id = $router->mid_group_setting_id;
+                        $mid->mid_group_setting = $router->mid_group_setting;
+                        $mid->is_three_d_routed = $router->is_three_d_routed;
+                        // $gateway->is_active = 1;
+                        $mid->initials = $gateway->initial_order_count;
+                        $mid->subscr = $gateway->rebill_order_count;
+                        $mid->is_strict_preserve = $router->is_strict_preserve;
+                        $mid->is_active = $is_active;
+                        $mid->save();
                         $new_gateways++;
                     }
                 }
-            }
+            // }
         }
         // app(\App\Http\Controllers\ProfileController::class)->update_profiles();
         return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'user_id' => Auth::id(), 'updated_mids' => $updated_gateways]]);

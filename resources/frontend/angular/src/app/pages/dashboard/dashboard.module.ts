@@ -16,6 +16,9 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardService } from './dashboard.service';
 import { FurySharedModule } from '../../../@fury/fury-shared.module';
+import { ChartsModule } from 'ng2-charts';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   imports: [
@@ -35,7 +38,11 @@ import { FurySharedModule } from '../../../@fury/fury-shared.module';
     RecentSalesWidgetModule,
     AdvancedPieChartWidgetModule,
     MapsWidgetModule,
-    MarketWidgetModule
+    MarketWidgetModule,
+    ChartsModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatExpansionModule
   ],
   declarations: [DashboardComponent],
   providers: [DashboardService]

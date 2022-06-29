@@ -1,24 +1,21 @@
 import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router, ActivatedRoute, ParamMap, Params } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ListColumn } from 'src/@fury/shared/list/list-column.model';
-// import { Order } from './order.model';
-
+import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
 import { fadeInRightAnimation } from 'src/@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from 'src/@fury/animations/fade-in-up.animation';
-
-//self imports
 import { FormGroup, FormControl } from '@angular/forms';
 import { GoldenTicketComponent } from 'src/app/pages/campaigns/golden-ticket/golden-ticket.component';
-import { MyCampaignsService } from '../my-campaigns.service';
-import { CampaignService } from 'src/app/pages/campaigns/campaign.service';
-import { Subscription } from 'rxjs';
+import { CampaignViewService } from './campaign-view.service';
+import { SelectionModel } from '@angular/cdk/collections';
+import { CampaignView } from './campaign-view.model';
 import { formatDate } from '@angular/common';
+import { filter } from 'rxjs/operators';
 import { Notyf } from 'notyf';
-import { GoldenTicketService } from 'src/app/pages/campaigns/golden-ticket/golden-ticket.service';
-import { Router, ActivatedRoute, ParamMap, Params } from '@angular/router';
 
 
 @Component({
@@ -27,9 +24,10 @@ import { Router, ActivatedRoute, ParamMap, Params } from '@angular/router';
   styleUrls: ['./campaign-view.component.scss']
 })
 export class CampaignViewComponent implements OnInit {
-  tickets: [];
-   name: string;
-  //customer coding
+  subject$: ReplaySubject<CampaignView[]> = new ReplaySubject<CampaignView[]>(1);
+  data$: Observable<CampaignView[]> = this.subject$.asObservable();
+  viewData: CampaignView[];
+  name: string;
   getSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
@@ -70,13 +68,18 @@ export class CampaignViewComponent implements OnInit {
     { name: 'CLV', property: 'clv', visible: true, isModelProperty: true },
 
   ] as ListColumn[];
-  dataSource: MatTableDataSource<null>;
+  dataSource: MatTableDataSource<CampaignView> | null;
+  selection = new SelectionModel<CampaignView>(true, []);
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private goldenTicketService: GoldenTicketService, private campaignService: CampaignService, private router: Router, private route: ActivatedRoute) {
+  constructor(private dialog: MatDialog, private campaignViewService: CampaignViewService, private router: Router, private route: ActivatedRoute) {
     this.getYearsArray(new Date);
+  }
+
+  mapData() {
+    return of(this.viewData.map(campaign => new CampaignView(campaign)));
   }
 
   get visibleColumns() {
@@ -93,19 +96,17 @@ export class CampaignViewComponent implements OnInit {
     }
   }
 
-  /**
-   * Example on how to get data and pass it to the table - usually you would want a dedicated service with a HTTP request for this
-   * We are simulating this request here.
-   */
-
   ngOnInit() {
     this.route.params.subscribe((params: Params) => this.name = params['name']);
-    this.getSubscription = this.campaignService.ticketsGetResponse$
-      .subscribe(data => this.manageGetResponse(data));
+    this.getSubscription = this.campaignViewService.getResponse$.subscribe(data => this.manageGetResponse(data));
     this.getData();
-    // this.getDropData();
-
     this.dataSource = new MatTableDataSource();
+    this.data$.pipe(
+      filter(data => !!data)
+    ).subscribe((campaigns) => {
+      this.viewData = campaigns;
+      this.dataSource.data = campaigns;
+    });
   }
 
   ngAfterViewInit() {
@@ -121,27 +122,15 @@ export class CampaignViewComponent implements OnInit {
 
   async getData() {
     this.isLoading = true;
-    await this.campaignService.getGoldenTicketData()
-      .then(tickets => {
-        this.tickets = tickets.data;
-        this.dataSource.data = tickets.data;
-        setTimeout(() => {
-          // this.paginator.pageIndex = this.currentPage;
-          // this.paginator.length = tickets.pag.count;
-        });
-        this.isLoading = false;
-      }, error => {
-        this.isLoading = false;
-      });
+    await this.campaignViewService.getViewTableData(this.name, this.filters);
   }
 
-  manageGetResponse(tickets) {
-    if (tickets.status) {
-      this.tickets = tickets.data;
-      this.dataSource.data = tickets.data;
-      setTimeout(() => {
-        // this.paginator.pageIndex = this.currentPage;
-        // this.paginator.length = tickets.pag.count;
+  manageGetResponse(response) {
+    if (response.status) {
+      this.viewData = response.data;
+      this.dataSource.data = response.data;
+      this.mapData().subscribe(prospects => {
+        this.subject$.next(prospects);
       });
       this.isLoading = false;
     } else {
@@ -158,86 +147,85 @@ export class CampaignViewComponent implements OnInit {
     this.dataSource.filter = value;
   }
 
-  async filterRecord() {
-    if (this.month != null || this.year != null) {
-      // this.isLoading = true;
-      await this.campaignService.filterGoldenTicket(this.month, this.year)
-        .then(response => {
-          if (response.data.length != 0) {
-            this.tickets = response.data;
-            this.dataSource.data = response.data;
-            this.isLoading = false;
-            this.notyf.success('Data Found Successfully');
-          } else {
-            this.notyf.error('Oops! No Data Found');
-          }
-        }, error => {
-          this.isLoading = false;
-          this.notyf.error(error.message);
-        });
-    } else { this.notyf.error("Please select filter options"); }
-  }
+  // async filterRecord() {
+  //   if (this.month != null || this.year != null) {
+  //     // this.isLoading = true;
+  //     await this.campaignViewService.filterGoldenTicket(this.month, this.year)
+  //       .then(response => {
+  //         if (response.data.length != 0) {
+  //           this.viewData = response.data;
+  //           this.dataSource.data = response.data;
+  //           this.isLoading = false;
+  //           this.notyf.success('Data Found Successfully');
+  //         } else {
+  //           this.notyf.error('Oops! No Data Found');
+  //         }
+  //       }, error => {
+  //         this.isLoading = false;
+  //         this.notyf.error(error.message);
+  //       });
+  //   } else { this.notyf.error("Please select filter options"); }
+  // }
 
-  async addCustomMonth() {
-    if(this.month && this.year){
-      await this.campaignService.addCurrentMonth(this.month, this.year)
-      .then(response => {
-        if (response.status == true) {
-          // this.isLoading = false;
-          this.notyf.success(response.message);
-          this.getData();
-        } else {
-          this.notyf.success(response.message);
-        }
-      }, error => {
-        this.isLoading = false;
-        this.notyf.error(error.message);
-      });
-    }else{ this.notyf.error("Select Month and Year");}
-  }
+  // async addCustomMonth() {
+  //   if (this.month && this.year) {
+  //     await this.campaignViewService.addCurrentMonth(this.month, this.year)
+  //       .then(response => {
+  //         if (response.status == true) {
+  //           // this.isLoading = false;
+  //           this.notyf.success(response.message);
+  //           this.getData();
+  //         } else {
+  //           this.notyf.success(response.message);
+  //         }
+  //       }, error => {
+  //         this.isLoading = false;
+  //         this.notyf.error(error.message);
+  //       });
+  //   } else { this.notyf.error("Select Month and Year"); }
+  // }
 
-  async addCurrentMonth() {
-    var currentMonth = this.months[new Date().getMonth()];
-    var currentYear = new Date().getFullYear();
-    await this.campaignService.addCurrentMonth(currentMonth, currentYear)
-      .then(response => {
-        if (response.status == true) {
-          // this.isLoading = false;
-          this.notyf.success(response.message);
-          this.getData();
-        } else {
-          this.notyf.success(response.message);
-        }
-      }, error => {
-        this.isLoading = false;
-        this.notyf.error(error.message);
-      });
-  }
+  // async addCurrentMonth() {
+  //   var currentMonth = this.months[new Date().getMonth()];
+  //   var currentYear = new Date().getFullYear();
+  //   await this.campaignViewService.addCurrentMonth(currentMonth, currentYear)
+  //     .then(response => {
+  //       if (response.status == true) {
+  //         // this.isLoading = false;
+  //         this.notyf.success(response.message);
+  //         this.getData();
+  //       } else {
+  //         this.notyf.success(response.message);
+  //       }
+  //     }, error => {
+  //       this.isLoading = false;
+  //       this.notyf.error(error.message);
+  //     });
+  // }
 
   resetFilters() {
     this.month = null;
     this.year = null;
   }
 
-  async refresh() {
-    this.resetFilters();
-    this.isLoading = true;
-        this.notyf.open({ type: 'info', message: 'Records will be refreshed soon...' });
-    await this.campaignService.refreshGoldenTicket()
-      .then(tickets => {
-        this.tickets = tickets.data;
-        this.dataSource.data = tickets.data;
-        setTimeout(() => {
-          // this.paginator.pageIndex = this.currentPage;
-          // this.paginator.length = tickets.pag.count;
-        });
-        this.isLoading = false;
-      }, error => {
-        this.isLoading = false;
-      });
-  }
+  // async refresh() {
+  //   this.resetFilters();
+  //   this.isLoading = true;
+  //   this.notyf.open({ type: 'info', message: 'Records will be refreshed soon...' });
+  //   await this.campaignViewService.refreshGoldenTicket()
+  //     .then(viewData => {
+  //       this.viewData = viewData.data;
+  //       this.dataSource.data = viewData.data;
+  //       setTimeout(() => {
+  //         // this.paginator.pageIndex = this.currentPage;
+  //         // this.paginator.length = viewData.pag.count;
+  //       });
+  //       this.isLoading = false;
+  //     }, error => {
+  //       this.isLoading = false;
+  //     });
+  // }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() { }
 
 }

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use App\Models\Campaign;
-use App\Models\GoldenTicket;
 use DB;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Campaign;
+use App\Models\GoldenTicket;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Crypt;
 
 
 class CampaignsController extends Controller
@@ -96,12 +99,14 @@ class CampaignsController extends Controller
     }
     public function refresh_campaigns(Request $request)
     {
-        $new_campaigns = 0; 
+        // return Auth::id();
+        $new_campaigns = 0;
         $updated_campaigns = 0;
-        $db_campaign_ids = Campaign::all()->pluck('campaign_id')->toArray();
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $url = 'https://thinkbrain.sticky.io/api/v2/campaigns';
+        $db_campaign_ids = Campaign::where(['user_id' => Auth::id()])->pluck('campaign_id')->toArray();
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        $password = Crypt::decrypt($user->sticky_api_key);
+        $url = $user->sticky_url . '/api/v2/campaigns';
         $page = 1;
 
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
@@ -114,26 +119,11 @@ class CampaignsController extends Controller
             foreach ($campaigns as $result) {
                 $campaign = new Campaign();
                 $result['campaign_id'] = $result['c_id'];
+                $result['user_id'] = Auth::id();
                 $result['created_at'] = $result['created_at']['date'];
                 if ($result['updated_at']) {
                     $result['updated_at'] = $result['updated_at']['date'];
-                    // $result['updator'] = serialize($result['updator']);
                 }
-                // $result['creator'] = serialize($result['creator']);
-                // $result['countries'] = serialize($result['countries']);
-                // $result['offers'] = serialize($result['offers']);
-                // $result['channel'] = serialize($result['channel']);
-                // $result['payment_methods'] = serialize($result['payment_methods']);
-                // if ($result['gateway']) {
-                //     $result['gateway'] = serialize($result['gateway']);
-                // }
-                // $result['alternative_payments'] = serialize($result['alternative_payments']);
-                // $result['shipping_profiles'] = serialize($result['shipping_profiles']);
-                // $result['return_profiles'] = serialize($result['return_profiles']);
-                // $result['postback_profiles'] = serialize($result['postback_profiles']);
-                // $result['coupon_profiles'] = serialize($result['coupon_profiles']);
-                // $result['fraud_providers'] = serialize($result['fraud_providers']);
-                // $result['volume_discounts'] = serialize($result['volume_discounts']);
                 if (in_array($result['campaign_id'], $db_campaign_ids)) {
                     $campaign->where(['campaign_id' => $result['campaign_id']])->get();
                     $campaign->update($result);
@@ -153,26 +143,11 @@ class CampaignsController extends Controller
                     foreach ($other_campaigns as $result) {
                         $campaign = new Campaign();
                         $result['campaign_id'] = $result['c_id'];
+                        $result['user_id'] = Auth::id();
                         $result['created_at'] = $result['created_at']['date'];
                         if ($result['updated_at']) {
                             $result['updated_at'] = $result['updated_at']['date'];
-                            // $result['updator'] = serialize($result['updator']);
                         }
-                        // $result['creator'] = serialize($result['creator']);
-                        // $result['countries'] = serialize($result['countries']);
-                        // $result['offers'] = serialize($result['offers']);
-                        // $result['channel'] = serialize($result['channel']);
-                        // $result['payment_methods'] = serialize($result['payment_methods']);
-                        // if ($result['gateway']) {
-                        //     $result['gateway'] = serialize($result['gateway']);
-                        // }
-                        // $result['alternative_payments'] = serialize($result['alternative_payments']);
-                        // $result['shipping_profiles'] = serialize($result['shipping_profiles']);
-                        // $result['return_profiles'] = serialize($result['return_profiles']);
-                        // $result['postback_profiles'] = serialize($result['postback_profiles']);
-                        // $result['coupon_profiles'] = serialize($result['coupon_profiles']);
-                        // $result['fraud_providers'] = serialize($result['fraud_providers']);
-                        // $result['volume_discounts'] = serialize($result['volume_discounts']);
                         if (in_array($result['campaign_id'], $db_campaign_ids)) {
                             $campaign->where(['campaign_id' => $result['campaign_id']])->get();
                             $campaign->update($result);
@@ -185,7 +160,7 @@ class CampaignsController extends Controller
                 }
             }
         }
-        return response()->json(['status' => true, 'New campaigns:'=> $new_campaigns, 'Updated Campaigns:'=>$updated_campaigns]);
+        return response()->json(['status' => true, 'New campaigns:' => $new_campaigns, 'Updated Campaigns:' => $updated_campaigns]);
     }
     public function get_campaign_columns(Request $request)
     {

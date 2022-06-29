@@ -29,7 +29,7 @@
                   <mat-label>Select Campaign Type</mat-label>
                   <mat-select formControlName="campaign_type">
 
-                    <ngx-mat-select-search placeholderLabel="Search..." noEntriesFoundLabel="'Not Found'">
+                    <ngx-mat-select-search placeholderLabel="Search..." noEntriesFoundLabel="Not Found">
                     </ngx-mat-select-search>
 
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
@@ -43,9 +43,10 @@
                   <mat-select formControlName="tracking_campaigns" multiple>
 
                     <ngx-mat-select-search [formControl]="campaignSearchCtrl" placeholderLabel="Search..."
-                      noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
 
-                    <mat-option *ngFor="let option of filteredCampaigns | async" [value]="option">{{ option.name }}
+                    <mat-option *ngFor="let option of filteredCampaigns | async" [value]="option">#{{ option.id }} - {{
+                      option.name }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -57,9 +58,10 @@
                   <mat-select formControlName="tracking_networks" multiple>
 
                     <ngx-mat-select-search [formControl]="networkSearchCtrl" placeholderLabel="Search..."
-                      noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
 
-                    <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">{{ option.name }}
+                    <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">#{{ option.id }} - {{
+                      option.name }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -67,8 +69,7 @@
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
-              <button (click)="stepper.reset()" [disabled]="campaignFormGroup.pristine" color="primary" mat-button
-                type="button">RESET
+              <button (click)="stepper.reset()" [disabled]="campaignFormGroup.pristine" color="primary" mat-button type="button">RESET
               </button>
               <button [disabled]="campaignFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT
               </button>
@@ -85,24 +86,23 @@
 
             <div class="content" fxLayout="row" fxLayoutGap="30px">
 
-              <div fxLayout="column">
+              <div fxLayout="column" fxFlex="25">
                 <mat-form-field>
                   <mat-label>Select Number of Upsells</mat-label>
-                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells"
-                    (selectionChange)="clearSelection()">
+                  <mat-select formControlName="no_of_upsells" [(ngModel)]="no_of_upsells" (selectionChange)="clearSelection()">
                     <mat-option *ngFor="let option of noOfUpsellsOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <!-- formArrayName="productSearchCtrl" -->
                 <div *ngFor='let operand of counter(no_of_upsells); let i = index' class="row-upcells">
                   <div fxLayout="row">
-                  <div  fxFlex="85" class="fx-flexs">
-                    <ng-multiselect-dropdown [placeholder]="'Select Upsell'" [settings]="dropdownSettingsForSingle"
-                      [data]="productOptions" [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
-                      (onSelect)="avoidDuplication($event, 'upsell',i)" (onDeSelect)="avoidDuplication($event, 'upsellDeSelect',i)"
-                      (click)="getSelectValue($event, 'upsell',i)">
-                    </ng-multiselect-dropdown>
-                  </div>
+                    <div fxFlex="90">
+                      <ng-multiselect-dropdown placeholder="Select Product for Upsell {{i+1}}" [settings]="dropdownSettingsForSingle"
+                        [data]="productOptions" [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
+                        (onSelect)="avoidDuplication($event, 'upsell',i)" (onDeSelect)="avoidDuplication($event, 'upsellDeSelect',i)"
+                        (click)="getSelectValue($event, 'upsell',i)">
+                      </ng-multiselect-dropdown>
+                    </div>
                     <!-- <mat-form-field>
                       <mat-label>Select Product for Upsell {{i+1}}</mat-label>
                       <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
@@ -119,7 +119,7 @@
                 </div>
               </div>
 
-              <div fxLayout="column">
+              <div fxLayout="column" fxFlex="25">
                 <mat-form-field>
                   <mat-label>Select Number of Downsells</mat-label>
                   <mat-select formControlName="no_of_downsells" [(ngModel)]="no_of_downsells">
@@ -129,13 +129,13 @@
 
                 <div *ngFor='let operand of counter(no_of_downsells); let i = index' class="row-upcells">
                   <div fxLayout="row">
-                  <div  fxFlex="85" class="fx-flexs">
-                    <ng-multiselect-dropdown [placeholder]="'Select Downsell'" [settings]="dropdownSettingsForSingle"
-                    [data]="productOptions" [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
-                    (onSelect)="avoidDuplication($event, 'downsell',i)" (onDeSelect)="avoidDuplication($event, 'downsellDeSelect',i)"
-                    (click)="getSelectValue($event, 'downsell',i)">
-                  </ng-multiselect-dropdown>
-                  </div>
+                    <div fxFlex="90">
+                      <ng-multiselect-dropdown placeholder="Select Product for Downsells {{i+1}}" [settings]="dropdownSettingsForSingle"
+                        [data]="productOptions" [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
+                        (onSelect)="avoidDuplication($event, 'downsell',i)" (onDeSelect)="avoidDuplication($event, 'downsellDeSelect',i)"
+                        (click)="getSelectValue($event, 'downsell',i)">
+                      </ng-multiselect-dropdown>
+                    </div>
                     <!-- <mat-form-field>
                       <mat-label>Select Product for Downsells {{i+1}}</mat-label>
                       <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
@@ -151,7 +151,7 @@
                     </mat-form-field> -->
                   </div>
                 </div>
-              </div>              
+              </div>
             </div>
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
@@ -171,24 +171,24 @@
 
             <div class="content" fxLayout="row" fxLayoutGap="30px">
 
-              <div fxLayout="column">
+              <div fxLayout="column" fxFlex="25">
                 <mat-form-field>
                   <mat-label>Select Number of Cycles</mat-label>
-                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles"
-                    (selectionChange)="clearSelection()" Fchange>
+                  <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" (selectionChange)="clearSelection()"
+                    Fchange>
                     <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
                 <div *ngFor='let operand of counter(no_of_cycles); let i = index'>
                   <div fxLayout="row">
-                    <div  fxFlex="85">
-                    <ng-multiselect-dropdown [placeholder]="'Select Cycle'" [settings]="dropdownSettingsForSingle"
-                    [data]="productOptions" [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
-                    (onSelect)="avoidDuplication($event, 'cycleproducts',i)" (onDeSelect)="avoidDuplication($event, 'cycleproductsDeSelect',i)"
-                    (click)="getSelectValue($event, 'cycleproducts',i)">
-                  </ng-multiselect-dropdown>
-                  </div>
+                    <div fxFlex="90">
+                      <ng-multiselect-dropdown [placeholder]="'Select Cycle'" [settings]="dropdownSettingsForSingle"
+                        [data]="productOptions" [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
+                        (onSelect)="avoidDuplication($event, 'cycleproducts',i)" (onDeSelect)="avoidDuplication($event, 'cycleproductsDeSelect',i)"
+                        (click)="getSelectValue($event, 'cycleproducts',i)">
+                      </ng-multiselect-dropdown>
+                    </div>
                     <!-- <mat-form-field>
                       <mat-label>Select Product for Cycle {{i+1}}</mat-label>
                       <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
@@ -208,8 +208,7 @@
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button
-                matStepperNext>NEXT</button>
+              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT</button>
             </div>
           </form>
 

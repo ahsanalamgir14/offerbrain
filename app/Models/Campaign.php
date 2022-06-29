@@ -40,7 +40,7 @@ class Campaign extends Model
         'third_party_track' => 'boolean',
     ];
     protected $fillable = [
-        'id',
+        // 'id',
         'campaign_id',
         'gateway_id',
         'user_id',

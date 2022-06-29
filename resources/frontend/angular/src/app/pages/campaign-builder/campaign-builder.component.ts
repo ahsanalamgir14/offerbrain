@@ -88,10 +88,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
 
     this.campaignFormGroup = this.fb.group({
-      name: [null, Validators.required],
-      campaign_type: ['Straight Sale', Validators.required],
-      tracking_campaigns: [null, Validators.required],
-      tracking_networks: [null, Validators.required],
+      // name: [null, Validators.required],
+      // campaign_type: ['Straight Sale', Validators.required],
+      // tracking_campaigns: [null, Validators.required],
+      // tracking_networks: [null, Validators.required],
     });
 
     // this.dropdownSettings = {
@@ -108,9 +108,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       singleSelection: true,
       idField: 'id',
       textField: 'name',
-      // selectAllText: 'Select All',
-      // unSelectAllText: 'UnSelect All',
-      // itemsShowLimit: 3,
+      itemsShowLimit: 1,
       allowSearchFilter: true
     };
 

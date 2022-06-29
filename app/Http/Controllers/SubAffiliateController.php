@@ -153,10 +153,9 @@ class SubAffiliateController extends Controller
 
     public function get_EF_key(Request $request)
     {
-        $key = User::where(['id' => 2])->pluck('everflow_api_key')->first();
-        // $key = User::where(['id' => Auth::id()])->pluck('everflow_api_key');
+        // $key = User::where(['id' => 2])->pluck('everflow_api_key')->first();
+        $key = User::where(['id' => Auth::id()])->pluck('everflow_api_key')->first();
         $key = Crypt::decrypt($key);
-        // return $key;
         return response()->json(['status' => true, 'key' => $key]);
     }
 }

@@ -13,7 +13,7 @@ import { SalesSummaryWidgetOptions } from './widgets/sales-summary-widget/sales-
 import { DashboardService } from './dashboard.service';
 import { ChartWidgetOptions } from '../../../@fury/shared/chart-widget/chart-widget-options.interface';
 import { Location } from '@angular/common';
-
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'fury-dashboard',
   templateUrl: './dashboard.component.html',
@@ -21,6 +21,7 @@ import { Location } from '@angular/common';
 })
 export class DashboardComponent implements OnInit {
 
+  dashboardSubscription: Subscription;
   private static isInitialLoad = true;
   salesData$: Observable<ChartData>;
   totalSalesOptions: BarChartWidgetOptions = {
@@ -95,8 +96,15 @@ export class DashboardComponent implements OnInit {
   private _gap = 16;
   gap = `${this._gap}px`;
 
+  customerCount: string;
+  orderCount:string;
+  declineOrderCount:string;
+  refundOrderCount:string;
+  chargebackOrderCount:string;
+  transections:string;
+  straightSale:string;
   constructor(private dashboardService: DashboardService,
-              private router: Router) {
+    private router: Router) {
     /**
      * Edge wrong drawing fix
      * Navigate anywhere and on Promise right back
@@ -220,6 +228,15 @@ export class DashboardComponent implements OnInit {
     this.recentSalesData$ = this.dashboardService.getRecentSalesData();
 
     this.advancedPieChartData$ = this.dashboardService.getAdvancedPieChartData();
-  }
 
+    this.dashboardService.getDashboardData().then(data =>{
+      this.customerCount = data.data.customers;
+      this.orderCount = data.data.orders;
+      this.declineOrderCount = data.data.decline_orders;
+      this.refundOrderCount = data.data.refund_orders;
+      this.chargebackOrderCount = data.data.chargeback_orders;
+      this.transections = data.data.orders + data.data.decline_orders;
+      this.straightSale = data.data.orders;
+    });
+  }
 }

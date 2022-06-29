@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class QuickInfoWidgetComponent implements OnInit {
 
-  @Input() value: string;
+  @Input() customers: string;
   @Input() label: string;
   @Input() background: string;
   @Input() color: string;

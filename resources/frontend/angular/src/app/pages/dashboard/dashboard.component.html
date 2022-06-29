@@ -41,10 +41,13 @@
 
     <div fxLayout="column" [fxLayoutGap]="gap" [fxFlex]="col(2)" fxLayout.gt-sm="row">
 
-      <div [fxFlex.gt-sm]="col(2)" [fxLayoutGap]="gap" fxFlex="grow" fxLayout="column">
-        <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" class="fullheight"></fury-sales-summary-widget>
+      <div [fxFlex.gt-sm]="col(8)" [fxLayoutGap]="gap" fxFlex="grow" fxLayout="column">
+        <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" orders="{{ orderCount }}" 
+        declineOrders="{{ declineOrderCount }}" chargebackOrders="{{ chargebackOrderCount }}" 
+        refundOrders="{{ refundOrderCount }}" transections="{{  transections }}" 
+        straightSale="{{ straightSale }}" class="fullheight"></fury-sales-summary-widget>
 
-        <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" value="234" label="Customers"
+        <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" customers="{{customerCount}}" label="Customers"
           [background]="'#009688'" color="white" icon="people"></fury-quick-info-widget>
       </div>
 

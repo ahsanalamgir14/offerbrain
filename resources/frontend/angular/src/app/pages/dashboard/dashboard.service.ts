@@ -34,6 +34,8 @@ import {
   visitsChartDemoLabels,
   visitsChartDemoValues
 } from '../demo-data/widget-demo-data';
+import { BehaviorSubject } from 'rxjs';
+import { ApiService } from 'src/app/api.service';
 
 /**
  * @class DashboardService
@@ -44,10 +46,11 @@ import {
 
 @Injectable()
 export class DashboardService {
-
+  public getDashboardResponse = new BehaviorSubject([]);
+  getDashboardResponse$ = this.getDashboardResponse.asObservable();
   url = environment.endpoint;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private apiService: ApiService) {
   }
 
   getSales() {
@@ -387,5 +390,12 @@ export class DashboardService {
         data: chartData.data,
       }]
     };
+  }
+
+  async getDashboardData() {
+    return await this.apiService.getData(`dashboard`).then(res => res.json()).then((data) => {
+      return data;
+    });
+ 
   }
 }

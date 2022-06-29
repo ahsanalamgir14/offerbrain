@@ -132,3 +132,5 @@ Route::get('refresh-initials', [MidController::class, 'refresh_initials']);
 Route::get('reset-initials', [MidController::class, 'reset_initials']);
 Route::get('date-range-products', [OrderProductController::class, 'date_range_products']);
 Route::get('get_EF_key', [SubAffiliateController::class, 'get_EF_key']);
+Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
+Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);

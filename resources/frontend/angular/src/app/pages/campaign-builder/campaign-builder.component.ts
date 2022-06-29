@@ -88,10 +88,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
 
     this.campaignFormGroup = this.fb.group({
-      name: [null, Validators.required],
-      campaign_type: ['Straight Sale', Validators.required],
-      tracking_campaigns: [null, Validators.required],
-      tracking_networks: [null, Validators.required],
+      // name: [null, Validators.required],
+      // campaign_type: ['Straight Sale', Validators.required],
+      // tracking_campaigns: [null, Validators.required],
+      // tracking_networks: [null, Validators.required],
     });
 
     // this.dropdownSettings = {

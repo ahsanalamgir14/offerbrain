@@ -33,6 +33,7 @@ export class Mid {
     refund_count: number;
     void_count: number;
     void_per: number;
+    is_active: number;
     // product_name: string;
 
     constructor(mid) {
@@ -65,6 +66,7 @@ export class Mid {
         this.decline_per = (mid.decline_per / mid.total_count)*100;
         this.approved_per = 100 - (mid.decline_per / mid.total_count)*100;
         this.decline_orders = mid.decline_orders;
+        this.is_active = mid.is_active;
         // this.product_name = mid.product_name;
         this.checked = false;
     }

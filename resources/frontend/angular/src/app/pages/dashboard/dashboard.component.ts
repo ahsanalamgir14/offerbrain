@@ -12,18 +12,23 @@ import { RecentSalesWidgetOptions } from './widgets/recent-sales-widget/recent-s
 import { SalesSummaryWidgetOptions } from './widgets/sales-summary-widget/sales-summary-widget-options.interface';
 import { DashboardService } from './dashboard.service';
 import { ChartWidgetOptions } from '../../../@fury/shared/chart-widget/chart-widget-options.interface';
+import { Subscription } from 'rxjs';
 import { Location, formatDate } from '@angular/common';
 import { ChartOptions, ChartType, ChartDataSets, Chart } from 'chart.js';
 import { environment } from '../../../environments/environment';
 import { Label } from 'ng2-charts';
 import { ApiService } from 'src/app/api.service';
 import { FormControl, FormGroup } from '@angular/forms';
+
 @Component({
   selector: 'fury-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+
+
+  dashboardSubscription: Subscription;
   chart: any;
   public lineChart: any;
   public ctx: any;
@@ -188,8 +193,15 @@ export class DashboardComponent implements OnInit {
   private _gap = 16;
   gap = `${this._gap}px`;
 
-  constructor(private dashboardService: DashboardService,
-              private router: Router, private apiService: ApiService) {
+  customerCount: string;
+  orderCount:string;
+  declineOrderCount:string;
+  refundOrderCount:string;
+  chargebackOrderCount:string;
+  transections:string;
+  straightSale:string;
+  constructor(private dashboardService: DashboardService, private router: Router, private apiService: ApiService) {
+
     /**
      * Edge wrong drawing fix
      * Navigate anywhere and on Promise right back
@@ -318,7 +330,17 @@ export class DashboardComponent implements OnInit {
     this.recentSalesData$ = this.dashboardService.getRecentSalesData();
 
     this.advancedPieChartData$ = this.dashboardService.getAdvancedPieChartData();
-  }
+
+
+    this.dashboardService.getDashboardData().then(data =>{
+      this.customerCount = data.data.customers;
+      this.orderCount = data.data.orders;
+      this.declineOrderCount = data.data.decline_orders;
+      this.refundOrderCount = data.data.refund_orders;
+      this.chargebackOrderCount = data.data.chargeback_orders;
+      this.transections = data.data.orders + data.data.decline_orders;
+      this.straightSale = data.data.orders;
+    });
 
   async selectDate(param) {
     var startDate = new Date();

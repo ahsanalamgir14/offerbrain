@@ -20,8 +20,12 @@
     padding: 0 $spacing $spacing;
 
     .section {
+      .val{
+        margin-left: 150px;
+      }
 
       .label {
+        margin-right: 150px;
         font: var(--font-body-1);
         text-transform: uppercase;
       }
@@ -46,6 +50,7 @@
     flex: 1;
     position: relative;
   }
+
 
 }
 

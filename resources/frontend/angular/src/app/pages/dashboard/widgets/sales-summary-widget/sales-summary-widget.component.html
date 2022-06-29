@@ -10,9 +10,9 @@
         <mat-icon *ngIf="options.gain < 0">trending_down</mat-icon>
       </div>-->
     </fury-card-header-heading>
-    <fury-card-header-subheading>
+    <!-- <fury-card-header-subheading>
       {{ options.subTitle }}
-    </fury-card-header-subheading>
+    </fury-card-header-subheading> -->
 
     <fury-card-header-actions>
       <button mat-icon-button (click)="reload()">
@@ -25,24 +25,49 @@
   </fury-card-header>
 
   <fury-card-content class="card-content">
+
     <div class="sections" fxLayout="row" fxLayoutAlign="start center">
+
       <div class="section" fxFlex="grow">
-        <div class="label">Monthly Sales</div>
-        <div class="value" fxLayout="row" fxLayoutAlign="start center">
-          <span>473</span>
-          <mat-icon class="indicator success">trending_up</mat-icon>
+        <div fxLayout="column">
+          <span>Orders</span>
+          <span>Decline Orders</span>
+          <span>Void/Refund Orders</span>
+          <span>Chargeback Orders</span>
+          <span>Transections</span>
+          <span>Straight Sale</span>
         </div>
       </div>
       <div class="section" fxFlex="grow">
+        <div fxLayout="column" fxLayoutAlign="end end">
+            <span>{{ orders }}</span>
+            <span>{{ declineOrders }}</span>
+            <span>{{ refundOrders }}</span>
+            <span>{{ chargebackOrders }}</span>
+            <span>{{ transections }}</span>
+            <span>{{ straightSale }}</span>
+        </div>
+      </div>
+
+
+      <!-- <div class="section" fxFlex="grow">
+        <div class="label">Monthly Sales</div>
+        <div class="value" fxLayout="row" fxLayoutAlign="center center">
+          <span>473</span>
+          <mat-icon class="indicator success">trending_up</mat-icon>
+        </div>
+      </div> -->
+
+      <!-- <div class="section" fxFlex="grow">
         <div class="label">Sales Today</div>
         <div class="value" fxLayout="row" fxLayoutAlign="start center">
           <span>46</span>
           <mat-icon class="indicator warn">trending_down</mat-icon>
         </div>
-      </div>
+      </div> -->
     </div>
 
-    <div class="content">
+    <!-- <div class="content">
       <canvas *ngIf="data"
               [datasets]="data.datasets"
               [labels]="data.labels"
@@ -51,7 +76,7 @@
               baseChart
               chartType="line">
       </canvas>
-    </div>
+    </div> -->
   </fury-card-content>
 
   <fury-loading-overlay [isLoading]="isLoading"></fury-loading-overlay>

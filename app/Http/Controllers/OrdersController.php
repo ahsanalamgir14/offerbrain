@@ -282,6 +282,7 @@ class OrdersController extends Controller
     {
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
+        // return $request->user()->id;
         $new_orders = 0;
         $updated_orders = 0;
         $user = User::find($request->user()->id);
@@ -1485,4 +1486,23 @@ class OrdersController extends Controller
             }
         }
     }
+
+    public function add_ip_details(){
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
+        $order = new Order();
+        Order::chunk(1000, function($orders){
+            foreach($orders as $order){
+                $ip_address = $order->ip_address;
+                if($ip_address != null){
+                    $url = 'http://ip-api.com/json/'.$ip_address;
+                    $ip_details = json_decode(Http::get($url)->getBody()->getContents());
+                    $order->ip_details = $ip_details;
+                    $order->save();
+                }
+            }
+        });
+        return response()->json(['message' =>'IP Details are added in th correspond ips']);               
+    }
+
 }

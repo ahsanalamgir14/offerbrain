@@ -156,7 +156,7 @@
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT
+              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button (click)="checkDropdownValue()">NEXT
               </button>
             </div>
           </form>
@@ -183,12 +183,14 @@
                 <div *ngFor='let operand of counter(no_of_cycles); let i = index'>
                   <div fxLayout="row">
                     <div  fxFlex="85">
+
                       <ng-multiselect-dropdown [placeholder]="'Select Cycle'" [settings]="dropdownSettingsForSingle"
                         [data]="productOptions" [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
                         (onSelect)="avoidDuplication($event, 'cycleproducts',i)" (onDeSelect)="avoidDuplication($event, 'cycleproductsDeSelect',i)"
                         (click)="getSelectValue($event, 'cycleproducts',i)">
                       </ng-multiselect-dropdown>
                     </div>
+
                     <!-- <mat-form-field>
                       <mat-label>Select Product for Cycle {{i+1}}</mat-label>
                       <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
@@ -209,7 +211,7 @@
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
               <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button
-                matStepperNext>NEXT</button>
+              (click)="checkDropdownValue()">NEXT</button>
             </div>
           </form>
 

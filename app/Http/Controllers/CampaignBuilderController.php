@@ -138,7 +138,7 @@ class CampaignBuilderController extends Controller
     public function campaign_builder_options()
     {
         DB::statement("SET SQL_MODE=''");
-        $data['products'] = DB::table('order_products')->select('id', 'name')->groupBy('name')->get();
+        $data['products'] = DB::table('order_products')->select('product_id', 'name','price',DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->groupBy('name')->get();
         $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->groupBy('campaign_id')->get();
         $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->groupBy('network_affiliate_id')->get();
         return response()->json(['status' => true, 'data' => $data]);

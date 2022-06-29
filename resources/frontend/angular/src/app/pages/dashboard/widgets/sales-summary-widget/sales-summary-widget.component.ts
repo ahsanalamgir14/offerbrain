@@ -11,8 +11,18 @@ import { SalesSummaryWidgetOptions } from './sales-summary-widget-options.interf
 })
 export class SalesSummaryWidgetComponent {
 
+  @Input() orders:string;
+  @Input() declineOrders:string;
+  @Input() refundOrders:string;
+  @Input() chargebackOrders:string;
+  @Input() transections:string;
+  @Input() straightSale:string;
+
+
   @Input() data: ChartData;
   @Input() options: SalesSummaryWidgetOptions;
+  ngOnInit() {
+  }
   @Input() chartOptions: ChartOptions = defaultsDeep({
     scales: {
       xAxes: [{

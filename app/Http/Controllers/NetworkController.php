@@ -60,7 +60,7 @@ class NetworkController extends Controller
             $data['affiliates'] = $query->get();
             // dd(DB::getQueryLog());
         } else {
-            $data['affiliates'] = Network::where(['user_id'=>Auth::id()])->get();
+            $data['affiliates'] = Network::where('user_id', Auth::id())->get();
         }
         return response()->json(['status' => true, 'data' => $data]);
     }

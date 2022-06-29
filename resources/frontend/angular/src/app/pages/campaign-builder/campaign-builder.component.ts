@@ -106,9 +106,11 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
 
     this.dropdownSettingsForSingle = {
       singleSelection: true,
-      idField: 'id',
-      textField: 'name',
-      itemsShowLimit: 1,
+      idField: 'product_id',
+      textField: 'full_name',
+      // selectAllText: 'Select All',
+      // unSelectAllText: 'UnSelect All',
+      // itemsShowLimit: 3,
       allowSearchFilter: true
     };
 
@@ -193,9 +195,29 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     // this.noOfUpsells = null;
     // this.upsell_products.setValue('');
   }
+  checkDropdownValue(){ 
 
+    if(this.arr_upsell.length < this.no_of_upsells){
+      this.notyf.error('Value missing in dropdown, please select all values');
+    }
+    else if(this.arr_downsell.length < this.no_of_downsells){
+      this.notyf.error('Value missing in dropdown, please select all values');
+    }
+    else if(this.arr_cycleProducts.length < this.no_of_cycles){
+      this.notyf.error('Value missing in dropdown, please select all values');
+    }
+    else{
+      this.stepper.next();
+
+    }
+    console.log('up sell products', this.upsell_products);
+  }
   avoidDuplication(event, param, index) {
-    let item = event.name;
+    console.log('upsell_products', this.upsell_products);
+    let item = event.full_name;
+    // item = item.replace(/[^a-z]/gi, ' ');
+    console.log(item);
+  
     if(param == 'upsellDeSelect'){
       var ind = this.arr_upsell.indexOf(item);
       this.arr_upsell.splice(ind, 1);
@@ -261,15 +283,15 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   getSelectValue(event, param, index){
     if(param == 'upsell'){
       if(this.upsell_products[index] != undefined){
-        this.arr_upsell[index] = this.upsell_products[index][0].name;
+        this.arr_upsell[index] = this.upsell_products[index][0].full_name;
       }
     } else if(param == 'downsell'){
       if(this.arr_downsell[index] != undefined){
-        this.arr_downsell[index] = this.downsell_products[index][0].name;
+        this.arr_downsell[index] = this.downsell_products[index][0].full_name;
       }
     } else if(param == 'cycleproducts'){
       if(this.arr_cycleProducts[index] != undefined){
-        this.arr_cycleProducts[index] = this.cycle_products[index][0].name;
+        this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
       }
     }
   }

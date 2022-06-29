@@ -147,10 +147,11 @@ class Order extends Model
         'upsell_product_quantity',
         'website_received',
         'website_sent',
+        'ip_details',
     ];
-    // protected $casts = [
-    //     'products' => 'unserialize'
-    // ];
+    protected $casts = [
+        'ip_details' => 'object',
+    ];
 
     public function get_order_ids($data)
     {

@@ -12,7 +12,13 @@ import { RecentSalesWidgetOptions } from './widgets/recent-sales-widget/recent-s
 import { SalesSummaryWidgetOptions } from './widgets/sales-summary-widget/sales-summary-widget-options.interface';
 import { DashboardService } from './dashboard.service';
 import { ChartWidgetOptions } from '../../../@fury/shared/chart-widget/chart-widget-options.interface';
-import { Location } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { Location, formatDate } from '@angular/common';
+import { ChartOptions, ChartType, ChartDataSets, Chart } from 'chart.js';
+import { environment } from '../../../environments/environment';
+import { Label } from 'ng2-charts';
+import { ApiService } from 'src/app/api.service';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'fury-dashboard',
@@ -21,6 +27,98 @@ import { Location } from '@angular/common';
 })
 export class DashboardComponent implements OnInit {
 
+
+  dashboardSubscription: Subscription;
+  chart: any;
+  public lineChart: any;
+  public ctx: any;
+  isDisabled = false;
+  ngAfterViewInit() {
+    this.ctx = document.getElementById('lineChart') as HTMLElement;
+    this.lineChart = {
+      labels: [],
+      datasets: [
+        {
+          label: 'Decline',
+          data: [],
+          backgroundColor: 'blue',
+          borderColor: 'lightblue',
+          fill: false,
+          lineTension: 0,
+          radius: 5,
+        },
+        {
+          label: 'ChargeBack',
+          data: [],
+          backgroundColor: 'green',
+          borderColor: 'lightgreen',
+          fill: false,
+          lineTension: 0,
+          radius: 5,
+        },
+        {
+          label: 'Refund',
+          data: [],
+          backgroundColor: 'red',
+          borderColor: '#FF7F7F',
+          fill: false,
+          lineTension: 0,
+          radius: 5,
+        },
+      ],
+    };
+  }
+  
+  url = environment.endpoint;
+  public barChartOptions: ChartOptions = {
+    responsive: true,
+  };
+  public barChartLabels: Label[] = [];
+  public barChartType: ChartType = 'bar';
+  public barChartLegend = true;
+  public barChartPlugins = [];
+  customerArr = [];
+  isLoading = true;
+  spinning = false;
+  getCustomerOrderData(){
+    this.isDisabled = true;
+    const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
+    const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
+    this.apiService.getData(`getCustomersForGraph?start_date=${startDate}&end_date=${endDate}`).then(res => res.json()).then((data) => {
+      this.barChartData[0].data = data.customer;
+      this.barChartData[1].data = data.order;
+      this.barChartLabels = data.label;
+      this.isDisabled = false;
+      this.spinning = false;
+    });
+  }
+  getMidGraphData(){
+    // this.isLoading = true;
+    const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
+    const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
+    this.apiService.getData(`getOrdersForGraph?start_date=${startDate}&end_date=${endDate}`).then(res => res.json()).then((data) => {
+    // this.isLoading = false;
+      this.lineChart.labels = data.label;
+      this.lineChart.datasets[0].data = data.declineArr;
+      this.lineChart.datasets[1].data = data.chargebackArr;
+      this.lineChart.datasets[2].data = data.refundArr;
+      new Chart(this.ctx, {
+        type: 'line',
+        data: this.lineChart,
+      });
+      this.isDisabled = false;
+      this.spinning = false;
+    });
+  }
+  
+  public barChartData: ChartDataSets[] = [
+    { data: [], label: 'Total Customers' },
+    { data: [], label: 'Total Orders' }
+  ];
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
   private static isInitialLoad = true;
   salesData$: Observable<ChartData>;
   totalSalesOptions: BarChartWidgetOptions = {
@@ -95,8 +193,15 @@ export class DashboardComponent implements OnInit {
   private _gap = 16;
   gap = `${this._gap}px`;
 
-  constructor(private dashboardService: DashboardService,
-              private router: Router) {
+  customerCount: string;
+  orderCount:string;
+  declineOrderCount:string;
+  refundOrderCount:string;
+  chargebackOrderCount:string;
+  transections:string;
+  straightSale:string;
+  constructor(private dashboardService: DashboardService, private router: Router, private apiService: ApiService) {
+
     /**
      * Edge wrong drawing fix
      * Navigate anywhere and on Promise right back
@@ -120,6 +225,10 @@ export class DashboardComponent implements OnInit {
   /**
    * Everything implemented here is purely for Demo-Demonstration and can be removed and replaced with your implementation
    */
+   getData(){
+    this.getMidGraphData();
+    this.getCustomerOrderData();
+   }
   ngOnInit() {
     this.salesData$ = this.dashboardService.getSales();
     this.visitsData$ = this.dashboardService.getVisits();
@@ -127,7 +236,8 @@ export class DashboardComponent implements OnInit {
     this.conversionsData$ = this.dashboardService.getConversions();
     this.salesSummaryData$ = this.dashboardService.getSalesSummary();
     this.top5CategoriesData$ = this.dashboardService.getTop5Categories();
-
+    this.selectDate('today');
+    this.getData();
     // Audience Overview Widget
     this.dashboardService.getAudienceOverviewUsers().subscribe(response => {
       this.audienceOverviewOptions.push({
@@ -220,6 +330,46 @@ export class DashboardComponent implements OnInit {
     this.recentSalesData$ = this.dashboardService.getRecentSalesData();
 
     this.advancedPieChartData$ = this.dashboardService.getAdvancedPieChartData();
-  }
 
+
+    this.dashboardService.getDashboardData().then(data =>{
+      this.customerCount = data.data.customers;
+      this.orderCount = data.data.orders;
+      this.declineOrderCount = data.data.decline_orders;
+      this.refundOrderCount = data.data.refund_orders;
+      this.chargebackOrderCount = data.data.chargeback_orders;
+      this.transections = data.data.orders + data.data.decline_orders;
+      this.straightSale = data.data.orders;
+    });
+
+  async selectDate(param) {
+    var startDate = new Date();
+    var endDate = new Date();
+    if (param == 'today') {
+      this.range.get('start').setValue(new Date());
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'yesterday') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
+      this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
+    } else if (param == 'thisMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
+    } else if (param == 'pastWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'pastTwoWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'lastMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastThreeMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastSixMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    }
+    return;
+  }
 }

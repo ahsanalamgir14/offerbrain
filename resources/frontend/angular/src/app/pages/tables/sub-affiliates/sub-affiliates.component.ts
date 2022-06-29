@@ -20,6 +20,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Notyf } from 'notyf';
 const ndjsonParser = require('ndjson-parse');
+import { MatOption } from '@angular/material/core';
+import { MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'fury-sub-affiliates',
@@ -31,6 +33,7 @@ const ndjsonParser = require('ndjson-parse');
 export class SubAffiliatesComponent implements OnInit {
   subject$: ReplaySubject<SubAffiliate[]> = new ReplaySubject<SubAffiliate[]>(1);
   data$: Observable<SubAffiliate[]> = this.subject$.asObservable();
+  @ViewChild('select') select: MatSelect;
 
   subAffiliates: SubAffiliate[];
   AffOptionsSubscription: Subscription;
@@ -61,6 +64,7 @@ export class SubAffiliatesComponent implements OnInit {
   sub2 = "";
   sub3 = "";
   key = '';
+  allSelected=false;
 
   range = new FormGroup({
     start: new FormControl(),
@@ -335,6 +339,22 @@ export class SubAffiliatesComponent implements OnInit {
       let index = this.all_fields.indexOf(field);
       this.all_values[index] = value;
     }
+  }
+  toggleAllSelection() {
+    if (this.allSelected) {
+      this.select.options.forEach((item: MatOption) => item.select());
+    } else {
+      this.select.options.forEach((item: MatOption) => item.deselect());
+    }
+  }
+  optionClick() {
+    let newStatus = true;
+    this.select.options.forEach((item: MatOption) => {
+      if (!item.selected) {
+        newStatus = false;
+      }
+    });
+    this.allSelected = newStatus;
   }
 
   selectDate(param) {

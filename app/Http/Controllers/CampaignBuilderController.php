@@ -140,14 +140,15 @@ class CampaignBuilderController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         //production
-        // $data['products'] = DB::table('order_products')->select('id', 'name')->where(['user_id'=> Auth::id()])->groupBy('name')->get();
+        // $data['products'] = DB::table('order_products')->select('product_id', 'name','price',DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id'=> Auth::id()])->groupBy('name')->get();
         // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('campaign_id')->get();
         // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('network_affiliate_id')->get();
 
         //local
-        $data['products'] = DB::table('order_products')->select('id', 'name')->where(['user_id' => 2])->groupBy('name')->get();
+        $data['products'] = DB::table('order_products')->select('product_id', 'name','price',DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('name')->get();
         $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
         $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
+
         return response()->json(['status' => true, 'data' => $data]);
     }
 

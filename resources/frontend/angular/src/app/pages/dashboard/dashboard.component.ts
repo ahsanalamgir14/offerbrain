@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
       ],
     };
   }
-  
+
   url = environment.endpoint;
   public barChartOptions: ChartOptions = {
     responsive: true,
@@ -80,8 +80,9 @@ export class DashboardComponent implements OnInit {
   customerArr = [];
   isLoading = true;
   spinning = false;
-  getCustomerOrderData(){
+  getCustomerOrderData() {
     this.isDisabled = true;
+    this.isLoading = true;
     const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
     const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
     this.apiService.getData(`getCustomersForGraph?start_date=${startDate}&end_date=${endDate}`).then(res => res.json()).then((data) => {
@@ -89,15 +90,15 @@ export class DashboardComponent implements OnInit {
       this.barChartData[1].data = data.order;
       this.barChartLabels = data.label;
       this.isDisabled = false;
-      this.spinning = false;
+      this.isLoading = false;
     });
   }
-  getMidGraphData(){
+  getMidGraphData() {
     // this.isLoading = true;
     const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
     const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
     this.apiService.getData(`getOrdersForGraph?start_date=${startDate}&end_date=${endDate}`).then(res => res.json()).then((data) => {
-    // this.isLoading = false;
+      this.isLoading = false;
       this.lineChart.labels = data.label;
       this.lineChart.datasets[0].data = data.declineArr;
       this.lineChart.datasets[1].data = data.chargebackArr;
@@ -110,7 +111,7 @@ export class DashboardComponent implements OnInit {
       this.spinning = false;
     });
   }
-  
+
   public barChartData: ChartDataSets[] = [
     { data: [], label: 'Total Customers' },
     { data: [], label: 'Total Orders' }
@@ -194,13 +195,13 @@ export class DashboardComponent implements OnInit {
   gap = `${this._gap}px`;
 
   customerCount: string;
-  orderCount:string;
-  declineOrderCount:string;
-  refundOrderCount:string;
-  chargebackOrderCount:string;
-  transections:string;
-  straightSale:string;
-  constructor(private dashboardService: DashboardService, private router: Router, private apiService: ApiService) {
+  orderCount: string;
+  declineOrderCount: string;
+  refundOrderCount: string;
+  chargebackOrderCount: string;
+  transections: string;
+  straightSale: string;
+  constructor(private dashboardService: DashboardService, private router: Router, private apiService: ApiService, private location: Location) {
 
     /**
      * Edge wrong drawing fix
@@ -225,11 +226,12 @@ export class DashboardComponent implements OnInit {
   /**
    * Everything implemented here is purely for Demo-Demonstration and can be removed and replaced with your implementation
    */
-   getData(){
+  getData() {
     this.getMidGraphData();
     this.getCustomerOrderData();
-   }
+  }
   ngOnInit() {
+    this.location.replaceState("/Dashboard");
     this.salesData$ = this.dashboardService.getSales();
     this.visitsData$ = this.dashboardService.getVisits();
     this.clicksData$ = this.dashboardService.getClicks();
@@ -332,7 +334,7 @@ export class DashboardComponent implements OnInit {
     this.advancedPieChartData$ = this.dashboardService.getAdvancedPieChartData();
 
 
-    this.dashboardService.getDashboardData().then(data =>{
+    this.dashboardService.getDashboardData().then(data => {
       this.customerCount = data.data.customers;
       this.orderCount = data.data.orders;
       this.declineOrderCount = data.data.decline_orders;

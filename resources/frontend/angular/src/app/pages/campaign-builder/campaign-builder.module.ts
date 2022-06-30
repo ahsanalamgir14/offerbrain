@@ -54,7 +54,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
     MatStepperModule,
-    NgxMatSelectSearchModule 
+    NgxMatSelectSearchModule,
   ],
   declarations: [CampaignBuilderComponent],
   exports: [CampaignBuilderComponent],

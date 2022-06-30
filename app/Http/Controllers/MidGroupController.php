@@ -39,7 +39,6 @@ class MidGroupController extends Controller
                 $orders = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
-                    // ->where('user_id', '=', Auth::id())
                     ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
                 $group['gross_revenue'] = round($orders, 2);
             }

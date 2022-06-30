@@ -341,6 +341,7 @@ export class DashboardComponent implements OnInit {
       this.transections = data.data.orders + data.data.decline_orders;
       this.straightSale = data.data.orders;
     });
+  }
 
   async selectDate(param) {
     var startDate = new Date();

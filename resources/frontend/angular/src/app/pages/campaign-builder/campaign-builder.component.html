@@ -156,7 +156,7 @@
 
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
-              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button (click)="checkDropdownValue()">NEXT
+              <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button (click)="checkDropdownValue(true)">NEXT
               </button>
             </div>
           </form>
@@ -209,7 +209,7 @@
             <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
               <button [disabled]="upsellFormGroup.invalid" color="primary" mat-raised-button
-              (click)="checkDropdownValue()">NEXT</button>
+              (click)="checkDropdownValue(true)">NEXT</button>
             </div>
           </form>
 

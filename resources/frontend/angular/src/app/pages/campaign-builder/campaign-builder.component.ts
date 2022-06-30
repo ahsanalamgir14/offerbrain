@@ -29,7 +29,7 @@ import { IDropdownSettings } from 'ng-multiselect-dropdown';
   // providers: [{ provide: CdkStepper }],
 })
 export class CampaignBuilderComponent implements OnInit, OnDestroy {
-  
+
   campaignSearchCtrl: FormControl = new FormControl();
   networkSearchCtrl: FormControl = new FormControl();
   productSearchCtrl: FormControl = new FormControl();
@@ -74,7 +74,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
 
   dropdownSettings = {};
   // dropdownSettings:IDropdownSettings;
-  dropdownSettingsForSingle:IDropdownSettings;
+  dropdownSettingsForSingle: IDropdownSettings;
 
   constructor(private fb: FormBuilder,
     private cd: ChangeDetectorRef,
@@ -83,15 +83,15 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
+    console.log('Upsell products are ', this.upsell_products);
     this.getOptionsSubscription = this.campaignBuilderService.getOptionsResponse$.subscribe(data => this.manageOptionsResponse(data))
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
 
     this.campaignFormGroup = this.fb.group({
-      // name: [null, Validators.required],
-      // campaign_type: ['Straight Sale', Validators.required],
-      // tracking_campaigns: [null, Validators.required],
-      // tracking_networks: [null, Validators.required],
+      name: [null, Validators.required],
+      campaign_type: ['Straight Sale', Validators.required],
+      tracking_campaigns: [null, Validators.required],
+      tracking_networks: [null, Validators.required],
     });
 
     // this.dropdownSettings = {
@@ -121,12 +121,12 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.filterCampaignOptions();
       });
 
-      this.networkSearchCtrl.valueChanges
+    this.networkSearchCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy))
       .subscribe(() => {
         this.filterNetworkOptions();
       });
-      this.productSearchCtrl.valueChanges
+    this.productSearchCtrl.valueChanges
       .pipe(takeUntil(this._onDestroy))
       .subscribe(() => {
         this.filterProductOptions();
@@ -181,7 +181,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       // });
     }
     else if (!data.status) {
-      if(data.message){
+      if (data.message) {
         this.notyf.error(data.message);
       }
     }
@@ -195,107 +195,126 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     // this.noOfUpsells = null;
     // this.upsell_products.setValue('');
   }
-  checkDropdownValue(){ 
+  checkDropdownValue(param) {
+    if (param) {
+      let uppArr = [];
+      let downArr = [];
+      let cycleArr = [];
+      this.upsell_products.forEach(key => {
+        this.upsell_products = [];
+        uppArr.push(key[0]);
+      });
+      this.downsell_products.forEach(key => {
+        this.downsell_products = [];
+        downArr.push(key[0]);
+      });
+      this.cycle_products.forEach(key => {
+        this.cycle_products = [];
+        cycleArr.push(key[0]);
+      });
+      this.upsell_products = uppArr;
+      this.downsell_products = downArr;
+      this.cycle_products = cycleArr;
+    }
 
-    if(this.arr_upsell.length < this.no_of_upsells){
+    if (this.arr_upsell.length < this.no_of_upsells) {
       this.notyf.error('Value missing in dropdown, please select all values');
     }
-    else if(this.arr_downsell.length < this.no_of_downsells){
+    else if (this.arr_downsell.length < this.no_of_downsells) {
       this.notyf.error('Value missing in dropdown, please select all values');
     }
-    else if(this.arr_cycleProducts.length < this.no_of_cycles){
+    else if (this.arr_cycleProducts.length < this.no_of_cycles) {
       this.notyf.error('Value missing in dropdown, please select all values');
     }
-    else{
+    else {
       this.stepper.next();
 
     }
-    console.log('up sell products', this.upsell_products);
   }
   avoidDuplication(event, param, index) {
     console.log('upsell_products', this.upsell_products);
     let item = event.full_name;
     // item = item.replace(/[^a-z]/gi, ' ');
     console.log(item);
-  
-    if(param == 'upsellDeSelect'){
+
+    if (param == 'upsellDeSelect') {
       var ind = this.arr_upsell.indexOf(item);
       this.arr_upsell.splice(ind, 1);
       this.upsell_products[index] = [];
     }
-    if(param == 'downsellDeSelect'){
+    if (param == 'downsellDeSelect') {
       var ind = this.arr_downsell.indexOf(item);
       this.arr_downsell.splice(ind, 1);
       this.downsell_products[index] = [];
     }
-    if(param == 'cycleproductsDeSelect'){
+    if (param == 'cycleproductsDeSelect') {
       var ind = this.arr_cycleProducts.indexOf(item);
       this.arr_cycleProducts.splice(ind, 1);
       this.cycle_products[index] = [];
     }
-    if(param == 'upsell'){
-      if(this.arr_upsell[index] != undefined){
+    if (param == 'upsell') {
+      if (this.arr_upsell[index] != undefined) {
         var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
-        this.arr_upsell.splice(selectedIndex,1);
+        this.arr_upsell.splice(selectedIndex, 1);
       }
-      if(this.arr_upsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already exist in upsell');
-          this.upsell_products[index] = [];
-        } else if(this.arr_downsell.indexOf(item) !== -1){
-          this.notyf.error('Value already exist in downsell');
-          this.upsell_products[index] = [];
-        } else {
-          this.arr_upsell.push(item);
+      if (this.arr_upsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in upsell');
+        this.upsell_products[index] = [];
+      } else if (this.arr_downsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in downsell');
+        this.upsell_products[index] = [];
+      } else {
+        this.arr_upsell.push(item);
       }
-    } else if(param == 'downsell'){
-      if(this.arr_downsell[index] != undefined){
+    } else if (param == 'downsell') {
+      if (this.arr_downsell[index] != undefined) {
         var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
-        this.arr_downsell.splice(selectedIndex,1);
+        this.arr_downsell.splice(selectedIndex, 1);
       }
-      if(this.arr_downsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already exist in downsell');
-          this.downsell_products[index] = [];
-        } else if(this.arr_upsell.indexOf(item) !== -1){
-          this.notyf.error('Value already exist in upsell');
-          this.downsell_products[index] = [];
-        } else {
-          this.arr_downsell.push(item);
+      if (this.arr_downsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in downsell');
+        this.downsell_products[index] = [];
+      } else if (this.arr_upsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in upsell');
+        this.downsell_products[index] = [];
+      } else {
+        this.arr_downsell.push(item);
       }
-    } else if(param == 'cycleproducts'){
-      if(this.arr_cycleProducts[index] != undefined){
+    } else if (param == 'cycleproducts') {
+      if (this.arr_cycleProducts[index] != undefined) {
         var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
-        this.arr_cycleProducts.splice(selectedIndex,1);
+        this.arr_cycleProducts.splice(selectedIndex, 1);
       }
-      if(this.arr_cycleProducts.indexOf(item) !== -1) {
-          this.notyf.error('Value already exist in cycle products');
-          this.cycle_products[index] = [];
-        } else if(this.arr_upsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already exist in upsell products');
-          this.cycle_products[index] = [];
-        } else if(this.arr_downsell.indexOf(item) !== -1) {
-          this.notyf.error('Value already exist in Downsell products');
-          this.cycle_products[index] = [];
-        } else {
-          this.arr_cycleProducts.push(item);
-        }
+      if (this.arr_cycleProducts.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in cycle products');
+        this.cycle_products[index] = [];
+      } else if (this.arr_upsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in upsell products');
+        this.cycle_products[index] = [];
+      } else if (this.arr_downsell.indexOf(item) !== -1) {
+        this.notyf.error('Value already exist in Downsell products');
+        this.cycle_products[index] = [];
+      } else {
+        this.arr_cycleProducts.push(item);
       }
     }
-  getSelectValue(event, param, index){
-    if(param == 'upsell'){
-      if(this.upsell_products[index] != undefined){
+  }
+  getSelectValue(event, param, index) {
+    if (param == 'upsell') {
+      if (this.upsell_products[index] != undefined) {
         this.arr_upsell[index] = this.upsell_products[index][0].full_name;
       }
-    } else if(param == 'downsell'){
-      if(this.arr_downsell[index] != undefined){
+    } else if (param == 'downsell') {
+      if (this.arr_downsell[index] != undefined) {
         this.arr_downsell[index] = this.downsell_products[index][0].full_name;
       }
-    } else if(param == 'cycleproducts'){
-      if(this.arr_cycleProducts[index] != undefined){
+    } else if (param == 'cycleproducts') {
+      if (this.arr_cycleProducts[index] != undefined) {
         this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
       }
     }
   }
- 
+
   clear(form: NgForm): void {
     form.resetForm();
     Object.keys(form.controls).forEach(key => {
@@ -365,7 +384,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     if (!this.productOptions) {
       return;
     }
-    
+
     let search = this.productSearchCtrl.value;
     if (!search) {
       this.filteredProducts.next(this.productOptions.slice());

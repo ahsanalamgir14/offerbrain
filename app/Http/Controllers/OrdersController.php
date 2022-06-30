@@ -293,7 +293,6 @@ class OrdersController extends Controller
         $end_date = '06/30/2022';
 
         $db_order_ids = Order::where(['user_id' => Auth::id()])->pluck('order_id')->toArray();
-        // $db_order_ids = Order::where(['user_id' => $request->user()->id])->pluck('order_id')->toArray();
         $url = $user->sticky_url . '/api/v1/order_find';
 
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
@@ -724,7 +723,7 @@ class OrdersController extends Controller
     {
         $order->products = unserialize($order->products);
         $result['order_id'] = $order->order_id;
-        $result['user_id'] = Auth::id(); //must be changed to dynamic
+        $result['user_id'] = Auth::id();
         $result['product_id'] = $order->products[0]->product_id;
         $result['sku'] = $order->products[0]->sku;
         $result['price'] = $order->products[0]->price;

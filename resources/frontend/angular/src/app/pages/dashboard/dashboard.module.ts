@@ -6,6 +6,7 @@ import { AudienceOverviewWidgetModule } from './widgets/audience-overview-widget
 import { BarChartWidgetModule } from './widgets/bar-chart-widget/bar-chart-widget.module';
 import { DonutChartWidgetModule } from './widgets/donut-chart-widget/donut-chart-widget.module';
 import { LineChartWidgetModule } from './widgets/line-chart-widget/line-chart-widget.module';
+import { LoadingIndicatorModule } from 'src/@fury/shared/loading-indicator/loading-indicator.module';
 import { MapsWidgetModule } from './widgets/maps-widget/maps-widget.module';
 import { MarketWidgetModule } from './widgets/market-widget/market-widget.module';
 import { QuickInfoWidgetModule } from './widgets/quick-info-widget/quick-info-widget.module';
@@ -42,7 +43,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     ChartsModule,
     ReactiveFormsModule,
     FormsModule,
-    MatExpansionModule
+    MatExpansionModule,
+    LoadingIndicatorModule
   ],
   declarations: [DashboardComponent],
   providers: [DashboardService]

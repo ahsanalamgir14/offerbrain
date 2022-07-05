@@ -27,7 +27,7 @@
             <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
               <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
               <td *matCellDef="let row" mat-cell>
-                {{ row[column.property] }}
+                <span class="show-link">{{ row[column.property] }}</span>
               </td>
             </ng-container>
           </ng-container>

@@ -110,7 +110,7 @@ export class AppComponent {
         ]
       },
       {
-        name: 'Campaigns Menu',
+        name: 'Campaigns',
         icon: 'device_hub',
         position: 12,
         subItems: [

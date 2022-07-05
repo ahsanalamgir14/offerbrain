@@ -70,7 +70,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   trackingNetworkOptions = [];
   noOfUpsellsOptions = ['0', '1', '2', '3', '4', '5'];
   noOfDownsellsOptions = ['0', '1', '2', '3', '4', '5'];
-  noOfCyclesOptions = ['0', '1', '2', '3', '4', '5'];
+  noOfCyclesOptions = ['0','1', '2', '3'];
   productOptions = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   @ViewChild('stepper', { read: MatStepper }) stepper: MatStepper;
@@ -192,12 +192,26 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   counter(N: number) {
     return Array.from({ length: N }, (v, i) => i);
   }
-
-  clearSelection() {
+  countercycle(N: number) {
+    N = ++N;
+    return Array.from({ length: N }, (v, i) => i);
+  }
+  clearSelection(param) {
+    if(param == 'upsells'){
+      this.arr_upsell = this.arr_upsell.slice(0, this.no_of_upsells);
+    }
+    if(param == 'downsells'){
+      this.arr_downsell = this.arr_downsell.slice(0, this.no_of_downsells);
+    } 
+    if(param == 'cycles'){
+      let cyclelength = this.no_of_cycles;
+      cyclelength = ++cyclelength;
+      this.arr_cycleProducts = this.arr_cycleProducts.slice(0, cyclelength);
+    }   
     // this.noOfUpsells = null;
     // this.upsell_products.setValue('');
   }
-  checkDropdownValue(param) {
+  checkDropdownValue(param, param1) {
     if (param) {
       let uppArr = [];
       let downArr = [];
@@ -217,18 +231,21 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
           cycleArr.push(key[0]);
         }
       });
+      let cyclelength = this.no_of_cycles;
+      cyclelength = ++cyclelength;
       this.upProducts = uppArr.slice(0, this.no_of_upsells);
       this.downProducts = downArr.slice(0, this.no_of_downsells);
-      this.cycleProducts = cycleArr.slice(0, this.no_of_cycles);
+      this.cycleProducts = cycleArr.slice(0, cyclelength);
     }
-    if (this.arr_upsell.length < this.no_of_upsells) {
-
+    let cyclelength = this.no_of_cycles;
+    cyclelength = ++cyclelength;
+    if (this.arr_upsell.length < this.no_of_upsells && param1 == 'isupsell' || this.arr_upsell.includes('[]')) {
       this.notyf.error('Value missing in dropdown, please select all values in upsells');
     }
-    else if (this.arr_downsell.length < this.no_of_downsells) {
+    else if (this.arr_downsell.length < this.no_of_downsells && param1 == 'isupsell' || this.arr_downsell.includes('[]')) {
       this.notyf.error('Value missing in dropdown, please select all values in downsells');
     }
-    else if (this.arr_cycleProducts.length < this.no_of_cycles) {
+    else if (this.arr_cycleProducts.length < cyclelength && param1 == 'iscycle' || this.arr_cycleProducts.includes('[]')) {
       this.notyf.error('Value missing in dropdown, please select all values cycles');
     }
     else {
@@ -236,71 +253,86 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     }
   }
   avoidDuplication(event, param, index) {
+    console.log('index :', index);
     let item = event.full_name;
-    // item = item.replace(/[^a-z]/gi, ' ');
-
     if (param == 'upsellDeSelect') {
-      var ind = this.arr_upsell.indexOf(item);
-      this.arr_upsell.splice(ind, 1);
-      console.log('this.arr_upsell :', this.arr_upsell);
+      this.arr_upsell[index] = '[]';
       this.upsell_products[index] = [];
     }
     if (param == 'downsellDeSelect') {
-      var ind = this.arr_downsell.indexOf(item);
-      this.arr_downsell.splice(ind, 1);
+      this.arr_downsell[index] = '[]';
+      // var ind = this.arr_downsell.indexOf(item);
+      // this.arr_downsell.splice(ind, 1);
       console.log('this.arr_downsell :', this.arr_downsell);
       this.downsell_products[index] = [];
     }
     if (param == 'cycleproductsDeSelect') {
-      var ind = this.arr_cycleProducts.indexOf(item);
-      this.arr_cycleProducts.splice(ind, 1);
+      // var ind = this.arr_cycleProducts.indexOf(item);
+      // this.arr_cycleProducts.splice(ind, 1);
+      this.arr_cycleProducts[index] = '[]';
       this.cycle_products[index] = [];
+      console.log('this.arr_cycleProducts', this.arr_cycleProducts);
     }
     if (param == 'upsell') {
       console.log('Upsell Products are ', this.upsell_products);
       if (this.arr_upsell[index] != undefined) {
-        var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
-        this.arr_upsell.splice(selectedIndex, 1);
+        // var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
+        // this.arr_upsell.splice(selectedIndex, 1);
+        this.arr_upsell[index] = '[]';
+        console.log('this.arr_upsell :', this.arr_upsell);
       }
       if (this.arr_upsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in upsell');
         this.upsell_products[index] = [];
+        this.arr_upsell[index] = '[]';
       } else if (this.arr_downsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in downsell');
         this.upsell_products[index] = [];
+        this.arr_upsell[index] = '[]';
       } else {
-        this.arr_upsell.push(item);
+        this.arr_upsell.splice(index, 1, item);
+        // this.arr_upsell = this.arr_upsell.slice(0, this.no_of_upsells);
       }
     } else if (param == 'downsell') {
       if (this.arr_downsell[index] != undefined) {
-        var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
-        this.arr_downsell.splice(selectedIndex, 1);
+        this.arr_downsell[index] = '[]';
+        // var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
+        // this.arr_downsell.splice(selectedIndex, 1);
       }
       if (this.arr_downsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in downsell');
+        this.arr_downsell[index] = '[]';
         this.downsell_products[index] = [];
       } else if (this.arr_upsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in upsell');
+        this.arr_downsell[index] = '[]';
         this.downsell_products[index] = [];
       } else {
-        this.arr_downsell.push(item);
+        this.arr_downsell.splice(index, 1, item);
+        // this.arr_downsell = this.arr_downsell.slice(0, this.no_of_downsells);
       }
     } else if (param == 'cycleproducts') {
+      console.log('this.arr_cycleProducts', this.arr_cycleProducts);
       if (this.arr_cycleProducts[index] != undefined) {
-        var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
-        this.arr_cycleProducts.splice(selectedIndex, 1);
+        this.arr_cycleProducts[index] = '[]';
+        // var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
+        // this.arr_cycleProducts.splice(selectedIndex, 1);
       }
       if (this.arr_cycleProducts.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in cycle products');
+        this.arr_cycleProducts[index] = '[]';
         this.cycle_products[index] = [];
       } else if (this.arr_upsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in upsell products');
         this.cycle_products[index] = [];
+        this.arr_cycleProducts[index] = '[]';
       } else if (this.arr_downsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in Downsell products');
         this.cycle_products[index] = [];
+        this.arr_cycleProducts[index] = '[]';
       } else {
-        this.arr_cycleProducts.push(item);
+        this.arr_cycleProducts.splice(index, 1, item);
+        // this.arr_cycleProducts = this.arr_cycleProducts.slice(0, this.no_of_cycles);
       }
     }
   }

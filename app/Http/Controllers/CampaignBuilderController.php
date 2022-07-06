@@ -33,10 +33,73 @@ class CampaignBuilderController extends Controller
         // dd($request->all());
         // $data = Campaign::find(250);
         // return response()->json(['status' => true, 'data' => $data]);
-        // dd($request->user()->id);
-        // $data = Campaign::where(['user_id' => 2])->whereNull('is_active')->get();
-        $data = Campaign::where(['user_id' => $request->user()->id])->get();
-        return response()->json(['status' => true, 'data' => $data]);
+
+        DB::enableQueryLog();
+        $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
+            ->leftJoin('orders', function ($join) {
+                $join->whereRaw('FIND_IN_SET(orders.campaign_id, campaigns.tracking_campaign_ids) != 0')
+                    // ->whereRaw('FIND_IN_SET(orders.affiliate, campaigns.tracking_network_ids) != 0');
+                    // ->where('orders.time_stamp', '>=', $start_day)
+                    // ->where('orders.time_stamp', '<=', $end_day);
+                    ->where('orders.user_id', 2);
+            })
+            ->select('orders.user_id', 'orders.main_product_id', 'campaigns.user_id', 'campaigns.campaign_id', 'campaigns.name', 'campaigns.tracking_networks', 'campaigns.tracking_campaigns', 'campaigns.cycle_product_ids', 'campaigns.created_at')
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end), 2) as revenue'))
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 6 then orders.order_total else 0 end), 2) as refund'))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[0]'))) then 1 end) as initials"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id in (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]', '$[2]', '$[3]'))) then 1 end) as rebills"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) then 0 end) as c1"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) then 0 end) as c2"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) then 0 end) as c3"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]') and orders.order_status = 7)) then 0 end) as c1_declines"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]') and orders.order_status = 7)) then 0 end) as c2_declines"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]') and orders.order_status = 7)) then 0 end) as c3_declines"))
+            ->addSelect(DB::raw('count(case when orders.is_chargeback = 1 then 0 end) as CBs'))
+            ->addSelect(DB::raw('SUM(case when orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
+            ->groupBy('campaigns.name')
+            ->get();
+
+
+            // ->leftJoin('order_products', function ($join) {
+            //     $join->on('orders.order_id', 'order_products.order_id')
+            //         ->where('orders.user_id', 2);
+            // })
+
+        // $data = $query->get();
+
+
+        // foreach ($data as $campaign) {
+        //     // $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
+        //     $tracking_campaign_ids = array_column($campaign->tracking_campaigns, 'campaign_id');
+        //     $tracking_network_ids = array_column($campaign->tracking_networks, 'network_affiliate_id');
+        //     $cycle_product_ids = array_column($campaign->cycle_products, 'product_id');
+        //     $query = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
+        //         ->whereIn('orders.campaign_id', $tracking_campaign_ids)
+        //         ->whereIn('orders.affiliate', $tracking_network_ids)
+        //         ->select('orders.acquisition_month as month', 'orders.acquisition_year as year', 'order_products.name')
+        //         // ->where('orders.time_stamp', '>=', $start_day)
+        //         // ->where('orders.time_stamp', '<=', $end_day)
+        //         ->leftJoin('order_products', 'orders.order_id', 'order_products.order_id')
+        //         ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end), 2) as revenue'))
+        //         ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 6 then orders.order_total else 0 end), 2) as refund'))
+        //         ->addSelect(DB::raw('count(case when order_products.name like "%(c)%" then 1 else 0 end) as initials'))
+        //         ->selectRaw('count(case when orders.is_chargeback = 1 then 0 end) as CBs')
+        //         ->addSelect(DB::raw('SUM(case when orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'));
+
+        //     foreach ($cycle_product_ids as $i => $cycle_product) {
+        //         if ($i == 0) {
+        //             $query->selectRaw('count(case when order_products.product_id = ' . $cycle_product_ids[$i] . ' then 0 end) as rebills');
+        //         }
+        //         if ($i == 1) {
+        //             $query->selectRaw('count(case when order_products.product_id = ' . $cycle_product_ids[$i] . ' then 0 end) as cycle_2');
+        //         }
+        //         if ($i == 2) {
+        //             $query->selectRaw('count(case when order_products.product_id = ' . $cycle_product_ids[$i] . ' then 0 end) as cycle_3_plus');
+        //         }
+        //     }
+        //     $result[] = $query->get();
+        // }
+        return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
     }
 
     /**
@@ -59,16 +122,20 @@ class CampaignBuilderController extends Controller
     {
         // dd($request->all());
         $data = $request->all();
-        $campaign = new Campaign();
         $data['campaign_id'] = rand(100000, 999999);
+        $data['tracking_campaign_ids'] = [];
+        $data['tracking_network_ids'] = [];
+        $data['upsell_product_ids'] = [];
+        $data['downsell_product_ids'] = [];
+        $data['cycle_product_ids'] = [];
         $db_campaign_ids = Campaign::all()->pluck('campaign_id')->toArray();
-        // $data['user_id'] = 2;
-        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = 2;
+        // $data['user_id'] = $request->user()->id;
         $data['created_at'] = Carbon::now();
         if (in_array($data['campaign_id'], $db_campaign_ids)) {
             return response()->json(['status' => false, 'message' => 'Please click again to save']);
         } else {
-            $campaign->create($data);
+            Campaign::create($data);
             return response()->json(['status' => true, 'message' => 'New campaign created']);
         }
     }
@@ -122,14 +189,14 @@ class CampaignBuilderController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         //production
-        $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => Auth::id()])->groupBy('name')->get();
-        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
+        // $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => Auth::id()])->groupBy('name')->get();
+        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
 
         //local
-        // $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('name')->get();
-        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
+        $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('name')->get();
+        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
 
         return response()->json(['status' => true, 'data' => $data]);
     }
@@ -146,7 +213,7 @@ class CampaignBuilderController extends Controller
         // $downsell_product_ids = array_column($campaign->downsell_products, 'id');
 
         // $query = DB::table('orders')->where(['orders.user_id' => 2, 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
-        $orders = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
+        $query = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
             ->whereIn('orders.campaign_id', $tracking_campaign_ids)
             ->whereIn('orders.affiliate', $tracking_network_ids)
             ->select('orders.acquisition_month as month', 'orders.acquisition_year as year', 'order_products.name')

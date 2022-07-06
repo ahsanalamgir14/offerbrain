@@ -51,9 +51,29 @@ class AddColumnsToUsersTable extends Migration
         // Schema::table('networks', function (Blueprint $table) {
         //     $table->unsignedBigInteger('user_id')->after('network_id')->nullable()->default(null);
         // });
-        Schema::table('orders', function (Blueprint $table) {
-            $table->text('ip_details')->after('ip_address')->nullable()->default(null);
-        });
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->json('ip_details')->after('ip_address')->nullable()->default(null);
+        // });
+
+        // Schema::table('campaigns', function (Blueprint $table) {
+        //     $table->json('tracking_campaign_ids')->after('tracking_campaigns')->nullable()->default(null);
+        // });
+
+        // Schema::table('campaigns', function (Blueprint $table) {
+        //     $table->json('tracking_network_ids')->after('tracking_networks')->nullable()->default(null);
+        // });
+
+        // Schema::table('campaigns', function (Blueprint $table) {
+        //     $table->json('upsell_product_ids')->after('upsell_products')->nullable()->default(null);
+        // });
+        
+        // Schema::table('campaigns', function (Blueprint $table) {
+        //     $table->json('downsell_product_ids')->after('downsell_products')->nullable()->default(null);
+        // });
+
+        // Schema::table('campaigns', function (Blueprint $table) {
+        //     $table->json('cycle_product_ids')->after('cycle_products')->nullable()->default(null);
+        // });
     }
 
     /**

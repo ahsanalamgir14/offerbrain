@@ -51,6 +51,12 @@ export class MyCampaignsComponent implements OnInit {
   isDeleting: boolean = false;
   timer: any;
   notyf = new Notyf();
+  start_date = '';
+  end_date = '';
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
 
   @Input()
   columns: ListColumn[] = [
@@ -62,43 +68,44 @@ export class MyCampaignsComponent implements OnInit {
     // { name: 'data_verification_provider_id', property: 'data_verification_provider_id', visible: false, isModelProperty: false },
     // { name: 'site_url', property: 'site_url', visible: false, isModelProperty: false },
     // { name: 'is_archived', property: 'is_archived', visible: false, isModelProperty: false },
-    // { name: 'is_archivedprepaid_blocked', property: 'is_archivedprepaid_blocked', visible: false, isModelProperty: false },
+    // { name: 'prepaid_blocked', property: 'prepaid_blocked', visible: false, isModelProperty: false },
     // { name: 'is_custom_price_allowed', property: 'is_custom_price_allowed', visible: false, isModelProperty: false },
     // { name: 'is_avs_enabled', property: 'is_avs_enabled', visible: false, isModelProperty: false },
     // { name: 'is_collections_enabled', property: 'is_collections_enabled', visible: false, isModelProperty: false },
     // { name: 'archived_at', property: 'archived_at', visible: false, isModelProperty: false },
     { name: 'Name', property: 'name', visible: true, isModelProperty: true },
-    // { name: 'description', property: 'description', visible: false, isModelProperty: true },
-    // { name: 'pre_auth_amount', property: 'pre_auth_amount', visible: false, isModelProperty: false },
-    // { name: 'creator', property: 'creator', visible: false, isModelProperty: false },
-    // { name: 'updator', property: 'updator', visible: false, isModelProperty: false },
-    // { name: 'countries', property: 'countries', visible: false, isModelProperty: false },
-    // { name: 'fulfillment_id', property: 'fulfillment_id', visible: false, isModelProperty: false },
-    // { name: 'check_provider_id', property: 'check_provider_id', visible: false, isModelProperty: false },
-    // { name: 'membership_provider_id', property: 'membership_provider_id', visible: false, isModelProperty: false },
-    // { name: 'call_confirm_provider_id', property: 'call_confirm_provider_id', visible: false, isModelProperty: false },
-    // { name: 'chargeback_provider_id', property: 'chargeback_provider_id', visible: false, isModelProperty: false },
-    // { name: 'prospect_provider_id', property: 'prospect_provider_id', visible: false, isModelProperty: false },
-    // { name: 'email_provider_id', property: 'email_provider_id', visible: false, isModelProperty: false },
-    // { name: 'offers', property: 'offers', visible: false, isModelProperty: false },
-    // { name: 'channel', property: 'channel', visible: false, isModelProperty: false },
-    // { name: 'payment_methods', property: 'payment_methods', visible: false, isModelProperty: false },
-    // { name: 'gateway', property: 'gateway', visible: false, isModelProperty: false },
-    // { name: 'alternative_payments', property: 'alternative_payments', visible: false, isModelProperty: false },
-    // { name: 'shipping_profiles', property: 'shipping_profiles', visible: false, isModelProperty: false },
-    // { name: 'return_profiles', property: 'return_profiles', visible: false, isModelProperty: false },
-    // { name: 'postback_profiles', property: 'postback_profiles', visible: false, isModelProperty: false },
-    // { name: 'coupon_profiles', property: 'coupon_profiles', visible: false, isModelProperty: false },
-    // { name: 'fraud_providers', property: 'fraud_providers', visible: false, isModelProperty: false },
-    // { name: 'volume_discounts', property: 'volume_discounts', visible: false, isModelProperty: false },
-    { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: false, isModelProperty: false },
-    { name: 'Tracking Networks', property: 'tracking_networks', visible: false, isModelProperty: false },
-    { name: 'Upsell Poducts', property: 'upsell_products', visible: false, isModelProperty: false },
-    { name: 'Downsell Products', property: 'downsell_products', visible: false, isModelProperty: false },
-    { name: 'Cycle Products', property: 'cycle_products', visible: false, isModelProperty: false },
-    { name: 'Cogs Track', property: 'cogs_track', visible: false, isModelProperty: true },
-    { name: 'Cpa Track', property: 'cpa_track', visible: false, isModelProperty: true },
-    { name: 'Third Party Track', property: 'third_party_track', visible: false, isModelProperty: true },
+    { name: 'Tracking Networks', property: 'tracking_networks', visible: true, isModelProperty: false },
+    { name: 'Initials', property: 'initials', visible: true, isModelProperty: true },
+    { name: 'Rebills', property: 'rebills', visible: true, isModelProperty: true },
+    { name: 'C1 %', property: 'cycle_1_per', visible: true, isModelProperty: true },
+    { name: 'C1', property: 'c1', visible: true, isModelProperty: true },
+    { name: 'C1 Decline %', property: 'c1_decline_per', visible: true, isModelProperty: true },
+    { name: 'C2 %', property: 'cycle_2_per', visible: true, isModelProperty: true },
+    { name: 'C2', property: 'c2', visible: true, isModelProperty: true },
+    { name: 'C2 Decline %', property: 'c2_decline_per', visible: true, isModelProperty: true },
+    { name: 'C3 %', property: 'cycle_3_per', visible: true, isModelProperty: true },
+    { name: 'C3', property: 'c3', visible: true, isModelProperty: true },
+    { name: 'C3 Decline %', property: 'c3_decline_per', visible: true, isModelProperty: true },
+    { name: 'Avg Ticket', property: 'avg_ticket', visible: true, isModelProperty: true },
+    { name: 'Revenue', property: 'revenue', visible: true, isModelProperty: true },
+    { name: 'Refund', property: 'refund', visible: true, isModelProperty: true },
+    { name: 'Refund Rate', property: 'refund_rate', visible: true, isModelProperty: true },
+    { name: 'CBs', property: 'CBs', visible: true, isModelProperty: true },
+    { name: 'CB %', property: 'CB_per', visible: true, isModelProperty: true },
+    { name: 'CB $', property: 'CB_currency', visible: true, isModelProperty: true },
+    // { name: 'Fulfillment', property: 'fulfillment', visible: true, isModelProperty: true },
+    // { name: 'Processing', property: 'processing', visible: true, isModelProperty: true },
+    // { name: 'CPA', property: 'cpa', visible: true, isModelProperty: true },
+    // { name: 'CPA AVG', property: 'cpa_avg', visible: true, isModelProperty: true },
+    { name: 'Net', property: 'net', visible: true, isModelProperty: true },
+    { name: 'CLV', property: 'clv', visible: true, isModelProperty: true },
+    // { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: false, isModelProperty: false },
+    // { name: 'Upsell Poducts', property: 'upsell_products', visible: false, isModelProperty: false },
+    // { name: 'Downsell Products', property: 'downsell_products', visible: false, isModelProperty: false },
+    // { name: 'Cycle Products', property: 'cycle_products', visible: false, isModelProperty: false },
+    // { name: 'Cogs Track', property: 'cogs_track', visible: false, isModelProperty: true },
+    // { name: 'Cpa Track', property: 'cpa_track', visible: false, isModelProperty: true },
+    // { name: 'Third Party Track', property: 'third_party_track', visible: false, isModelProperty: true },
     { name: 'Created At', property: 'created_at', visible: true, isModelProperty: true },
     // { name: 'updated_at', property: 'updated_at', visible: true, isModelProperty: true },
   ] as ListColumn[];
@@ -148,9 +155,8 @@ export class MyCampaignsComponent implements OnInit {
     this.isLoading = true;
     this.isChecked = false;
     this.filters = {
-      // "currentPage": this.currentPage,
-      // "pageSize": this.pageSize,
-      // "search": this.search,
+      "start": this.start_date,
+      "end": this.end_date,
     }
     await this.campaignsService.getCampaigns(this.filters)
       .then(campaigns => {
@@ -158,8 +164,8 @@ export class MyCampaignsComponent implements OnInit {
         this.campaigns = campaigns.data;
         this.dataSource.data = campaigns.data;
         setTimeout(() => {
-          this.paginator.pageIndex = this.currentPage;
-          this.paginator.length = campaigns.pag.count;
+          // this.paginator.pageIndex = this.currentPage;
+          // this.paginator.length = campaigns.pag.count;
         });
         this.mapData().subscribe(prospects => {
           this.subject$.next(prospects);
@@ -276,6 +282,36 @@ export class MyCampaignsComponent implements OnInit {
         this.idArray = [];
       }
     });
+  }
+
+  selectDate(param) {
+    var startDate = new Date();
+    var endDate = new Date();
+    if (param == 'today') {
+      this.range.get('start').setValue(new Date());
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'yesterday') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
+      this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
+    } else if (param == 'thisMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
+    } else if (param == 'pastWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'pastTwoWeek') {
+      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
+      this.range.get('end').setValue(new Date());
+    } else if (param == 'lastMonth') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastThreeMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    } else if (param == 'lastSixMonths') {
+      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
+      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+    }
   }
 
   ngOnDestroy(): void {

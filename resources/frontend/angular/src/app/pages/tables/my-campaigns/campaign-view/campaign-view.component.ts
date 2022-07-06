@@ -226,6 +226,11 @@ export class CampaignViewComponent implements OnInit {
   //     });
   // }
 
-  ngOnDestroy() { }
+  ngOnDestroy() {
+    if(this.getSubscription){
+      this.getSubscription.unsubscribe();
+      this.campaignViewService.getResponse.next([]);
+    }
+   }
 
 }

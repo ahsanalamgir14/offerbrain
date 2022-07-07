@@ -31,9 +31,11 @@ class Campaign extends Model
         'volume_discounts' => 'array',
         //added only for OfferBrain campaigns
         'tracking_campaigns' => 'array',
+        'tracking_campaign_ids' => 'array',
         'tracking_networks' => 'array',
+        'tracking_network_ids' => 'array',
         'upsell_products' => 'array',
-        // 'upsell_product_ids' => 'array',
+        'upsell_product_ids' => 'array',
         'downsell_products' => 'array',
         'downsell_product_ids' => 'array',
         'cycle_products' => 'array',
@@ -85,7 +87,9 @@ class Campaign extends Model
         'volume_discounts',
         'campaign_type',
         'tracking_campaigns',
+        'tracking_campaign_ids',
         'tracking_networks',
+        'tracking_network_ids',
         'no_of_upsells',
         'no_of_downsells',
         'upsell_products',
@@ -121,7 +125,7 @@ class Campaign extends Model
     {
         $tracking_campaigns = json_decode($this->attributes['tracking_campaigns']);
         if (is_array($tracking_campaigns)) {
-            $tracking_campaign_ids = array_column($tracking_campaigns, 'product_id');
+            $tracking_campaign_ids = array_column($tracking_campaigns, 'campaign_id');
             return $this->attributes['tracking_campaign_ids'] = json_encode($tracking_campaign_ids);
         }
     }
@@ -130,7 +134,7 @@ class Campaign extends Model
     {
         $tracking_networks = json_decode($this->attributes['tracking_networks']);
         if (is_array($tracking_networks)) {
-            $tracking_network_ids = array_column($tracking_networks, 'product_id');
+            $tracking_network_ids = array_column($tracking_networks, 'network_affiliate_id');
             return $this->attributes['tracking_network_ids'] = json_encode($tracking_network_ids);
         }
     }

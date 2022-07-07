@@ -289,8 +289,8 @@ class OrdersController extends Controller
         // dd($user->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
-        $start_date = '06/01/2022';
-        $end_date = '06/30/2022';
+        $start_date = '07/01/2022';
+        $end_date = '07/30/2022';
 
         $db_order_ids = Order::where(['user_id' => Auth::id()])->pluck('order_id')->toArray();
         $url = $user->sticky_url . '/api/v1/order_find';

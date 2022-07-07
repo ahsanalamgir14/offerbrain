@@ -132,6 +132,7 @@ export class MyCampaignsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.selectDate('thisMonth');
     // this.getSubscription = this.campaignsService.customersGetResponse$.subscribe(data => this.manageGetResponse(data));
     // this.deleteSubscription = this.campaignsService.deleteResponse$.subscribe(data => this.manageDeleteResponse(data));
     this.getData();
@@ -154,6 +155,12 @@ export class MyCampaignsComponent implements OnInit {
     this.isDeleting = false;
     this.isLoading = true;
     this.isChecked = false;
+    if (this.range.get('start').value != null) {
+      this.start_date = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en')
+    }
+    if (this.range.get('end').value != null) {
+      this.end_date = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en')
+    }
     this.filters = {
       "start": this.start_date,
       "end": this.end_date,

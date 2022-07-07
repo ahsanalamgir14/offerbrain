@@ -31,10 +31,15 @@ class Campaign extends Model
         'volume_discounts' => 'array',
         //added only for OfferBrain campaigns
         'tracking_campaigns' => 'array',
+        'tracking_campaign_ids' => 'array',
         'tracking_networks' => 'array',
+        'tracking_network_ids' => 'array',
         'upsell_products' => 'array',
+        'upsell_product_ids' => 'array',
         'downsell_products' => 'array',
+        'downsell_product_ids' => 'array',
         'cycle_products' => 'array',
+        'cycle_product_ids' => 'array',
         'cogs_track' => 'boolean',
         'cpa_track' => 'boolean',
         'third_party_track' => 'boolean',
@@ -82,18 +87,27 @@ class Campaign extends Model
         'volume_discounts',
         'campaign_type',
         'tracking_campaigns',
+        'tracking_campaign_ids',
         'tracking_networks',
+        'tracking_network_ids',
         'no_of_upsells',
         'no_of_downsells',
         'upsell_products',
+        'upsell_product_ids',
         'downsell_products',
+        'downsell_product_ids',
         'no_of_cycles',
+        'cycle_product_ids',
         'cycle_products',
         'cogs_track',
         'cpa_track',
         'third_party_track',
     ];
 
+    // public function getTrackingCampaignsAttribute($object)
+    // {
+    //     return array_column(json_decode($object), 'campaign_id');
+    // }
     public function getCogsTrackAttribute($value)
     {
         return $value == 1 ? 1 : 0;
@@ -105,5 +119,50 @@ class Campaign extends Model
     public function getThirdPartyTrackAttribute($value)
     {
         return $value == 1 ? 1 : 0;
+    }
+
+    public function setTrackingCampaignIdsAttribute($value)
+    {
+        $tracking_campaigns = json_decode($this->attributes['tracking_campaigns']);
+        if (is_array($tracking_campaigns)) {
+            $tracking_campaign_ids = array_column($tracking_campaigns, 'campaign_id');
+            return $this->attributes['tracking_campaign_ids'] = json_encode($tracking_campaign_ids);
+        }
+    }
+
+    public function setTrackingNetworkIdsAttribute($value)
+    {
+        $tracking_networks = json_decode($this->attributes['tracking_networks']);
+        if (is_array($tracking_networks)) {
+            $tracking_network_ids = array_column($tracking_networks, 'network_affiliate_id');
+            return $this->attributes['tracking_network_ids'] = json_encode($tracking_network_ids);
+        }
+    }
+
+    public function setUpsellProductIdsAttribute($value)
+    {
+        $upsell_products = json_decode($this->attributes['upsell_products']);
+        if (is_array($upsell_products)) {
+            $upsell_product_ids = array_column($upsell_products, 'product_id');
+            return $this->attributes['upsell_product_ids'] = json_encode($upsell_product_ids);
+        }
+    }
+
+    public function setDownsellProductIdsAttribute($value)
+    {
+        $downsell_products = json_decode($this->attributes['downsell_products']);
+        if (is_array($downsell_products)) {
+            $downsell_product_ids = array_column($downsell_products, 'product_id');
+            return $this->attributes['downsell_product_ids'] = json_encode($downsell_product_ids);
+        }
+    }
+
+    public function setCycleProductIdsAttribute($value)
+    {
+        $cycle_products = json_decode($this->attributes['cycle_products']);
+        if (is_array($cycle_products)) {
+            $cycle_product_ids = array_column($cycle_products, 'product_id');
+            return $this->attributes['cycle_product_ids'] = json_encode($cycle_product_ids);
+        }
     }
 }

@@ -48,19 +48,18 @@ export class AppComponent {
       // },
       {
         name: 'Dashboard',
-        routeOrFunction: '/dashboard',
+        routeOrFunction: '/',
         icon: 'dashboard',
         position: 6,
-        // pathMatchExact: true
+        pathMatchExact: true
       },
       {
         name: 'Customers',
-        // routeOrFunction: '/customer',
-        routeOrFunction: '/customer',
+        routeOrFunction: '/customers',
         icon: 'group',
-        badgeColor: '#2196F3',
+        badgeColor: "#2196F3",
         position: 7,
-        pathMatchExact: true
+        // pathMatchExact: true
       },
       {
         name: 'Prospects',
@@ -111,7 +110,7 @@ export class AppComponent {
         ]
       },
       {
-        name: 'Campaigns Menu',
+        name: 'Campaigns',
         icon: 'device_hub',
         position: 12,
         subItems: [
@@ -200,7 +199,7 @@ export class AppComponent {
         type: 'item',
         icon: 'whatshot',
         customClass: 'add-background',
-        badgeColor: '#fffff',
+        badgeColor: '#2196F3',
         position: 40
       },
       {

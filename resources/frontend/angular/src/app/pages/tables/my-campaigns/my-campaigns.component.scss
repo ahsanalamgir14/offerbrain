@@ -16,9 +16,9 @@
   overflow: auto;
 }
 
-.list-items > li{
+.list-items > li {
   font-weight: 600;
-    font-size: 12px;
+  font-size: 12px;
 }
 
 :host ::ng-deep .mat-sort-header-container {
@@ -29,4 +29,8 @@
 th.mat-header-cell,
 td.mat-cell {
   text-align: center;
+}
+
+.no-bottom-padding {
+  padding-bottom: 0px;
 }

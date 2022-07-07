@@ -113,8 +113,8 @@ Route::get('get_mid_count_detail', [MidController::class, 'get_mid_count_detail'
 Route::get('get_assigned_mids', [MidGroupController::class, 'get_assigned_mids']);
 Route::get('user-details', [DashboardController::class, 'user_data']);
 Route::post('destroy_customers', [CustomerController::class, 'destroy_customers']);
-Route::get('getCustomersForGraph', [CustomerController::class, 'getCustomersForGraph']);
-Route::get('getOrdersForGraph', [CustomerController::class, 'getOrdersForGraph']);
+Route::get('getCustomersForGraph', [DashboardController::class, 'getCustomersForGraph']);
+Route::get('getOrdersForGraph', [DashboardController::class, 'getOrdersForGraph']);
 Route::get('destroy_affiliates', [NetworkController::class, 'destroy_affiliates']);
 Route::post('assign_bulk_group', [MidController::class, 'assign_bulk_group']);
 Route::post('change_column', [ColumnController::class, 'change_column']);
@@ -137,6 +137,5 @@ Route::get('reset-initials', [MidController::class, 'reset_initials']);
 Route::get('date-range-products', [OrderProductController::class, 'date_range_products']);
 Route::get('get_EF_key', [SubAffiliateController::class, 'get_EF_key']);
 Route::get('campaign-view-data', [CampaignBuilderController::class, 'campaign_view_data']);
-Route::get('refresh-campaign-view', [CampaignBuilderController::class, 'refresh_campaign_view']);
 Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
 Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);

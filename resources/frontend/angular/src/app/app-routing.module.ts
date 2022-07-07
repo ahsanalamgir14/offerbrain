@@ -10,15 +10,14 @@ const routes: Routes = [
     component: LayoutComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'user'], permissions: ['can-redirect'] },
     children: [
       {
-        path: 'dashboard',
+        path: '',
         loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
-        // pathMatch: 'full'
+        pathMatch: 'full'
       },
       {
-        // path: 'customers',
-        path: 'customer',
+        path: 'customers',
         loadChildren: () => import('./pages/customers/customers.module').then(m => m.CustomersModule),
-        pathMatch: 'full'
+        // pathMatch: 'full'
       },
       {
         path: 'customer-detail',

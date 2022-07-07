@@ -1,93 +1,102 @@
+<!-- <fury-loading-indicator></fury-loading-indicator> -->
 <fury-page [fxLayoutGap]="gap" class="dashboard" fxLayout="column">
 
-  <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-    <div class="content" layout="column">
-      <mat-expansion-panel [expanded]="0" hideToggle>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Filters
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div fxLayoutGap="50px">
-          <div fxLayout="column">
-            <!-- *ngIf="!skeletonLoader" -->
-            <div fxLayout="column" layout-wrap fxLayoutGap="10px">
-              <div fxLayout="row" layout-wrap fxLayoutGap="10px">
-                <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
-                <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This
-                    Month</button></div>
-                <div>
-                  <button mat-raised-button color="warn" [matMenuTriggerFor]="more">More</button>
-                  <mat-menu #more="matMenu">
-                    <button mat-menu-item (click)="selectDate('yesterday')">Yesterday</button>
-                    <button mat-menu-item (click)="selectDate('pastWeek')">Past Week</button>
-                    <button mat-menu-item (click)="selectDate('pastTwoWeek')">Past 2 Weeks</button>
-                    <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
-                    <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
-                    <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
-                  </mat-menu>
-                </div>
-              </div>
+  <!-- <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill> -->
+  <div class="content" layout="column">
+    <!-- 
+          ?Add [expanded]="0" in below line to to show filters
+        -->
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Filters
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div fxLayoutGap="50px">
+        <div fxLayout="column">
+          <!-- *ngIf="!skeletonLoader" -->
+          <div fxLayout="column" layout-wrap fxLayoutGap="10px">
+            <div fxLayout="row" layout-wrap fxLayoutGap="10px">
+              <div><button mat-raised-button color="warn" (click)="selectDate('today')">Today</button></div>
+              <div><button mat-raised-button color="warn" (click)="selectDate('thisMonth')">This
+                  Month</button></div>
               <div>
-                <mat-form-field appearance="fill">
-                  <mat-label>Enter a date range</mat-label>
-                  <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-                    <input matStartDate formControlName="start" placeholder="Start date">
-                    <input matEndDate formControlName="end" placeholder="End date">
-                  </mat-date-range-input>
-                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-date-range-picker #picker></mat-date-range-picker>
-
-                  <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid
-                    start date</mat-error>
-                  <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end
-                    date</mat-error>
-                </mat-form-field>
+                <button mat-raised-button color="warn" [matMenuTriggerFor]="more">More</button>
+                <mat-menu #more="matMenu">
+                  <button mat-menu-item (click)="selectDate('yesterday')">Yesterday</button>
+                  <button mat-menu-item (click)="selectDate('pastWeek')">Past Week</button>
+                  <button mat-menu-item (click)="selectDate('pastTwoWeek')">Past 2 Weeks</button>
+                  <button mat-menu-item (click)="selectDate('lastMonth')">Last Month</button>
+                  <button mat-menu-item (click)="selectDate('lastThreeMonths')">Last 3 Months</button>
+                  <button mat-menu-item (click)="selectDate('lastSixMonths')">Past 6 Months</button>
+                </mat-menu>
               </div>
+            </div>
+            <div>
+              <mat-form-field appearance="fill">
+                <mat-label>Enter a date range</mat-label>
+                <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                  <input matStartDate formControlName="start" placeholder="Start date">
+                  <input matEndDate formControlName="end" placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+
+                <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid
+                  start date</mat-error>
+                <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end
+                  date</mat-error>
+              </mat-form-field>
             </div>
           </div>
         </div>
-        <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
-          <div><button mat-raised-button color="accent" [class.spinner]="spinning" [disabled]="isDisabled" (click)="getData()">Apply</button></div>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="end end" fxLayoutGap="10px">
+        <div><button mat-raised-button color="accent" [class.spinner]="spinning" [disabled]="isDisabled" (click)="getData()">Apply</button></div>
+      </div>
+    </mat-expansion-panel>
+  </div>
+  <!-- </fury-page-layout-content> -->
+
+  <div fxFlex="noshrink" fxLayout="column" [fxLayoutGap]="gap" fxLayout.gt-lg="row">
+    <mat-spinner class="text-center" *ngIf="isLoading"></mat-spinner>
+    <!-- <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill> -->
+    <div class="content" layout="column" class="full-width">
+      <mat-expansion-panel [expanded]="0" hideToggle>
+        <canvas id="lineChart"></canvas>
+      </mat-expansion-panel>
+    </div>
+    <!-- </fury-page-layout-content> -->
+    <!-- <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill> -->
+    <div class="content" layout="column" class="full-width">
+      <mat-expansion-panel [expanded]="0" hideToggle>
+        <div style="display: block;">
+          <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [plugins]="barChartPlugins"
+            [legend]="barChartLegend" [chartType]="barChartType">
+          </canvas>
         </div>
       </mat-expansion-panel>
     </div>
-  </fury-page-layout-content>
+    <!-- </fury-page-layout-content> -->
 
-  <div fxFlex="noshrink" fxLayout="column" [fxLayoutGap]="gap" fxLayout.gt-lg="row">
-      <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-        <div class="content" layout="column" class="full-width">
-          <mat-expansion-panel [expanded]="0" hideToggle>
-            <canvas id="lineChart"></canvas>
-            </mat-expansion-panel>
-          </div>
-        </fury-page-layout-content>
-        <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-          <div class="content" layout="column" class="full-width">
-            <mat-expansion-panel [expanded]="0" hideToggle>
-              <div style="display: block;">
-                  <canvas baseChart
-                    [datasets]="barChartData"
-                    [labels]="barChartLabels"
-                    [options]="barChartOptions"
-                    [plugins]="barChartPlugins"
-                    [legend]="barChartLegend"
-                    [chartType]="barChartType">
-                  </canvas>
-              </div>
-            </mat-expansion-panel>
-          </div>
-        </fury-page-layout-content>
+
+    <!-- <div fxLayout="column" [fxLayoutGap]="gap" [fxFlex]="col(2)" fxLayout.gt-sm="row">
+        <div fxFlex="grow">
+          <fury-audience-overview-widget class="route-animations-elements" [options]="audienceOverviewOptions"></fury-audience-overview-widget>
+        </div>
+      </div> -->
+    <div fxLayout="column" [fxLayoutGap]="gap" [fxFlex]="col(2)" fxLayout.gt-sm="row">
       <div [fxFlex.gt-sm]="col(8)" [fxLayoutGap]="gap" fxFlex="grow" fxLayout="column">
-        <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" orders="{{ orderCount }}" 
-        declineOrders="{{ declineOrderCount }}" chargebackOrders="{{ chargebackOrderCount }}" 
-        refundOrders="{{ refundOrderCount }}" transections="{{  transections }}" 
-        straightSale="{{ straightSale }}" class="fullheight"></fury-sales-summary-widget>
-        <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" customers="{{customerCount}}" label="Customers"
+        <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" orders="{{ orderCount }}"
+          declineOrders="{{ declineOrderCount }}" chargebackOrders="{{ chargebackOrderCount }}" refundOrders="{{ refundOrderCount }}"
+          transections="{{  transections }}" straightSale="{{ straightSale }}" class="fullheight"></fury-sales-summary-widget>
 
+        <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" customers="{{customerCount}}" label="Customers"
           [background]="'#009688'" color="white" icon="people"></fury-quick-info-widget>
       </div>
-      <fury-donut-chart-widget [data]="top5CategoriesData$ | async" [fxFlex.gt-sm]="col(2)" [options]="top5CategoriesOptions" class="route-animations-elements"></fury-donut-chart-widget>
+      <fury-donut-chart-widget [data]="top5CategoriesData$ | async" [fxFlex.gt-sm]="col(2)" [options]="top5CategoriesOptions"
+        class="route-animations-elements"></fury-donut-chart-widget>
+    </div>
   </div>
  
   <div [fxLayoutGap]="gap" fxFlex="noshrink" fxLayout="column" fxLayout.gt-lg="row">

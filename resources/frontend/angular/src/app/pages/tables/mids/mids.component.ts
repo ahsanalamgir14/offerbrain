@@ -168,10 +168,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onItemSelect(item: any) {
-    console.log(item);
   }
   onSelectAll(items: any) {
-    console.log(items);
   }
 
   async getData() {
@@ -287,6 +285,8 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.assignedMids = 0;
     this.unAssignedMids = 0;
     this.unInitializedMids = 0;
+    this.totalActive = 0;
+    this.totalClosed = 0;
 
     this.mids.forEach((mid) => {
       if (mid.current_monthly_amount == '0.00') {
@@ -356,7 +356,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (data.status) {
       this.productOptions = data.data;
       this.filteredProducts.next(this.productOptions.slice());
-      console.log(' this.productOptions  :', this.productOptions);
     }
   }
 
@@ -490,7 +489,6 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.isBulkUpdate = false;
     }
-    console.log(this.selectedRows);
   }
 
   assignBulkGroup() {

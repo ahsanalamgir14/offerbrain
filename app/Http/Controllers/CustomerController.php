@@ -313,7 +313,7 @@ class CustomerController extends Controller
         ->where('time_stamp', '>=', $start_date)
         ->where('time_stamp', '<=', $end_date)->get();
         
-        if($days == 0 && $days <= 1){
+        if($days >= 0 && $days <= 1){
             $users = $customer_query->groupBy(function($date) {
                 return Carbon::parse($date->created_at)->format('h');
             });
@@ -322,7 +322,7 @@ class CustomerController extends Controller
             });
             $label = ['1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM','8PM' ,'9PM', '10PM', '11PM', '12AM', '13AM', '14AM', '15AM', '16AM', '17AM', '18AM', '19AM', '20AM', '21AM', '22AM', '23AM', '00PM'];
             $count = 24;
-        } else if($days >= 7 && $days <= 14){
+        } else if($days > 1 && $days <= 14){
             $users = $customer_query->groupBy(function($date) {
                 return Carbon::parse($date->created_at)->format('d');
             });
@@ -399,16 +399,16 @@ class CustomerController extends Controller
         ->select('id','time_stamp','order_status','is_chargeback','is_refund',
             DB::raw('(CASE WHEN order_status = 7 THEN 1 ELSE 0 END) AS decline'),
             DB::raw('(CASE WHEN is_chargeback = 1 THEN 1 ELSE 0 END) AS chargeback'),
-            DB::raw('(CASE WHEN is_refund = 1 THEN 1 ELSE 0 END) AS refund'))
+            DB::raw('(CASE WHEN is_refund = "yes" THEN 1 ELSE 0 END) AS refund'))
         ->where('user_id',1)->get();
-
+     
         if($days >= 0 && $days <= 1){
             $orders = $query->groupBy(function($date) {
                 return Carbon::parse($date->time_stamp)->format('h');
             });
             $label = ['1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM','8PM' ,'9PM', '10PM', '11PM', '12AM', '13AM', '14AM', '15AM', '16AM', '17AM', '18AM', '19AM', '20AM', '21AM', '22AM', '23AM', '00PM'];
             $count = 24;
-        } else if($days >= 7 && $days <= 14){
+        } else if($days > 1 && $days <= 14){
             $orders = $query->groupBy(function($date) {
                 return Carbon::parse($date->time_stamp)->format('d');
             });

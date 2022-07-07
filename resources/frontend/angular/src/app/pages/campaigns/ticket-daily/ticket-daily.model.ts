@@ -12,7 +12,8 @@ export class TicketDaily {
   EOT_per: number;
 
   constructor(ticket) {
-    this.date = datePipe.transform(ticket.date, 'MM-dd-yyyy');
+    // this.date = datePipe.transform(ticket.date, 'MM-dd-yyyy');
+    this.date = ticket.date;
     this.initials = ticket.initials;
     this.decline = ticket.decline;
     this.decline_per = ticket.decline_per;

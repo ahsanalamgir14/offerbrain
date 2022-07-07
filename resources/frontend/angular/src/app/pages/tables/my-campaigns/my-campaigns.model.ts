@@ -67,7 +67,8 @@ export class Campaign {
         // this.is_custom_price_allowed = campaign.is_custom_price_allowed;
         // this.is_avs_enabled = campaign.is_avs_enabled;
         // this.is_collections_enabled = campaign.is_collections_enabled;
-        this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
+        // this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
+        this.created_at = campaign.created_at;
         // this.updated_at = campaign.updated_at;
         // this.archived_at = campaign.archived_at;
         this.name = campaign.name;

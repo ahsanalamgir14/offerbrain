@@ -2,25 +2,26 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MidController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\OrdersController;
-use App\Http\Controllers\FormulasController;
-use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\NetworkController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\GoldenTicketController;
+use App\Http\Controllers\FormulasController;
+use App\Http\Controllers\MidGroupController;
+use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AutomationController;
 use App\Http\Controllers\TicketDailyController;
+use App\Http\Controllers\GoldenTicketController;
+use App\Http\Controllers\OrderProductController;
+use App\Http\Controllers\SubAffiliateController;
 use App\Http\Controllers\TicketWeeklyController;
 use App\Http\Controllers\TicketMonthlyController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProspectController;
-use App\Http\Controllers\OrderProductController;
-use App\Http\Controllers\MidController;
-use App\Http\Controllers\MidGroupController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ColumnController;
-use App\Http\Controllers\NetworkController;
-use App\Http\Controllers\SubAffiliateController;
 use App\Http\Controllers\CampaignBuilderController;
 
 /*
@@ -62,6 +63,7 @@ Route::resource('sub-affiliates', SubAffiliateController::class);
 Route::resource('networks', NetworkController::class);
 Route::get('role', [HomeController::class, 'role']);
 Route::resource('campaigns_builder', CampaignBuilderController::class);
+Route::resource('automation_builder', AutomationController::class);
 Route::get('campaign-builder-options', [CampaignBuilderController::class, 'campaign_builder_options']);
 Route::get('golden-ticket/create/{month}/{year}', [GoldenTicketController::class, 'create']);
 Route::get('get_campaigns', [CampaignsController::class, 'get_campaigns']);

@@ -30,10 +30,6 @@ class CampaignBuilderController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($request->all());
-        // $data = Campaign::find(250);
-        // return response()->json(['status' => true, 'data' => $data]);
-        // dd($request->user()->id);
         $data = Campaign::where(['user_id' => 2])->whereNull('is_active')->get();
         // $data = Campaign::where(['user_id' => $request->user()->id])->get();
         return response()->json(['status' => true, 'data' => $data]);
@@ -57,13 +53,12 @@ class CampaignBuilderController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $data = $request->all();
         $campaign = new Campaign();
         $data['campaign_id'] = rand(100000, 999999);
         $db_campaign_ids = Campaign::all()->pluck('campaign_id')->toArray();
-        $data['user_id'] = 2;
-        // $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $request->user()->id;
+        // $data['user_id'] = 1;
         $data['created_at'] = Carbon::now();
         if (in_array($data['campaign_id'], $db_campaign_ids)) {
             return response()->json(['status' => false, 'message' => 'Please click again to save']);
@@ -122,14 +117,14 @@ class CampaignBuilderController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         //production
-        // $data['products'] = DB::table('order_products')->select('product_id', 'name','price',DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id'=> Auth::id()])->groupBy('name')->get();
-        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('campaign_id')->get();
-        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('network_affiliate_id')->get();
+        $data['products'] = DB::table('order_products')->select('product_id', 'name','price',DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id'=> Auth::id()])->groupBy('name')->get();
+        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('campaign_id')->get();
+        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id'=> Auth::id()])->groupBy('network_affiliate_id')->get();
 
         //local
-        $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('name')->get();
-        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
+        // $data['products'] = DB::table('order_products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('name')->get();
+        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
 
         return response()->json(['status' => true, 'data' => $data]);
     }
@@ -137,17 +132,17 @@ class CampaignBuilderController extends Controller
     public function campaign_view_data(Request $request)
     {
         DB::enableQueryLog();
-        $campaign = Campaign::where(['name' => $request->name, 'user_id' => 2])->first();
+        // $campaign = Campaign::where(['name' => $request->name, 'user_id' => 2])->first();
         // return $campaign;
-        // $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
+        $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
         $tracking_campaign_ids = array_column($campaign->tracking_campaigns, 'campaign_id');
         $tracking_network_ids = array_column($campaign->tracking_networks, 'network_affiliate_id');
         $cycle_product_ids = array_column($campaign->cycle_products, 'product_id');
         // $upsell_product_ids = array_column($campaign->upsell_products, 'id');
         // $downsell_product_ids = array_column($campaign->downsell_products, 'id');
 
-        $query = DB::table('orders')->where(['orders.user_id' => 2, 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
-        // $orders = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
+        // $query = DB::table('orders')->where(['orders.user_id' => 2, 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
+        $orders = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
             ->whereIn('orders.campaign_id', $tracking_campaign_ids)
             ->whereIn('orders.affiliate', $tracking_network_ids)
             ->select('orders.acquisition_month as month', 'orders.acquisition_year as year', 'order_products.name')

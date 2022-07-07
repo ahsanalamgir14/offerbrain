@@ -61,6 +61,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   arr_cycleProducts = [];
   lastupSellSelected = [];
   arr_cycle = [];
+  upProducts = [];
+  downProducts = [];
+  cycleProducts = [];
 
   campaignTypeOptions = ['Straight Sale'];
   trackingCampaignOptions = [];
@@ -83,7 +86,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('Upsell products are ', this.upsell_products);
     this.getOptionsSubscription = this.campaignBuilderService.getOptionsResponse$.subscribe(data => this.manageOptionsResponse(data))
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
 
@@ -201,23 +203,19 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       let downArr = [];
       let cycleArr = [];
       this.upsell_products.forEach(key => {
-        this.upsell_products = [];
         uppArr.push(key[0]);
       });
       this.downsell_products.forEach(key => {
-        this.downsell_products = [];
         downArr.push(key[0]);
       });
       this.cycle_products.forEach(key => {
-        this.cycle_products = [];
         cycleArr.push(key[0]);
       });
-      this.upsell_products = uppArr;
-      this.downsell_products = downArr;
-      this.cycle_products = cycleArr;
+      this.upProducts = uppArr;
+      this.downProducts = downArr;
+      this.cycleProducts = cycleArr;
     }
-
-    if (this.arr_upsell.length < this.no_of_upsells) {
+    if(this.arr_upsell.length < this.no_of_upsells){
       this.notyf.error('Value missing in dropdown, please select all values');
     }
     else if (this.arr_downsell.length < this.no_of_downsells) {
@@ -228,16 +226,13 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     }
     else {
       this.stepper.next();
-
     }
   }
   avoidDuplication(event, param, index) {
-    console.log('upsell_products', this.upsell_products);
     let item = event.full_name;
     // item = item.replace(/[^a-z]/gi, ' ');
-    console.log(item);
-
-    if (param == 'upsellDeSelect') {
+    
+    if(param == 'upsellDeSelect'){
       var ind = this.arr_upsell.indexOf(item);
       this.arr_upsell.splice(ind, 1);
       this.upsell_products[index] = [];
@@ -253,6 +248,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.cycle_products[index] = [];
     }
     if (param == 'upsell') {
+      console.log('Upsell Products are ',this.upsell_products);
       if (this.arr_upsell[index] != undefined) {
         var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
         this.arr_upsell.splice(selectedIndex, 1);
@@ -301,7 +297,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
   getSelectValue(event, param, index) {
     if (param == 'upsell') {
-      if (this.upsell_products[index] != undefined) {
+      if (this.upsell_products[index] != undefined && this.upsell_products[index] != []) {
         this.arr_upsell[index] = this.upsell_products[index][0].full_name;
       }
     } else if (param == 'downsell') {
@@ -324,14 +320,17 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
 
   submit() {
-    this.upsellFormGroup.get('upsell_products').setValue(this.upsell_products);
-    this.upsellFormGroup.get('downsell_products').setValue(this.downsell_products);
-    this.cyclesFormGroup.get('cycle_products').setValue(this.cycle_products);
+    this.upsellFormGroup.get('upsell_products').setValue(this.upProducts);
+    this.upsellFormGroup.get('downsell_products').setValue(this.downProducts);
+    this.cyclesFormGroup.get('cycle_products').setValue(this.cycleProducts);
     let saved = this.campaignBuilderService.save(this.campaignFormGroup.value, this.upsellFormGroup.value, this.cyclesFormGroup.value, this.miscFormGroup.value)
     if (saved) {
       this.upsell_products = [];
       this.downsell_products = [];
       this.cycle_products = [];
+      this.upProducts = [];
+      this.downProducts = [];
+      this.cycleProducts = [];
     }
     // this.snackbar.open('You successfully created new campaign.', null, {
     //   duration: 5000

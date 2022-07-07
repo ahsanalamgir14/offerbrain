@@ -83,7 +83,7 @@ class OrdersController extends Controller
             'orders.recurring_date',
             'orders.response_code',
             'orders.return_reason',
-            'orders.time_stamp'
+            'orders.time_stamp',
         )
             // ->where(['orders.user_id' => 2]); //dev mode
         ->where(['orders.user_id' =>$request->user()->id]);
@@ -133,6 +133,7 @@ class OrdersController extends Controller
         if ($request->filteredProduct != '') {
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->where('order_products.name', $request->filteredProduct);
         }
+       
         $total_rows = $query->count('orders.id');
 
         $rows = $query->where('orders.order_status', '!=', 11)

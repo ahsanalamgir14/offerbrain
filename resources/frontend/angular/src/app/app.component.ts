@@ -179,6 +179,23 @@ export class AppComponent {
         ]
       },
       {
+        name: 'Automation',
+        icon: 'device_hub',
+        position: 12,
+        subItems: [
+          {
+            name: 'Automation Builder',
+            routeOrFunction: '/automation-builder',
+            position: 13
+          },
+          {
+            name: 'My Automations',
+            routeOrFunction: '/my-automations',
+            position: 14
+          },
+        ]
+      },
+      {
         name: 'Rewards',
         type: 'item',
         icon: 'whatshot',

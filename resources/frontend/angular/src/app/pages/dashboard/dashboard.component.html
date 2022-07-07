@@ -2,9 +2,6 @@
 
   <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
     <div class="content" layout="column">
-      <!-- 
-        ?Add [expanded]="0" in below line to to show filters
-      -->
       <mat-expansion-panel [expanded]="0" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -58,49 +55,41 @@
   </fury-page-layout-content>
 
   <div fxFlex="noshrink" fxLayout="column" [fxLayoutGap]="gap" fxLayout.gt-lg="row">
-
-    <!-- <mat-spinner class="text-center" *ngIf="isLoading"></mat-spinner> -->
-    <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-      <div class="content" layout="column" class="full-width">
-        <mat-expansion-panel [expanded]="0" hideToggle>
-          <canvas id="lineChart"></canvas>
-        </mat-expansion-panel>
-      </div>
-    </fury-page-layout-content>
-    <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
-      <div class="content" layout="column" class="full-width">
-        <mat-expansion-panel [expanded]="0" hideToggle>
-          <div style="display: block;">
-            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [plugins]="barChartPlugins"
-              [legend]="barChartLegend" [chartType]="barChartType">
-            </canvas>
+      <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
+        <div class="content" layout="column" class="full-width">
+          <mat-expansion-panel [expanded]="0" hideToggle>
+            <canvas id="lineChart"></canvas>
+            </mat-expansion-panel>
           </div>
-        </mat-expansion-panel>
+        </fury-page-layout-content>
+        <fury-page-layout-content class="no-bottom-padding" fxLayoutAlign="start start" fxFlexFill>
+          <div class="content" layout="column" class="full-width">
+            <mat-expansion-panel [expanded]="0" hideToggle>
+              <div style="display: block;">
+                  <canvas baseChart
+                    [datasets]="barChartData"
+                    [labels]="barChartLabels"
+                    [options]="barChartOptions"
+                    [plugins]="barChartPlugins"
+                    [legend]="barChartLegend"
+                    [chartType]="barChartType">
+                  </canvas>
+              </div>
+            </mat-expansion-panel>
+          </div>
+        </fury-page-layout-content>
+      <div [fxFlex.gt-sm]="col(8)" [fxLayoutGap]="gap" fxFlex="grow" fxLayout="column">
+        <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" orders="{{ orderCount }}" 
+        declineOrders="{{ declineOrderCount }}" chargebackOrders="{{ chargebackOrderCount }}" 
+        refundOrders="{{ refundOrderCount }}" transections="{{  transections }}" 
+        straightSale="{{ straightSale }}" class="fullheight"></fury-sales-summary-widget>
+        <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" customers="{{customerCount}}" label="Customers"
+
+          [background]="'#009688'" color="white" icon="people"></fury-quick-info-widget>
       </div>
-    </fury-page-layout-content>
-
-
-    <!-- <div fxLayout="column" [fxLayoutGap]="gap" [fxFlex]="col(2)" fxLayout.gt-sm="row">
-      <div fxFlex="grow">
-        <fury-audience-overview-widget class="route-animations-elements" [options]="audienceOverviewOptions"></fury-audience-overview-widget>
-      </div>
-    </div> -->
-
-
-
-    <div [fxFlex.gt-sm]="col(8)" [fxLayoutGap]="gap" fxFlex="grow" fxLayout="column">
-      <fury-sales-summary-widget [data]="salesSummaryData$ | async" [options]="salesSummaryOptions" orders="{{ orderCount }}"
-        declineOrders="{{ declineOrderCount }}" chargebackOrders="{{ chargebackOrderCount }}" refundOrders="{{ refundOrderCount }}"
-        transections="{{  transections }}" straightSale="{{ straightSale }}" class="fullheight"></fury-sales-summary-widget>
-
-      <fury-quick-info-widget class="route-animations-elements" fxFlex="grow" customers="{{customerCount}}" label="Customers"
-        [background]="'#009688'" color="white" icon="people"></fury-quick-info-widget>
-    </div>
-    <fury-donut-chart-widget [data]="top5CategoriesData$ | async" [fxFlex.gt-sm]="col(2)" [options]="top5CategoriesOptions"
-      class="route-animations-elements"></fury-donut-chart-widget>
-
+      <fury-donut-chart-widget [data]="top5CategoriesData$ | async" [fxFlex.gt-sm]="col(2)" [options]="top5CategoriesOptions" class="route-animations-elements"></fury-donut-chart-widget>
   </div>
-
+ 
   <div [fxLayoutGap]="gap" fxFlex="noshrink" fxLayout="column" fxLayout.gt-lg="row">
     <div fxLayout="column" [fxLayoutGap]="gap" [fxFlex]="col(2)">
     </div>

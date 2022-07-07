@@ -93,7 +93,7 @@ export class DashboardComponent implements OnInit {
     });
   }
   getMidGraphData(){
-    // this.isLoading = true;
+    this.spinning = true;
     const startDate = formatDate(this.range.get('start').value, 'yyyy/MM/dd', 'en');
     const endDate = formatDate(this.range.get('end').value, 'yyyy/MM/dd', 'en');
     this.apiService.getData(`getOrdersForGraph?start_date=${startDate}&end_date=${endDate}`).then(res => res.json()).then((data) => {
@@ -342,35 +342,34 @@ export class DashboardComponent implements OnInit {
       this.straightSale = data.data.orders;
     });
   }
-
-  async selectDate(param) {
-    var startDate = new Date();
-    var endDate = new Date();
-    if (param == 'today') {
-      this.range.get('start').setValue(new Date());
-      this.range.get('end').setValue(new Date());
-    } else if (param == 'yesterday') {
-      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
-      this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
-    } else if (param == 'thisMonth') {
-      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
-      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
-    } else if (param == 'pastWeek') {
-      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
-      this.range.get('end').setValue(new Date());
-    } else if (param == 'pastTwoWeek') {
-      this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
-      this.range.get('end').setValue(new Date());
-    } else if (param == 'lastMonth') {
-      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
-      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
-    } else if (param == 'lastThreeMonths') {
-      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
-      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
-    } else if (param == 'lastSixMonths') {
-      this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
-      this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
-    }
-    return;
+    async selectDate(param) {
+      var startDate = new Date();
+      var endDate = new Date();
+      if (param == 'today') {
+        this.range.get('start').setValue(new Date());
+        this.range.get('end').setValue(new Date());
+      } else if (param == 'yesterday') {
+        this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 1)));
+        this.range.get('end').setValue(new Date(endDate.setDate(endDate.getDate() - 1)));
+      } else if (param == 'thisMonth') {
+        this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth(), 1));
+        this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0));
+      } else if (param == 'pastWeek') {
+        this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 7)));
+        this.range.get('end').setValue(new Date());
+      } else if (param == 'pastTwoWeek') {
+        this.range.get('start').setValue(new Date(startDate.setDate(startDate.getDate() - 14)));
+        this.range.get('end').setValue(new Date());
+      } else if (param == 'lastMonth') {
+        this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1));
+        this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+      } else if (param == 'lastThreeMonths') {
+        this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 3, 1));
+        this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+      } else if (param == 'lastSixMonths') {
+        this.range.get('start').setValue(new Date(startDate.getFullYear(), startDate.getMonth() - 6, 1));
+        this.range.get('end').setValue(new Date(endDate.getFullYear(), endDate.getMonth(), 0));
+      }
+      return;
   }
 }

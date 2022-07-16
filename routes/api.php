@@ -69,6 +69,7 @@ Route::get('golden-ticket/create/{month}/{year}', [GoldenTicketController::class
 Route::get('get_campaigns', [CampaignsController::class, 'get_campaigns']);
 Route::get('get_campaign_columns/{campaign_name}', [CampaignsController::class, 'get_campaign_columns']);
 Route::get('refresh_campaigns', [CampaignsController::class, 'refresh_campaigns']);
+Route::get('refresh_campaigns_for_cron', [CampaignsController::class, 'refresh_campaigns_for_cron']);
 Route::get('refresh_database_dec', [OrdersController::class, 'refresh_database_dec']);
 Route::get('refresh_database_jan', [OrdersController::class, 'refresh_database_jan']);
 Route::get('test_dec', [OrdersController::class, 'test_dec']);
@@ -120,6 +121,7 @@ Route::post('assign_bulk_group', [MidController::class, 'assign_bulk_group']);
 Route::post('change_column', [ColumnController::class, 'change_column']);
 Route::post('delete_prospects', [ProspectController::class, 'delete_prospects']);
 Route::get('pull_affiliates', [NetworkController::class, 'pull_affiliates']);
+Route::get('pull_affiliates_for_cron', [NetworkController::class, 'pull_affiliates_for_cron']);
 Route::get('pull_networks', [NetworkController::class, 'pull_networks']);
 Route::get('refresh_decline_percentage', [MidController::class, 'refresh_decline_percentage']);
 Route::get('get_mids_decline_data', [MidController::class, 'get_mids_decline_data']);

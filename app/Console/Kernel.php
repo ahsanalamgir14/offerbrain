@@ -2,12 +2,14 @@
 
 namespace App\Console;
 
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\DailyOrders;
 use App\Http\Controllers\OrdersController;
-use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\NetworkController;
+use Illuminate\Console\Scheduling\Schedule;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProspectController;
+use App\Http\Controllers\CampaignsController;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,9 +31,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         echo OrdersController::pull_cron_orders();
+        echo OrdersController::daily_order_history_cron();
+        echo NetworkController::pull_affiliates_for_cron();
+        echo CampaignsController::refresh_campaigns_for_cron();
         echo ProspectController::pull_prospects();
         echo CustomerController::refresh_customers();
-        echo OrdersController::daily_order_history_cron();
         // $schedule->command('inspire')->hourly();
         // $schedule->command('daily:orders')->cron('*/1 * * * *');
     }

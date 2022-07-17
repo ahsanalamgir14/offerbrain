@@ -45,6 +45,7 @@
     "ng-multiselect-dropdown": "^0.3.8",
     "ng2-charts": "~2.4.3",
     "ngx-mat-select-search": "^4.1.1",
+    "ngx-material-timepicker": "^5.5.3",
     "ngx-quill": "~16.0.1",
     "ngx-skeleton-loader": "^5.0.0",
     "ngx-ui-loader": "^13.0.0",

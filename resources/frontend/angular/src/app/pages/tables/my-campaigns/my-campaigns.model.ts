@@ -49,7 +49,8 @@ export class Campaign {
 
     constructor(campaign) {
         this.campaign_id = campaign.campaign_id;
-        this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
+        // this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
+        this.created_at = campaign.created_at;
         this.name = campaign.name;
         this.tracking_networks = JSON.parse(campaign.tracking_networks);
         this.net = campaign.revenue - campaign.refund - campaign.CB_currency;

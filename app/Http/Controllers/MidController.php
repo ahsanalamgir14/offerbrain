@@ -384,39 +384,39 @@ class MidController extends Controller
         return response()->json(['status' => true, 'data' => $data]);
     }
 
-    public function refresh_initials()
-    {
-        $last_reset = DB::table('settings')->where(['key' => 'order_limit_reset_date'])->pluck('value')->first();
-        if (Carbon::parse($last_reset)->isCurrentMonth()) {
-            $start_date = Carbon::parse($last_reset)->format('Y-m-d');
-            // dd($start_date);
-        } else {
-            $start_date = Carbon::now()->startOfMonth();
-        }
-        $end_date = Carbon::now()->endOfMonth();
-        $query = DB::table('mids')->where(['is_active' => 1])
-            ->join('orders', function ($join) use ($start_date, $end_date) {
-                $join->on('orders.gateway_id', '=', 'mids.gateway_id')
-                    ->where('orders.time_stamp', '>=', $start_date)
-                    ->where('orders.time_stamp', '<=', $end_date);
-            })
-            ->select(DB::raw('mids.*'))
-            ->join('order_products', function ($join) use ($start_date, $end_date) {
-                $join->on('orders.order_id', '=', 'order_products.order_id')
-                    ->where('orders.time_stamp', '>=', $start_date)
-                    ->where('orders.time_stamp', '<=', $end_date);
-            })
-            ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
-            ->selectRaw('count(case when orders.is_recurring = 1 then 0 end) as subscr')
-            ->groupBy('mids.id')->chunkById(200, function ($mids) {
-                foreach ($mids as $mid) {
-                    DB::table('mids')
-                        ->where('mids.id', $mid->id)
-                        ->update(['initials' => $mid->initials, 'subscr' => $mid->subscr]);
-                }
-            });
-        return response()->json(['status' => 'true', 'message' => 'Order Limits Refreshed']);
-    }
+    // public function refresh_initials()
+    // {
+    //     $last_reset = DB::table('settings')->where(['key' => 'order_limit_reset_date'])->pluck('value')->first();
+    //     if (Carbon::parse($last_reset)->isCurrentMonth()) {
+    //         $start_date = Carbon::parse($last_reset)->format('Y-m-d');
+    //         // dd($start_date);
+    //     } else {
+    //         $start_date = Carbon::now()->startOfMonth();
+    //     }
+    //     $end_date = Carbon::now()->endOfMonth();
+    //     $query = DB::table('mids')->where(['is_active' => 1])
+    //         ->join('orders', function ($join) use ($start_date, $end_date) {
+    //             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
+    //                 ->where('orders.time_stamp', '>=', $start_date)
+    //                 ->where('orders.time_stamp', '<=', $end_date);
+    //         })
+    //         ->select(DB::raw('mids.*'))
+    //         ->join('order_products', function ($join) use ($start_date, $end_date) {
+    //             $join->on('orders.order_id', '=', 'order_products.order_id')
+    //                 ->where('orders.time_stamp', '>=', $start_date)
+    //                 ->where('orders.time_stamp', '<=', $end_date);
+    //         })
+    //         ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
+    //         ->selectRaw('count(case when orders.is_recurring = 1 then 0 end) as subscr')
+    //         ->groupBy('mids.id')->chunkById(200, function ($mids) {
+    //             foreach ($mids as $mid) {
+    //                 DB::table('mids')
+    //                     ->where('mids.id', $mid->id)
+    //                     ->update(['initials' => $mid->initials, 'subscr' => $mid->subscr]);
+    //             }
+    //         });
+    //     return response()->json(['status' => 'true', 'message' => 'Order Limits Refreshed']);
+    // }
 
     public function reset_initials()
     {

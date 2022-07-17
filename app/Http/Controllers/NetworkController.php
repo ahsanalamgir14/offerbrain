@@ -28,14 +28,17 @@ class NetworkController extends Controller
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 
+            // $query = DB::table('networks')->where(['networks.user_id' => 2])
             $query = DB::table('networks')->where(['networks.user_id' => Auth::id()])
                 ->select('networks.*')
                 ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affiliate', '=', 'networks.network_affiliate_id')
+                        // ->where('orders.user_id', '=', 2)
                         ->where('orders.user_id', '=', Auth::id())
                         ->where('orders.time_stamp', '>=', $start_date)
                         ->where('orders.time_stamp', '<=', $end_date)
                         ->where('orders.order_status', '=', 2)
+                        ->where('orders.is_test_cc', '=', 0)
                         ->select('orders.order_status', 'orders.order_total');
                 })
                 ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
@@ -60,6 +63,7 @@ class NetworkController extends Controller
             $data['affiliates'] = $query->get();
             // dd(DB::getQueryLog());
         } else {
+            // $data['affiliates'] = Network::where('user_id', 2)->get();
             $data['affiliates'] = Network::where('user_id', Auth::id())->get();
         }
         return response()->json(['status' => true, 'data' => $data]);
@@ -141,8 +145,8 @@ class NetworkController extends Controller
         // return Auth::id();
         $new_affiliates = 0;
         $updated_affiliates = 0;
-        // $db_network_affiliate_ids = Network::all()->pluck('network_affiliate_id')->toArray();
         $key = "X-Eflow-API-Key";
+        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         if ($user->everflow_api_key) {
@@ -158,10 +162,10 @@ class NetworkController extends Controller
 
         if ($affiliates) {
             foreach ($affiliates as $affiliate) {
+                // $affiliate->user_id = 2;
                 $affiliate->user_id = Auth::id();
+                // $network = Network::where(['user_id' => 2, 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
                 $network = Network::where(['user_id' => Auth::id(), 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
-                // return  $network ;
-                // if (in_array($affiliate->network_affiliate_id, $db_network_affiliate_ids)) {
                 if ($network) {
                     $network->update((array)$affiliate);
                     $updated_affiliates++;
@@ -170,13 +174,17 @@ class NetworkController extends Controller
                     $new_affiliates++;
                 }
             }
+            // $networks = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
+            $networks = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
+
             return response()->json(
                 [
                     'status' => true,
                     'data' => [
-                        'user_id:' => Auth::id(),
-                        'New Affiliates: ' => $new_affiliates,
-                        'Updates Affiliates: ' => $updated_affiliates
+                        'user_id' => Auth::id(),
+                        'new_affiliates' => $new_affiliates,
+                        'updated_affiliates' => $updated_affiliates,
+                        'networks' => $networks
                     ]
                 ]
             );

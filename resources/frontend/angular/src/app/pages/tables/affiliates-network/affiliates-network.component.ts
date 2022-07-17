@@ -36,6 +36,7 @@ export class AffiliatesNetworkComponent implements OnInit {
   AffOptionsSubscription: Subscription;
   getSubscription: Subscription;
   deleteSubscription: Subscription;
+  refreshSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
   pageSizeOptions: number[] = [5, 10, 25, 100];
@@ -83,6 +84,7 @@ export class AffiliatesNetworkComponent implements OnInit {
 
   ngOnInit(): void {
     this.AffOptionsSubscription = this.affiliatesService.affOptionsResponse$.subscribe(data => this.manageAffOptionsResponse(data))
+    this.refreshSubscription = this.affiliatesService.refreshResponse$.subscribe(data => this.manageRefreshResponse(data))
     this.affiliatesService.getAffiliateOptions();
     this.selectDate('thisMonth');
     this.getData();
@@ -144,6 +146,13 @@ export class AffiliatesNetworkComponent implements OnInit {
     }
   }
 
+  async manageRefreshResponse(data) {
+    if (data.status) {
+      await this.getData();
+      this.notyf.success(data.data.new_affiliates + ' New Affiliates Found and ' + data.data.updated_affiliates + ' Updated');
+    }
+  }
+
   onFilterChange(value) {
     if (!this.dataSource) {
       return;
@@ -185,10 +194,19 @@ export class AffiliatesNetworkComponent implements OnInit {
     });
   }
 
+  refresh() {
+    this.isLoading = true;
+    this.affiliatesService.refresh();
+  }
+
   ngOnDestroy(): void {
     if (this.deleteSubscription) {
       // this.affiliateservice.deleteResponse.next([]);
       // this.deleteSubscription.unsubscribe();
+    }
+    if (this.refreshSubscription) {
+      this.affiliatesService.refreshResponse.next({});
+      this.refreshSubscription.unsubscribe();
     }
   }
   selectDate(param) {

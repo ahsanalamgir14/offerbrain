@@ -26,6 +26,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   selector: 'fury-campaigns',
   templateUrl: './my-campaigns.component.html',
   styleUrls: ['./my-campaigns.component.scss'],
+  animations: [fadeInRightAnimation, fadeInUpAnimation],
   providers: [TooltipListPipe]
 })
 
@@ -97,7 +98,7 @@ export class MyCampaignsComponent implements OnInit {
     // { name: 'Processing', property: 'processing', visible: true, isModelProperty: true },
     // { name: 'CPA', property: 'cpa', visible: true, isModelProperty: true },
     // { name: 'CPA AVG', property: 'cpa_avg', visible: true, isModelProperty: true },
-    { name: 'Net', property: 'net', visible: true, isModelProperty: true },
+    // { name: 'Net', property: 'net', visible: true, isModelProperty: false },
     { name: 'CLV', property: 'clv', visible: true, isModelProperty: true },
     // { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: false, isModelProperty: false },
     // { name: 'Upsell Poducts', property: 'upsell_products', visible: false, isModelProperty: false },
@@ -108,15 +109,16 @@ export class MyCampaignsComponent implements OnInit {
     // { name: 'Third Party Track', property: 'third_party_track', visible: false, isModelProperty: true },
     { name: 'Created At', property: 'created_at', visible: true, isModelProperty: true },
     // { name: 'updated_at', property: 'updated_at', visible: true, isModelProperty: true },
+    { name: 'actions', property: 'actions', visible: true, isModelProperty: false },
   ] as ListColumn[];
-  
+
   dataSource: MatTableDataSource<Campaign> | null;
   selection = new SelectionModel<Campaign>(true, []);
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe, private router: Router, private route: ActivatedRoute,) { }
+  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe, private router: Router, private route: ActivatedRoute, ) { }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property); ''
@@ -274,6 +276,7 @@ export class MyCampaignsComponent implements OnInit {
   }
 
   handleDeleteAction(id) {
+  console.log('id :', id);
     const dialogData = new ConfirmationDialogModel('Confirm Delete', 'Are you sure you want to delete this campaign?');
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       maxWidth: '500px',
@@ -283,7 +286,13 @@ export class MyCampaignsComponent implements OnInit {
     })
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        // this.campaignsService.deleteData(id);
+        this.campaignsService.deleteData(id).then((data) => {
+          if (data.status) {
+            this.notyf.success(data.message);
+            this.getData();
+            this.isDeleting = false;
+          }
+        });
         this.isDeleting = true;
         // this.dataSource.data = [];
         this.idArray = [];

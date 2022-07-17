@@ -194,18 +194,26 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="net">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Net $
+          </th>
+          <td *matCellDef="let row" mat-cell>
+            ${{ row.net | number : '1.2-2' }}
+          </td>
+        </ng-container>
+
 
         <!-- Action Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
           <td mat-cell *matCellDef="let row">
-            <a class="view-link" (click)="openDialog(row.id)">View</a> |
-            <a class="delete-link" (click)="handleDeleteAction(row.id)">Delete</a>
+            <a class="view-link" (click)="viewCampaignDetails(row.name)">View</a> |
+            <a class="delete-link" (click)="handleDeleteAction(row.campaign_id)">Delete</a>
           </td>
         </ng-container>
 
         <tr *matHeaderRowDef="visibleColumns; sticky: true" mat-header-row></tr>
-        <tr (click)="viewCampaignDetails(row.name)" *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
+        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
           mat-row></tr>
       </table>
       <!-- </div> -->

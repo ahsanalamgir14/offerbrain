@@ -15,6 +15,7 @@ import { MidGroupsRoutingModule } from './pages/tables/mid-groups/mid-groups-rou
 import { MidDetailDialogComponent } from './pages/mid-detail-dialog/mid-detail-dialog.component';
 import { Spinner2Component } from './pages/spinner/spinner2/spinner2.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AutomationsComponent } from './pages/automations/automations.component';
 
 
 @NgModule({
@@ -29,7 +30,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     NgbModule,
     MatProgressSpinnerModule,
   ],
-  declarations: [AppComponent, MidDetailDialogComponent, Spinner2Component],
+  declarations: [AppComponent, MidDetailDialogComponent, Spinner2Component, AutomationsComponent],
   bootstrap: [AppComponent],
   providers: [
     {

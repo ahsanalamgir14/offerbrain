@@ -95,6 +95,14 @@ const routes: Routes = [
         path: 'campaign-view/:name',
         loadChildren: () => import('./pages/tables/my-campaigns/campaign-view/campaign-view.module').then(m => m.CampaignViewModule),
       },
+      {
+        path: 'automation-builder',
+        loadChildren: () => import('./pages/automation-builder/automation-builder.module').then(m => m.AutomationBuilderModule),
+      },
+      {
+        path: 'my-automations',
+        loadChildren: () => import('./pages/automations/automations.module').then(m => m.Automations),
+      },
     ]
   },
   { path: 'not-found', component: NotFoundComponent }

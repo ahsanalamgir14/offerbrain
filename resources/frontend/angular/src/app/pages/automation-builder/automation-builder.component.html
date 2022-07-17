@@ -1,0 +1,198 @@
+<fury-page>
+  <fury-title class="title">
+    <mat-icon>device_hub</mat-icon>
+    <span>AUTOMATION BUILDER</span>
+  </fury-title>
+
+  <div fxLayout="column" fxLayoutAlign="start center">
+
+    <div class="card">
+      <mat-horizontal-stepper #stepper="matHorizontalStepper" [linear]="true">
+        <mat-step [stepControl]="automationFormGroup">
+          <form [formGroup]="automationFormGroup" #postForm="ngForm">
+            <ng-template matStepLabel>Automation</ng-template>
+
+            <div class="heading">Automation</div>
+            <div class="subheading">Create New Automation.</div>
+
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="25">
+                  <mat-label>Automation Name</mat-label>
+                  <input formControlName="name" matInput>
+                </mat-form-field>
+              </div>
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="25">
+                  <mat-label>Select Automation Type</mat-label>
+                  <mat-select formControlName="automation_type">
+                    <mat-option *ngFor="let type of automation_type" [value]="type">{{ type }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="25">
+                  <mat-label>Select Throttle Resource</mat-label>
+                  <mat-select formControlName="automation_resource">
+                    <mat-option *ngFor="let resource of automation_resource" [value]="resource">{{ resource }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <p class="red-text">Make sure your throttle is configured and is set to double the normal rate.</p>
+
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="13">
+                  <mat-label>Select Networks</mat-label>
+                  <mat-select formControlName="networks" multiple>
+                    <ngx-mat-select-search [formControl]="networkSearchCtrl" placeholderLabel="Search..."
+                      noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
+                      <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">#{{ option.id }} - {{
+                        option.name }}
+                      </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="12">
+                  <mat-label>Affiliate</mat-label>
+                  <input formControlName="affiliate" matInput>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="13">
+                  <mat-label>CPA $</mat-label>
+                  <input formControlName="cpa" matInput>
+                </mat-form-field>
+                <mat-form-field fxFlex="12">
+                  <mat-label>Daily Cap</mat-label>
+                  <input formControlName="cap" matInput>
+                </mat-form-field>
+              </div>
+            </div>
+            <p class="red-text">CPA must be the same for selected Affiliate Network and Affiliates to work properly.</p>
+
+            <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+              <button (click)="stepper.reset()" [disabled]="automationFormGroup.pristine" color="primary" mat-button type="button">RESET
+              </button>
+              <button [disabled]="automationFormGroup.invalid" color="primary" mat-raised-button matStepperNext>NEXT
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="triggerFormGroup">
+          <form [formGroup]="triggerFormGroup">
+            <ng-template matStepLabel>Trigger</ng-template>
+
+            <div class="heading">Trigger</div>
+            <div class="subheading">Create The Rule Set</div>
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="15">
+                  <mat-label>Select Trigger</mat-label>
+                  <mat-select formControlName="trigger">
+                    <mat-option *ngFor="let trigger of triggers" [value]="trigger">{{ trigger }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="7">
+                  <mat-label>Select Operator</mat-label>
+                  <mat-select formControlName="operator">
+                    <mat-option *ngFor="let operate of operator" [value]="operate">{{ operate }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="6">
+                  <input placeholder="$3.50" disabled matInput>
+                </mat-form-field>
+              </div>
+
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field fxFlex="25">
+                  <mat-label>Select Lookback</mat-label>
+                  <mat-select formControlName="lookback">
+                    <mat-option *ngFor="let lookback of lookbacks" [value]="lookback">{{ lookback }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                <button color="primary" type="button" disabled>Add/Or</button>  
+              </div>
+            </div>
+
+            <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+              <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
+              <button [disabled]="triggerFormGroup.invalid" color="primary" mat-raised-button (click)="checkDropdownValue(true)">NEXT
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="ActionFormGroup">
+          <form [formGroup]="ActionFormGroup">
+            <ng-template matStepLabel>Action</ng-template>
+
+            <div class="heading">Action</div>
+            <div class="subheading">Trigger the Action Response to reach target</div>
+            <div class="content" fxLayout="column" fxLayoutGap="8px">
+                <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                  <mat-form-field fxFlex="25">
+                    <mat-label>Select Action</mat-label>
+                    <mat-select formControlName="throttle_action">
+                      <mat-option *ngFor="let action of throttle_action" [value]="action">{{ action }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                    <mat-checkbox formControlName="prefire_target" class="reach-target">PREFIRE to reach target</mat-checkbox>
+                
+                  <mat-form-field fxFlex="15">
+                    <mat-label>Select Prefire Resource</mat-label>
+                    <mat-select formControlName="prefire_resource">
+                      <mat-option *ngFor="let resource of prefire_resource" [value]="resource">{{ resource }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                
+                <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                  <mat-form-field fxFlex="25">
+                    <mat-label>Select Timeframe</mat-label>
+                    <mat-select formControlName="timeframe">
+                      <mat-option *ngFor="let timeframe of timeframe" [value]="timeframe">{{ timeframe }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                  <mat-slide-toggle formControlName="is_per_day">24 Hours a day</mat-slide-toggle>
+                </div>
+                <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
+                  <mat-form-field fxFlex="12">
+                    <mat-label>From</mat-label>
+                    <input placeholder="Default time 11:11 pm" aria-label="default time" formControlName="time_from" matInput [ngxTimepicker]="defaultTime" readonly>
+                  </mat-form-field>
+                  <ngx-material-timepicker #defaultTime [defaultTime]="'11:11 pm'"></ngx-material-timepicker>
+                  <p class="top-fifteen">
+                    TO
+                  </p>
+                  <mat-form-field fxFlex="12">
+                    <mat-label>To</mat-label>
+                    <input placeholder="Default time 11:11 pm" aria-label="default time" formControlName="time_to" matInput [ngxTimepicker]="defaultTimeTo" readonly>
+                  </mat-form-field>
+                  <ngx-material-timepicker #defaultTimeTo [defaultTime]="'11:11 pm'"></ngx-material-timepicker>
+                </div>
+            </div>
+
+            <div class="actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+              <button color="primary" mat-button matStepperPrevious type="button">PREVIOUS</button>
+              <button [disabled]="triggerFormGroup.invalid" color="primary" mat-raised-button
+              (click)="submit()" (click)="clear(postForm)">SAVE</button>
+              <button [disabled]="triggerFormGroup.invalid" color="success" mat-raised-button
+              (click)="submit()" (click)="clear(postForm)">SAVE & ACTIVATE</button>
+            </div>
+          </form>
+
+        </mat-step>
+      </mat-horizontal-stepper> 
+    </div>
+
+  </div>
+
+</fury-page>

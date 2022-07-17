@@ -190,4 +190,48 @@ class NetworkController extends Controller
             );
         }
     }
+    public static function pull_affiliates_for_cron()
+    {
+        $users = User::orderBy('id', 'asc')->get();
+        foreach ($users as $user) {
+            $new_affiliates = 0;
+            $updated_affiliates = 0;
+            $key = "X-Eflow-API-Key";
+            if ($user->everflow_api_key) {
+                $value = Crypt::decrypt($user->everflow_api_key);
+                
+                $url = 'https://api.eflow.team/v1/networks/affiliates';
+                $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
+                if(isset($api_data->affiliates)){
+                    $affiliates = $api_data->affiliates;
+                }
+
+                if (isset($affiliates) && $affiliates != '') {
+                    foreach ($affiliates as $affiliate) {
+                        $affiliate->user_id = $user->id;
+                        $network = Network::where(['user_id' => $user->id, 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
+                        if ($network) {
+                            $network->update((array)$affiliate);
+                            $updated_affiliates++;
+                        } else {
+                            Network::create((array)$affiliate);
+                            $new_affiliates++;
+                        }
+                    }
+                } else {
+                    $new_affiliates = 0;
+                    $updated_affiliates = 0;
+                }
+            }
+        }
+        return response()->json(
+            [
+                'status' => true,
+                'data' => [
+                    'New Affiliates: ' => $new_affiliates,
+                    'Updates Affiliates: ' => $updated_affiliates
+                ]
+            ]
+        );
+    }
 }

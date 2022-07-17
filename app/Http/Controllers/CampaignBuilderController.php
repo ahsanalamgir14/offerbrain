@@ -28,8 +28,7 @@ class CampaignBuilderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         // dd($request->all());
         // $data = Campaign::find(250);
         // return response()->json(['status' => true, 'data' => $data]);
@@ -75,6 +74,7 @@ class CampaignBuilderController extends Controller
             ->addSelect(DB::raw('SUM(case when orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
             ->groupBy('campaigns.campaign_id')
             ->get();
+
         // dd(DB::getQueryLog());
         return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
     }
@@ -97,7 +97,6 @@ class CampaignBuilderController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $data = $request->all();
         $data['campaign_id'] = rand(100000, 999999);
         $data['tracking_campaign_ids'] = [];
@@ -195,6 +194,7 @@ class CampaignBuilderController extends Controller
     {
         DB::enableQueryLog();
         // $campaign = Campaign::where(['name' => $request->name, 'user_id' => 2])->first();
+        // return $campaign;
         $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
         $tracking_campaign_ids = array_column($campaign->tracking_campaigns, 'campaign_id');
         $tracking_network_ids = array_column($campaign->tracking_networks, 'network_affiliate_id');

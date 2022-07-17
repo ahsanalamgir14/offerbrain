@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Decline;
 use App\Models\Profile;
+use App\Models\Campaign;
 use App\Models\MidCount;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -20,7 +21,6 @@ class MidController extends Controller
 {
     public function index(Request $request)
     {
-        // return Auth::id();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -32,9 +32,9 @@ class MidController extends Controller
         }
         if ($request->selected_mids) {
             $selected_mids = explode(",", $request->selected_mids);
-            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1])->whereIn('mids.gateway_id', $selected_mids);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0])->whereIn('mids.gateway_id', $selected_mids);
         } else {
-            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1]);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0]);
         }
         $query = $query->join('orders', function ($join) use ($start_date, $end_date) {
             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
@@ -126,7 +126,11 @@ class MidController extends Controller
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
             $data['total_count'] = $detail->total_count;
-            $data['percentage'] = round(($detail->total_count / $request->total_count) * 100, 2);
+            if($request->total_count){
+                $data['percentage'] = round(($detail->total_count / $request->total_count) * 100, 2);
+            } else {
+                $data['percentage'] = 0;
+            }
             array_push($array, $data);
         }
         return response()->json(['status' => true, 'data' => $array]);
@@ -214,13 +218,14 @@ class MidController extends Controller
         $updated_gateways = 0;
         // $affected = DB::table('mids')->update(['is_active' => 0]);
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
+        Mid::where('user_id',Auth::id())->update(['is_active' => 0]);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
         $url = $user->sticky_url . '/api/v1/payment_router_view';
-
         $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post($url, ['payment_router_id' => 1, 'gateway_status' => 1])->getBody()->getContents());
         $router = $api_data;
+       $gatewayArr = [];
         if ($router) {
             // foreach ($routers as $router) {
                 $gateways = $router->gateways;
@@ -231,6 +236,7 @@ class MidController extends Controller
                     } else {
                         $is_active = 0;
                     }
+                    array_push($gatewayArr, $gateway->gateway_id);
                     if (in_array($gateway->gateway_id, $db_gateway_ids)) {
                         $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
                         $update->router_id = $router->id;
@@ -268,6 +274,7 @@ class MidController extends Controller
                     }
                 }
             // }
+            Mid::whereNotIn('gateway_id', $gatewayArr)->where('user_id', Auth::id())->update(['is_deleted' => 1]);
         }
         // app(\App\Http\Controllers\ProfileController::class)->update_profiles();
         return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'user_id' => Auth::id(), 'updated_mids' => $updated_gateways]]);
@@ -380,43 +387,9 @@ class MidController extends Controller
 
     public function get_active_mids()
     {
-        $data = Mid::where(['is_active' => 1])->get();
+        $data = Mid::where(['is_deleted' => 0])->where('user_id',Auth::id())->get();
         return response()->json(['status' => true, 'data' => $data]);
     }
-
-    // public function refresh_initials()
-    // {
-    //     $last_reset = DB::table('settings')->where(['key' => 'order_limit_reset_date'])->pluck('value')->first();
-    //     if (Carbon::parse($last_reset)->isCurrentMonth()) {
-    //         $start_date = Carbon::parse($last_reset)->format('Y-m-d');
-    //         // dd($start_date);
-    //     } else {
-    //         $start_date = Carbon::now()->startOfMonth();
-    //     }
-    //     $end_date = Carbon::now()->endOfMonth();
-    //     $query = DB::table('mids')->where(['is_active' => 1])
-    //         ->join('orders', function ($join) use ($start_date, $end_date) {
-    //             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
-    //                 ->where('orders.time_stamp', '>=', $start_date)
-    //                 ->where('orders.time_stamp', '<=', $end_date);
-    //         })
-    //         ->select(DB::raw('mids.*'))
-    //         ->join('order_products', function ($join) use ($start_date, $end_date) {
-    //             $join->on('orders.order_id', '=', 'order_products.order_id')
-    //                 ->where('orders.time_stamp', '>=', $start_date)
-    //                 ->where('orders.time_stamp', '<=', $end_date);
-    //         })
-    //         ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
-    //         ->selectRaw('count(case when orders.is_recurring = 1 then 0 end) as subscr')
-    //         ->groupBy('mids.id')->chunkById(200, function ($mids) {
-    //             foreach ($mids as $mid) {
-    //                 DB::table('mids')
-    //                     ->where('mids.id', $mid->id)
-    //                     ->update(['initials' => $mid->initials, 'subscr' => $mid->subscr]);
-    //             }
-    //         });
-    //     return response()->json(['status' => 'true', 'message' => 'Order Limits Refreshed']);
-    // }
 
     public function reset_initials()
     {

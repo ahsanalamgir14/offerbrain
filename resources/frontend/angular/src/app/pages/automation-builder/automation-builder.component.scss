@@ -1,0 +1,149 @@
+@use 'sass:math';
+@use '@angular/material' as mat;
+@import "var";
+
+:host {
+  background: url("/assets/img/backgrounds/2.jpg");
+  background-size: cover;
+  display: block;
+  height: 100%;
+}
+
+.title {
+  color: white;
+}
+
+.card {
+  margin: $spacing;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  border-radius: $border-radius;
+  overflow: hidden;
+
+  @include mat.elevation(10);
+
+  .heading {
+    font: var(--font-title);
+  }
+
+  .subheading {
+    font: var(--font-subheading-1);
+  }
+
+  .content {
+    margin: math.div($spacing, 2) 0;
+
+    .checkbox {
+      margin-top: math.div($spacing, 2);
+    }
+  }
+
+  .actions {
+    margin-top: $spacing;
+    padding: $spacing math.div($spacing, 3) 0;
+  }
+}
+
+.copyright {
+  position: absolute;
+  bottom: $spacing;
+  right: $spacing;
+  color: white;
+}
+
+// .multiselect-dropdown .dropdown-multiselect__caret{
+//   background-color: blue !important;
+// }
+::ng-deep span.dropdown-multiselect__caret {
+  size: 3px;
+  width: 1px !important;
+  height: 5px !important;
+  margin-top: 20px !important;
+  padding-left: 50px !important;
+  right: -15px !important;
+  line-height: 30px !important;
+  border-color: rgba(0, 0, 0, 0.54) transparent !important;
+}
+
+// .row-upcells {
+//   background-color: rgba(0, 0, 0, 0.04);
+//   border-radius: 5px;
+//   font-size: 12px;
+//   width: 98% !important;
+//   color: #999;
+// }
+
+// .fx-flexs {
+//   max-width: 87% !important;
+// }
+
+::ng-deep .multiselect-dropdown .dropdown-btn {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid #adadad !important;
+  padding: 12px 12px !important;
+  border-radius: 4px 4px 0 0 !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  width: 103% !important;
+  font-size: 14px !important;
+  font-weight: 100 !important;
+  margin-bottom: 20px !important;
+}
+
+::ng-deep .dropdown-list {
+  width: 117% !important;
+  margin-top: 5px !important;
+}
+
+::ng-deep .multiselect-dropdown .dropdown-btn:hover {
+  border-bottom: 2px solid black !important;
+}
+
+::ng-deep
+  .multiselect-dropdown
+  .dropdown-btn
+  .dropdown-multiselect__caret:before {
+  border-width: 5px 5px 0 !important;
+}
+
+::ng-deep
+  .multiselect-dropdown
+  .dropdown-btn
+  .dropdown-multiselect--active
+  .dropdown-multiselect__caret {
+  transform: rotateZ(0deg) !important;
+}
+
+::ng-deep .dropdown-list {
+  top: -230% !important;
+}
+
+::ng-deep .dropdown-list ul {
+  overflow-x: hidden !important;
+}
+
+::ng-deep .selected-item-container > .selected-item {
+  max-width: 100% !important;
+  border: none !important;
+  background: none !important;
+  color: black !important;
+}
+
+::ng-deep .selected-item-container > .selected-item:hover {
+  box-shadow: none !important;
+}
+::ng-deep .selected-item-container > .selected-item > a {
+  padding-left: 2px !important;
+  color: black !important;
+}
+.red-text{
+    color: red;
+}
+::ng-deep .mat-checkbox-layout{
+  margin-top: 15px !important;
+}
+.top-fifteen{
+  margin-top: 15px;
+}

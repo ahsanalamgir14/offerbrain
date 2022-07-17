@@ -26,3 +26,6 @@
   height: 120px;
   width: 100%;
 }
+::ng-deep .fury-page-layout-content{
+  display: block !important;
+}

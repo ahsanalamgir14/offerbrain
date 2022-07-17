@@ -83,7 +83,7 @@ class OrdersController extends Controller
             'orders.recurring_date',
             'orders.response_code',
             'orders.return_reason',
-            'orders.time_stamp'
+            'orders.time_stamp',
         )
             // ->where(['orders.user_id' => 2]); //dev mode
             ->where(['orders.user_id' => $request->user()->id]);
@@ -133,6 +133,7 @@ class OrdersController extends Controller
         if ($request->filteredProduct != '') {
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->where('order_products.name', $request->filteredProduct);
         }
+       
         $total_rows = $query->count('orders.id');
 
         $rows = $query->where('orders.order_status', '!=', 11)
@@ -290,6 +291,7 @@ class OrdersController extends Controller
         // dd($user->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
+
         $start_date = '07/17/2022';
         $end_date = '07/17/2022';
 
@@ -448,8 +450,10 @@ class OrdersController extends Controller
             $updated_orders = 0;
             $username = $user->sticky_api_username;
             $start = Carbon::today();
-            $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
-            $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
+            $start_date = '01/01/2022';
+            $end_date = '01/31/2022';
+            // $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
+            // $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
 
             $db_order_ids = Order::where(['user_id' => $user->id])->pluck('order_id')->toArray();
             $url = $user->sticky_url . '/api/v1/order_find';
@@ -458,7 +462,6 @@ class OrdersController extends Controller
                 $url,
                 ['start_date' => $start_date, 'end_date' => $end_date, 'campaign_id' => 'all', 'criteria' => 'all']
             )->getBody()->getContents());
-
             $total_orders = $api_data->total_orders;
             if ($total_orders != 0) {
                 $order_ids = $api_data->order_id;
@@ -495,11 +498,14 @@ class OrdersController extends Controller
                             $order->totals_breakdown = serialize($order->totals_breakdown);
                             if (in_array($order->order_id, $db_order_ids)) {
                                 $updated_orders++;
-                                $db_order = Order::where(['order_id' => $order->order_id, 'user_id' => Auth::id()])->first();
+
+                                $db_order = Order::where(['order_id' => $order->order_id])->where('user_id',$user->id)->first();
+
                                 $db_order->update((array)$order);
 
                                 $order->products = unserialize($order->products);
                                 $mass_assignment['order_id'] = $order->order_id;
+                                $mass_assignment['user_id'] = $user->id;
                                 $mass_assignment['product_id'] = $order->products[0]->product_id;
                                 $mass_assignment['sku'] = $order->products[0]->sku;
                                 $mass_assignment['price'] = $order->products[0]->price;
@@ -532,13 +538,14 @@ class OrdersController extends Controller
                                     $mass_assignment['offer_name'] = $order->products[0]->offer->name;
                                 }
 
-                                $order_product = OrderProduct::where(['order_id' => $db_order->order_id, 'user_id' => Auth::id()])->update($mass_assignment);
+                                $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->where('user_id',$user->id)->update($mass_assignment);
                             } else {
                                 $new_orders++;
                                 Order::create((array)$order);
 
                                 $order->products = unserialize($order->products);
                                 $mass_assignment['order_id'] = $order->order_id;
+                                $mass_assignment['user_id'] = $user->id;
                                 $mass_assignment['product_id'] = $order->products[0]->product_id;
                                 $mass_assignment['sku'] = $order->products[0]->sku;
                                 $mass_assignment['price'] = $order->products[0]->price;
@@ -1583,8 +1590,9 @@ class OrdersController extends Controller
                                 $mass_assignment['offer_id'] = $order->products[0]->offer->id;
                                 $mass_assignment['offer_name'] = $order->products[0]->offer->name;
                             }
-                            if ($db_order) {
-                                OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+
+                            if($db_order){
+                                OrderProduct::where(['order_id' => $db_order->order_id])->where('user_id',$user->id)->update($mass_assignment);
                             }
                         }
                         $data = null;

@@ -53,7 +53,7 @@ export class Campaign {
         this.created_at = campaign.created_at;
         this.name = campaign.name;
         this.tracking_networks = JSON.parse(campaign.tracking_networks);
-        this.net = campaign.revenue - campaign.refund - campaign.CB_currency;
+        this.net = (campaign.revenue - campaign.refund - campaign.CB_currency).toFixed(2);
         this.initials = campaign.initials;
         this.rebills = campaign.rebills;
         if (campaign.initials && campaign.initials != 0) {
@@ -66,11 +66,12 @@ export class Campaign {
         }
         this.c1 = campaign.c1;
         if (campaign.c1 && campaign.c1 != 0) {
-            this.c1_decline_per = (campaign.c1_declines / campaign.c1) * 100;
+            this.c1_decline_per = ((campaign.c1 / campaign.c1_declines) * 100).toFixed(2);
+            console.log('this.c1_decline_per :', this.c1_decline_per);
         }
         this.c2 = campaign.c2;
         if (campaign.c2 && campaign.c2 != 0) {
-            this.c2_decline_per = (campaign.c2_declines / campaign.c2) * 100;
+            this.c2_decline_per = ((campaign.c2 / campaign.c2_declines) * 100).toFixed(2);
         }
         // if (campaign.rebills && campaign.rebills != 0) {
         //     this.cycle_2_per = (campaign.c2 / campaign.rebills * 100).toFixed(2);
@@ -79,18 +80,22 @@ export class Campaign {
         //     this.cycle_3_per = (campaign.c3 / campaign.c2 * 100).toFixed(2);
         // }
         this.c3 = campaign.c3;
-        if (campaign.c1_declines && campaign.c1_declines != 0) {
-            this.c3_decline_per = campaign.c3_declines;
+        if (campaign.c3 && campaign.c3 != 0) {
+            this.c3_decline_per = ((campaign.c3 / campaign.c3_declines) * 100).toFixed(2);
         }
+        // if (campaign.c1_declines && campaign.c1_declines != 0) {
+        //     this.c3_decline_per = campaign.c3_declines;
+        // }
         this.revenue = '$' + campaign.revenue;
         if (campaign.revenue && campaign.revenue != 0) {
             this.refund_rate = ((campaign.refund / campaign.revenue) * 100).toFixed(2) + '%';
-            this.CB_per = campaign.CBs / campaign.revenue;
+            this.CB_per = ((campaign.CBs / campaign.initials) * 100).toFixed(1) + '%';
+            // this.CB_per = ((campaign.CBs / campaign.revenue) * 100 ).toFixed(2);
             // this.processing = -0.2 * campaign.revenue;
         }
         this.refund = '$' + campaign.refund;
         this.CBs = campaign.CBs;
-        this.CB_currency = campaign.CB_currency;
+        this.CB_currency = '$' + (campaign.CB_currency).toFixed(2);
         this.cpa = campaign.cpa;
         this.cpa_avg = campaign.cpa_avg;
     }

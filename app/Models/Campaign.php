@@ -126,6 +126,7 @@ class Campaign extends Model
         $tracking_campaigns = json_decode($this->attributes['tracking_campaigns']);
         if (is_array($tracking_campaigns)) {
             $tracking_campaign_ids = array_column($tracking_campaigns, 'campaign_id');
+            $tracking_campaign_ids = array_map('trim', $tracking_campaign_ids);
             $tracking_campaign_ids = implode(',', $tracking_campaign_ids);
             return $this->attributes['tracking_campaign_ids'] = $tracking_campaign_ids;
         }
@@ -136,7 +137,7 @@ class Campaign extends Model
         $tracking_networks = json_decode($this->attributes['tracking_networks']);
         if (is_array($tracking_networks)) {
             $tracking_network_ids = array_column($tracking_networks, 'network_affiliate_id');
-            $integer_tracking_network_ids = array_map('intval', $tracking_network_ids);
+            $integer_tracking_network_ids = array_map('trim', $tracking_network_ids);
             $integer_tracking_network_ids = implode(',', $integer_tracking_network_ids);
             return $this->attributes['tracking_network_ids'] = $integer_tracking_network_ids;
         }

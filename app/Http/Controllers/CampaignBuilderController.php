@@ -36,42 +36,49 @@ class CampaignBuilderController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
-        $start_date = Carbon::parse($start_date)->startOfDay()->format('Y-m-d');
-        $end_date = Carbon::parse($end_date)->endOfDay()->format('Y-m-d');
+            $start_date = Carbon::parse($start_date)->startOfDay();
+            $end_date = Carbon::parse($end_date)->endOfDay();
+            // var_dump($start_date);
+            // var_dump($end_date);
+            // return $start_date; 
+            // $start_date = '2022-05-31 00:00:00';
+            // $end_date = '2022-05-31 23:59:59';
         }
+        // return $end_date;
+
+        // return Auth::id();
+
         DB::enableQueryLog();
-        
-        $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
-        // $data = DB::table('campaigns')->where(['campaigns.user_id' => Auth::id()])->whereNull('campaigns.is_active')
-        ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
-        $join->on('orders.user_id', 'campaigns.user_id')
-            ->whereRaw('FIND_IN_SET(orders.campaign_id, campaigns.tracking_campaign_ids) != 0')
-            ->whereRaw('FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0')
-            // ->whereIn('orders.affid', [10,3])
+        // $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
+        $data = DB::table('campaigns')->where(['campaigns.user_id' => Auth::id()])->whereNull('campaigns.is_active')
+            ->leftJoin('orders', 'orders.user_id', 'campaigns.user_id')
             ->where('orders.time_stamp', '>=', $start_date)
             ->where('orders.time_stamp', '<=', $end_date)
             ->where('orders.is_test_cc', 0)
-            ->where('orders.user_id', Auth::id());
-        })
-        ->select('orders.user_id', 'orders.main_product_id', 'campaigns.user_id', 'campaigns.campaign_id', 'campaigns.name', 'campaigns.tracking_networks', 'campaigns.tracking_campaigns', 'campaigns.cycle_product_ids', 'campaigns.created_at')
-        ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 OR orders.order_status = 8 then orders.order_total else 0 end), 2) as revenue'))
-        ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 6 then orders.order_total else 0 end), 2) as refund'))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[0]'))) and orders.order_status = 2 then 1 end) as initials"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id in (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]', '$[2]', '$[3]'))) then 1 end) as rebills"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) then 1 end) as c1"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) then 1 end) as c2"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) then 1 end) as c3"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 7 then 1 end) as c1_declines"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) and orders.order_status = 7 then 1 end) as c2_declines"))
-        ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) and orders.order_status = 7 then 1 end) as c3_declines"))
-        ->addSelect(DB::raw('count(case when orders.is_chargeback = 1 then 0 end) as CBs'))
-        ->addSelect(DB::raw('SUM(case when orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
-        ->groupBy('campaigns.name')
-        ->get();
+            ->whereRaw('FIND_IN_SET(orders.campaign_id, campaigns.tracking_campaign_ids) != 0')
+            ->whereRaw('FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0')
+            // ->whereIn('orders.affid', [10,3])
+            ->select('orders.user_id', 'orders.main_product_id', 'campaigns.user_id', 'campaigns.id', 'campaigns.campaign_id', 'campaigns.name', 'campaigns.tracking_networks', 'campaigns.tracking_campaigns', 'campaigns.cycle_product_ids', 'campaigns.created_at')
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as revenue'))
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 6 then orders.order_total else 0 end) + sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as refund'))
+            // ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[0]'))) and orders.order_status = 2 then 1 end) as initials"))
+            ->addSelect(DB::raw("count(case when orders.order_status = 2 then 1 end) as initials"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id in (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]', '$[2]', '$[3]'))) then 1 end) as rebills"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 2 then 1 end) as c1"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) and orders.order_status = 2 then 1 end) as c2"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) and orders.order_status = 2 then 1 end) as c3"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 7 then 1 end) as c1_declines"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) and orders.order_status = 7 then 1 end) as c2_declines"))
+            ->addSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) and orders.order_status = 7 then 1 end) as c3_declines"))
+            ->addSelect(DB::raw('count(case when orders.is_chargeback = 1 then 0 end) as CBs'))
+            ->addSelect(DB::raw('SUM(case when orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
+            ->groupBy('campaigns.campaign_id')
+            ->get();
+
         // dd(DB::getQueryLog());
         return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
     }
-
+    
     /**
      * Show the form for creating a new resource.
      *
@@ -149,9 +156,22 @@ class CampaignBuilderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        return $request->id;
+        $id = $request->id;
+        // $total_records = count($ids);
+        DB::table('campaigns')->where('campaign_id', $id)->delete();
+        return response()->json(['status' => true, 'message' => '<b>1</b> Customer Deleted Successfully']);
+    }
+
+    public function delete_campaign(Request $request)
+    {
+        // return $request->id;
+        $id = $request->id;
+        // $total_records = count($ids);
+        DB::table('campaigns')->where('campaign_id', $id)->delete();
+        return response()->json(['status' => true, 'message' => '<b>1</b> Campaign Deleted Successfully']);
     }
 
     public function campaign_builder_options()

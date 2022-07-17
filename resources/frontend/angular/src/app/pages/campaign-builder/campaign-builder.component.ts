@@ -47,6 +47,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   getProductsSubscription: Subscription;
   getOptionsSubscription: Subscription;
   saveSubscription: Subscription;
+  refreshCampaignsSubscription: Subscription;
+  refreshNetworksSubscription: Subscription;
+
 
   /** snake case due to back-end variables */
   no_of_upsells: number = 1;
@@ -70,7 +73,7 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   trackingNetworkOptions = [];
   noOfUpsellsOptions = ['0', '1', '2', '3', '4', '5'];
   noOfDownsellsOptions = ['0', '1', '2', '3', '4', '5'];
-  noOfCyclesOptions = ['0','1', '2', '3'];
+  noOfCyclesOptions = ['0', '1', '2', '3'];
   productOptions = [];
   notyf = new Notyf({ types: [{ type: 'info', background: '#6495ED', icon: '<i class="fa-solid fa-clock"></i>' }] });
   @ViewChild('stepper', { read: MatStepper }) stepper: MatStepper;
@@ -88,6 +91,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getOptionsSubscription = this.campaignBuilderService.getOptionsResponse$.subscribe(data => this.manageOptionsResponse(data))
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
+    this.refreshCampaignsSubscription = this.campaignBuilderService.refreshCampaignsResponse$.subscribe(data => this.manageRefreshCampaignsResponse(data))
+    this.refreshNetworksSubscription = this.campaignBuilderService.refreshNetworksResponse$.subscribe(data => this.manageRefreshNetworksResponse(data))
+
 
     this.campaignFormGroup = this.fb.group({
       name: [null, Validators.required],
@@ -189,6 +195,14 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
+  manageRefreshCampaignsResponse(data) {
+
+  }
+
+  manageRefreshNetworksResponse(data) {
+
+  }
+
   counter(N: number) {
     return Array.from({ length: N }, (v, i) => i);
   }
@@ -197,17 +211,17 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     return Array.from({ length: N }, (v, i) => i);
   }
   clearSelection(param) {
-    if(param == 'upsells'){
+    if (param == 'upsells') {
       this.arr_upsell = this.arr_upsell.slice(0, this.no_of_upsells);
     }
-    if(param == 'downsells'){
+    if (param == 'downsells') {
       this.arr_downsell = this.arr_downsell.slice(0, this.no_of_downsells);
-    } 
-    if(param == 'cycles'){
+    }
+    if (param == 'cycles') {
       let cyclelength = this.no_of_cycles;
       cyclelength = ++cyclelength;
       this.arr_cycleProducts = this.arr_cycleProducts.slice(0, cyclelength);
-    }   
+    }
     // this.noOfUpsells = null;
     // this.upsell_products.setValue('');
   }
@@ -378,15 +392,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     // });
   }
 
-  ngOnDestroy() {
-    // this._onDestroy.next();
-    // this._onDestroy.complete();
-    if (this.saveSubscription) {
-      this.saveSubscription.unsubscribe();
-      this.campaignBuilderService.saveResponse.next([]);
-    }
-  }
-
   protected filterCampaignOptions() {
     if (!this.trackingCampaignOptions) {
       return;
@@ -436,4 +441,41 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
     );
   }
+
+  async refreshCampaigns() {
+    await this.campaignBuilderService.refreshCampaignsOptions().then((data) => {
+      if (data.status) {
+        this.trackingCampaignOptions = data.data.campaigns;
+        this.filteredCampaigns.next(this.trackingCampaignOptions.slice());
+        this.notyf.success('Campaign Options refreshed successfully')
+      }
+    });
+  }
+  async refreshNetworks() {
+    await this.campaignBuilderService.refreshNetworksOptions().then((data) => {
+      if (data.status) {
+        this.trackingNetworkOptions = data.data.networks;
+        this.filteredNetworks.next(this.trackingNetworkOptions.slice());
+        this.notyf.success('Network Options refreshed successfully')
+      }
+    });
+  }
+  
+  ngOnDestroy() {
+    // this._onDestroy.next();
+    // this._onDestroy.complete();
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe();
+      this.campaignBuilderService.saveResponse.next([]);
+    }
+    if (this.refreshCampaignsSubscription) {
+      this.refreshCampaignsSubscription.unsubscribe();
+      this.campaignBuilderService.refreshCampaignsResponse.next({});
+    }
+    if (this.refreshNetworksSubscription) {
+      this.refreshNetworksSubscription.unsubscribe();
+      this.campaignBuilderService.refreshNetworksResponse.next({});
+    }
+  }
+
 }

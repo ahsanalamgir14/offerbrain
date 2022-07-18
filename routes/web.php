@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\Quickbook;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,13 @@ use App\Http\Controllers\OrdersController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/quickbook',[Quickbook::class, 'index']);
+Route::get('/callback.php',[Quickbook::class, 'processCode']);
+Route::get('/apiCall',[Quickbook::class, 'apicall']);
+Route::POST('/refreshToken',[Quickbook::class, 'refreshToken']);
+
+Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_all');
+
 
 Auth::routes();
 Route::any('/register', function() {
@@ -29,3 +37,5 @@ Route::post('/insert-missing-result', [OrdersController::class, 'insert_missing_
 Route::group(['middleware' => 'auth'], function () {
 Route::any('/{any}', [HomeController::class, 'index'])->where('any', '^(?!api).*$');
 });
+
+

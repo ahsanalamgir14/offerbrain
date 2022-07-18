@@ -11,6 +11,7 @@ export class MidGroup {
     gross_revenue: string;
     bank_per: string;
     target_bank_balance: string;
+    quick_balance: string;
     updated_at: string;
     balance : number;
 
@@ -24,6 +25,7 @@ export class MidGroup {
         this.bank_per = midGroup.bank_per + ' %';
         this.balance = (midGroup.gross_revenue * midGroup.bank_per) / 100;
         this.target_bank_balance = '$' + nf.format(this.balance);
+        this.quick_balance = midGroup.quick_balance;
         this.updated_at = datePipe.transform(midGroup.updated_at, 'MM-dd-yyyy');
     }
 }

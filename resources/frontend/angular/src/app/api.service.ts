@@ -1,15 +1,28 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   endPoint = '';
-  constructor() {
+  constructor(private http:HttpClient) {
     this.endPoint = environment.endpoint;
   }
 
   getData(url): Promise<any> {
     const response = fetch(`${this.endPoint}/api/${url}`)
+      .catch(error => {
+        if (error.response) {
+          console.log(error)
+        }
+      });
+    return response;
+  }
+
+  getQuickdata(url,midGroupId,account_id):Promise<any>
+  {
+    const response = fetch(`${this.endPoint}/api/${url}/${midGroupId}/${account_id}`)
       .catch(error => {
         if (error.response) {
           console.log(error)

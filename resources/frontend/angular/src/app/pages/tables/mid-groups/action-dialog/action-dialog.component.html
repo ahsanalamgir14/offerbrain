@@ -16,6 +16,23 @@
             <input matInput [(ngModel)]="bankPercentage">
             <mat-hint class="text-danger">If field left null, default percentage will be set to 20%</mat-hint>
         </mat-form-field>
+
+        <!-- <mat-form-field appearance="fill">
+            <mat-label>Mid Group Id</mat-label>
+            <input matInput [(ngModel)]="midGroupId">
+            <mat-hint class="text-danger">Mid Group ID {{midGroupId}}</mat-hint>
+        </mat-form-field> -->
+
+        <mat-form-field appearance="fill">
+            <mat-label>Select Account</mat-label>
+            <mat-select [(ngModel)]="account_id">
+                <mat-option value="">Select</mat-option>
+                <mat-option *ngFor='let account of account_obj' value="{{account.account_id}}">
+                  {{ account.account_name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
     </div>
     <ng-template #elseDelete>
         <p>Are you sure to delete Mid Group <b>"{{local_data.group_name}}"</b>?</p>
@@ -23,6 +40,8 @@
 </div>
 
 <div mat-dialog-actions fxLayoutAlign="end end" *ngIf="action != 'Delete'; else elseDeleteButtons">
+    <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="quickbookConnect(midGroupId)">Connect to Quickbooks</button>
+    <button  mat-raised-button color="warn" *ngIf = "quick_balance" (click) = "quickbookDisconnect(midGroupId)">Disconnect from Quickbooks</button>
     <button mat-raised-button color="primary" (click)="doAction()">{{action}}</button>
     <button mat-raised-button color="gray" (click)="closeDialog()">Cancel</button>
 </div>

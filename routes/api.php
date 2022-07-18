@@ -22,6 +22,7 @@ use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\SubAffiliateController;
 use App\Http\Controllers\CampaignBuilderController;
+use App\Http\Controllers\Quickbook;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,3 +138,20 @@ Route::get('get_EF_key', [SubAffiliateController::class, 'get_EF_key']);
 Route::get('campaign-view-data', [CampaignBuilderController::class, 'campaign_view_data']);
 Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
 Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);
+
+
+
+// route for quickbook
+
+Route::get('/quickbook',[Quickbook::class, 'index']);
+Route::get('/apiCall',[Quickbook::class, 'apicall']);
+Route::POST('/refreshToken',[Quickbook::class, 'refreshToken']);
+Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_all');
+
+
+Route::get('/quickbookConnect/{midGroupId}/{account_id}',[Quickbook::class, 'quickbookConnect']);
+Route::get('/callback.php',[Quickbook::class, 'processCode']);
+Route::get('/bankAccounts',[Quickbook::class, 'bankAccounts']);
+Route::get('/accountNames',[Quickbook::class, 'accountNames']);
+Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
+Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);

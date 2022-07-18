@@ -27,7 +27,8 @@ export class MyCampaignsService {
     return this.campaigns;
   }
   async deleteData(id): Promise<any> {
-    await this.apiService.getData(`w?id=${id}`).then(res => res.json()).then((data) => {
+    return await this.apiService.getData(`delete_campaign?id=${id}`).then(res => res.json()).then((data) => {
+      return data;
       this.deleteResponse.next(data);
     });
   }

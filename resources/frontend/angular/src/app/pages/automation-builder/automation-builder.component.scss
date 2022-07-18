@@ -3,7 +3,6 @@
 @import "var";
 
 :host {
-  // background: url("~/public/assets/images/backgrounds/2.jpg");
   background: url("/assets/img/backgrounds/2.jpg");
   background-size: cover;
   display: block;
@@ -139,9 +138,12 @@
   padding-left: 2px !important;
   color: black !important;
 }
-
-.refresh-icon {
-  opacity: 0.7;
+.red-text{
+    color: red;
+}
+::ng-deep .mat-checkbox-layout{
+  margin-top: 15px !important;
+}
+.top-fifteen{
   margin-top: 15px;
-  font-size: 20px !important;
 }

@@ -14,11 +14,15 @@ export class AffiliatesNetworkService {
   public deleteResponse = new BehaviorSubject([]);
   public columnsResponse = new BehaviorSubject([]);
   public affOptionsResponse = new BehaviorSubject([]);
+  public refreshResponse = new BehaviorSubject({});
+
 
   affiliatesGetResponse$ = this.affiliatesGetResponse.asObservable();
   deleteResponse$ = this.deleteResponse.asObservable();
   columnsResponse$ = this.columnsResponse.asObservable();
   affOptionsResponse$ = this.affOptionsResponse.asObservable();
+  refreshResponse$ = this.refreshResponse.asObservable();
+
 
   constructor(private apiService: ApiService) { }
 
@@ -45,6 +49,12 @@ export class AffiliatesNetworkService {
     await this.apiService.getData(`networks`).then(res => res.json()).then((data) => {
       console.log(data);
       this.affOptionsResponse.next(data);
+    });
+  }
+
+  async refresh(): Promise<any> {
+    await this.apiService.getData(`pull_affiliates`).then(res => res.json()).then((data) => {
+      this.refreshResponse.next(data);
     });
   }
 }

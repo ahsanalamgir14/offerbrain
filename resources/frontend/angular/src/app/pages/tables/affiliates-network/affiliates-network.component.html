@@ -68,7 +68,8 @@
                     <mat-label>Networks</mat-label>
                     <mat-select [(value)]="network_affiliate_id" (selectionChange)="commonFilter($event.value, 'network_affiliate_id')">
                       <mat-option [value]="">All Networks</mat-option>
-                      <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']}} ({{ affiliate['network_affiliate_id'] }})</mat-option>
+                      <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']}}
+                        ({{ affiliate['network_affiliate_id'] }})</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -96,7 +97,12 @@
     </div>
   </fury-page-layout-content>
   <fury-page-layout-content @fadeInRight]>
-    <fury-list name="Affiliates Network" [columns]="columns" (filterChange)="onFilterChange($event)">
+    <div fxLayout="row" layout-wrap fxLayoutGap="10px">
+      <div>
+        <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Networks</button>
+      </div>
+    </div>
+    <fury-list name="Affiliate Networks" [columns]="columns" (filterChange)="onFilterChange($event)">
       <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
       <table [dataSource]="dataSource" mat-table matSort>
 
@@ -120,28 +126,28 @@
         <ng-container matColumnDef="rebill_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Rebill %</th>
           <td *matCellDef="let row" mat-cell>
-            <a class="show-link" >{{row.rebill_per | number : '1.2-2' }}%</a>
+            <a class="show-link">{{row.rebill_per | number : '1.2-2' }}%</a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="upsell_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell %</th>
           <td *matCellDef="let row" mat-cell>
-            <a class="show-link" >{{row.upsell_per | number : '1.2-2' }}%</a>
+            <a class="show-link">{{row.upsell_per | number : '1.2-2' }}%</a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="chargeback_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Chargeback %</th>
           <td *matCellDef="let row" mat-cell>
-            <a class="show-link" >{{row.chargeback_per | number : '1.2-2' }}%</a>
+            <a class="show-link">{{row.chargeback_per | number : '1.2-2' }}%</a>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="refund_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund %</th>
           <td *matCellDef="let row" mat-cell>
-            <a class="show-link" >{{row.refund_per | number : '1.2-2' }}%</a>
+            <a class="show-link">{{row.refund_per | number : '1.2-2' }}%</a>
           </td>
         </ng-container>
 

@@ -26,6 +26,8 @@ export class MidGroup {
         this.balance = (midGroup.gross_revenue * midGroup.bank_per) / 100;
         this.target_bank_balance = '$' + nf.format(this.balance);
         this.quick_balance = midGroup.quick_balance;
-        this.updated_at = datePipe.transform(midGroup.updated_at, 'MM-dd-yyyy');
+        // this.updated_at = datePipe.transform(midGroup.updated_at, 'MM-dd-yyyy');
+        this.updated_at = midGroup.updated_at;
+
     }
 }

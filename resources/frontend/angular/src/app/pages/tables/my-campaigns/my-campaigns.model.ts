@@ -3,113 +3,100 @@ const datePipe: DatePipe = new DatePipe('en-US');
 
 export class Campaign {
 
-    // id: string;
+    // Affiliate -- // missing in campaign builder
+    // Prepaid be
+    // Prepaid % --fe
+    // C1 Decline % fe
+    // C2 Decline % fe
+    // C3 Decline % fe
+    // Fulfilment $
+    // CPA $
+    // Throttle -- 
+    // Throttle % --
+    // CPA %
+    // Net $
+    // CLV $
+
     campaign_id: string;
-    // gateway_id: string;
-    // is_active: string;
-    // tax_provider_id: string;
-    // data_verification_provider_id: string;
-    // site_url: string;
-    // is_archived: string;
-    // prepaid_blocked: string;
-    // is_custom_price_allowed: string;
-    // is_avs_enabled: string;
-    // is_collections_enabled: string;
-    created_at: string;
-    // updated_at: string;
-    // archived_at: string;
     name: string;
-    // description: string;
-    // pre_auth_amount: string;
-    // creator: string;
-    // updator: string;
-    // countries: string;
-    // fulfillment_id: string;
-    // check_provider_id: string;
-    // membership_provider_id: string;
-    // call_confirm_provider_id: string;
-    // chargeback_provider_id: string;
-    // prospect_provider_id: string;
-    // email_provider_id: string;
-    // offers: string;
-    // channel: string;
-    // payment_methods: string;
-    // gateway: string;
-    // alternative_payments: string;
-    // shipping_profiles: string;
-    // return_profiles: string;
-    // postback_profiles: string;
-    // coupon_profiles: string;
-    // fraud_providers: string;
-    // volume_discounts: string;
-    tracking_campaigns: string;
     tracking_networks: string;
-    no_of_upsells: string;
-    no_of_downsells: string;
-    upsell_products: string;
-    downsell_products: string;
-    no_of_cycles: string;
-    cycle_products: string;
-    cogs_track: string;
-    cpa_track: string;
-    third_party_track: string;
+    initials: any;
+    rebills: any;
+    cycle_1_per: any;
+    c1: any;
+    c1_decline_per: any;
+    cycle_2_per: any;
+    c2: any;
+    c2_decline_per: any;
+    cycle_3_per: any;
+    c3: any;
+    c3_decline_per: any;
+    avg_ticket: any;
+    revenue: any;
+    refund: any;
+    refund_rate: any;
+    CBs: any;
+    CB_per: any;
+    CB_currency: any;
+    fulfillment: any;
+    // processing: any;
+    cpa: any;
+    cpa_avg: any;
+    net: any;
+    clv: any;
+    created_at: any;
+    updated_at: any;
 
     constructor(campaign) {
-        // this.id = campaign.id;
         this.campaign_id = campaign.campaign_id;
-        // this.gateway_id = campaign.gateway_id;
-        // this.is_active = campaign.is_active;
-        // this.tax_provider_id = campaign.tax_provider_id;
-        // this.data_verification_provider_id = campaign.data_verification_provider_id;
-        // this.site_url = campaign.site_url;
-        // this.is_archived = campaign.is_archived;
-        // this.is_archived = campaign.is_archived;
-        // this.is_custom_price_allowed = campaign.is_custom_price_allowed;
-        // this.is_avs_enabled = campaign.is_avs_enabled;
-        // this.is_collections_enabled = campaign.is_collections_enabled;
-        this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
-        // this.updated_at = campaign.updated_at;
-        // this.archived_at = campaign.archived_at;
+        // this.created_at = datePipe.transform(campaign.created_at, 'MM-dd-yyyy');
+        this.created_at = campaign.created_at;
         this.name = campaign.name;
-        // if (campaign.description) {
-        //     this.description = campaign.description;
-        // } else {
-        //     this.description = '-';
+        this.tracking_networks = JSON.parse(campaign.tracking_networks);
+        this.net = (campaign.revenue - campaign.refund - campaign.CB_currency).toFixed(2);
+        this.initials = campaign.initials;
+        this.rebills = campaign.rebills;
+        if (campaign.initials && campaign.initials != 0) {
+            this.cycle_1_per = (campaign.c1 / campaign.initials * 100).toFixed(2);
+            this.cycle_2_per = (campaign.c2 / campaign.initials * 100).toFixed(2);
+            this.cycle_3_per = (campaign.c3 / campaign.initials * 100).toFixed(2);
+            this.avg_ticket = '$' + (campaign.revenue / campaign.initials).toFixed(2);
+            this.fulfillment = -campaign.initials;
+            this.clv = (this.net / campaign.initials).toFixed(2);
+        }
+        this.c1 = campaign.c1;
+        if (campaign.c1 && campaign.c1 != 0) {
+            this.c1_decline_per = ((campaign.c1 / campaign.c1_declines) * 100).toFixed(2);
+            console.log('this.c1_decline_per :', this.c1_decline_per);
+        }
+        this.c2 = campaign.c2;
+        if (campaign.c2 && campaign.c2 != 0) {
+            this.c2_decline_per = ((campaign.c2 / campaign.c2_declines) * 100).toFixed(2);
+        }
+        // if (campaign.rebills && campaign.rebills != 0) {
+        //     this.cycle_2_per = (campaign.c2 / campaign.rebills * 100).toFixed(2);
         // }
-        // this.pre_auth_amount = campaign.pre_auth_amount;
-        // this.creator = campaign.creator;
-        // this.updator = campaign.updator;
-        // this.countries = campaign.countries;
-        // this.fulfillment_id = campaign.fulfillment_id;
-        // this.check_provider_id = campaign.check_provider_id;
-        // this.membership_provider_id = campaign.membership_provider_id;
-        // this.call_confirm_provider_id = campaign.call_confirm_provider_id;
-        // this.chargeback_provider_id = campaign.chargeback_provider_id;
-        // this.prospect_provider_id = campaign.prospect_provider_id;
-        // this.email_provider_id = campaign.email_provider_id;
-        // this.offers = campaign.offers;
-        // this.channel = campaign.channel;
-        // this.payment_methods = campaign.payment_methods;
-        // this.gateway = campaign.gateway;
-        // this.alternative_payments = campaign.alternative_payments;
-        // this.shipping_profiles = campaign.shipping_profiles;
-        // this.return_profiles = campaign.return_profiles;
-        // this.postback_profiles = campaign.postback_profiles;
-        // this.coupon_profiles = campaign.coupon_profiles;
-        // this.fraud_providers = campaign.fraud_providers;
-        // this.volume_discounts = campaign.volume_discounts;
-        this.tracking_campaigns = campaign.tracking_campaigns;
-        console.log('this.tracking_campaigns :', this.tracking_campaigns);
-        this.tracking_networks = campaign.tracking_networks;
-        this.no_of_upsells = campaign.no_of_upsells;
-        this.no_of_downsells = campaign.no_of_downsells;
-        this.upsell_products = campaign.upsell_products;
-        this.downsell_products = campaign.downsell_products;
-        this.no_of_cycles = campaign.no_of_cycles;
-        this.cycle_products = campaign.cycle_products;
-        this.cogs_track = campaign.cogs_track;
-        this.cpa_track = campaign.cpa_track;
-        this.third_party_track = campaign.third_party_track;
-
+        // if (campaign.c2 && campaign.c2 != 0) {
+        //     this.cycle_3_per = (campaign.c3 / campaign.c2 * 100).toFixed(2);
+        // }
+        this.c3 = campaign.c3;
+        if (campaign.c3 && campaign.c3 != 0) {
+            this.c3_decline_per = ((campaign.c3 / campaign.c3_declines) * 100).toFixed(2);
+        }
+        // if (campaign.c1_declines && campaign.c1_declines != 0) {
+        //     this.c3_decline_per = campaign.c3_declines;
+        // }
+        this.revenue = '$' + campaign.revenue;
+        if (campaign.revenue && campaign.revenue != 0) {
+            this.refund_rate = ((campaign.refund / campaign.revenue) * 100).toFixed(2) + '%';
+            this.CB_per = ((campaign.CBs / campaign.initials) * 100).toFixed(1) + '%';
+            // this.CB_per = ((campaign.CBs / campaign.revenue) * 100 ).toFixed(2);
+            // this.processing = -0.2 * campaign.revenue;
+        }
+        this.refund = '$' + campaign.refund;
+        this.CBs = campaign.CBs;
+        this.CB_currency = '$' + (campaign.CB_currency).toFixed(2);
+        this.cpa = campaign.cpa;
+        this.cpa_avg = campaign.cpa_avg;
     }
 }

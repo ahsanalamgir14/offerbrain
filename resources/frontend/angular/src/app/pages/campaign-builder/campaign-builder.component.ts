@@ -47,12 +47,9 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   getProductsSubscription: Subscription;
   getOptionsSubscription: Subscription;
   saveSubscription: Subscription;
-  refreshCampaignsSubscription: Subscription;
-  refreshNetworksSubscription: Subscription;
-
 
   /** snake case due to back-end variables */
-  no_of_upsells: number = 1;
+  no_of_upsells: number = 0;
   no_of_downsells: number = 0;
   no_of_cycles: number = 0;
   upsell_products = [];
@@ -79,21 +76,21 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   @ViewChild('stepper', { read: MatStepper }) stepper: MatStepper;
 
   dropdownSettings = {};
-  // dropdownSettings:IDropdownSettings;
   dropdownSettingsForSingle: IDropdownSettings;
+  isRefreshingCampaign = false;
+  isRefreshingNetwork = false;
+  isRefreshingProduct = false;
 
   constructor(private fb: FormBuilder,
     private cd: ChangeDetectorRef,
     private snackbar: MatSnackBar,
-    public campaignBuilderService: CampaignBuilderService) {
+    public campaignBuilderService: CampaignBuilderService,
+    public route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.getOptionsSubscription = this.campaignBuilderService.getOptionsResponse$.subscribe(data => this.manageOptionsResponse(data))
     this.saveSubscription = this.campaignBuilderService.saveResponse$.subscribe(data => this.manageSaveResponse(data))
-    this.refreshCampaignsSubscription = this.campaignBuilderService.refreshCampaignsResponse$.subscribe(data => this.manageRefreshCampaignsResponse(data))
-    this.refreshNetworksSubscription = this.campaignBuilderService.refreshNetworksResponse$.subscribe(data => this.manageRefreshNetworksResponse(data))
-
 
     this.campaignFormGroup = this.fb.group({
       name: [null, Validators.required],
@@ -101,16 +98,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       tracking_campaigns: [null, Validators.required],
       tracking_networks: [null, Validators.required],
     });
-
-    // this.dropdownSettings = {
-    //   singleSelection: false,
-    //   idField: 'id',
-    //   textField: 'name',
-    //   selectAllText: 'Select All',
-    //   unSelectAllText: 'UnSelect All',
-    //   itemsShowLimit: 3,
-    //   allowSearchFilter: true
-    // };
 
     this.dropdownSettingsForSingle = {
       singleSelection: true,
@@ -121,25 +108,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       // itemsShowLimit: 3,
       allowSearchFilter: true
     };
-
-
-    this.campaignSearchCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy))
-      .subscribe(() => {
-        this.filterCampaignOptions();
-      });
-
-    this.networkSearchCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy))
-      .subscribe(() => {
-        this.filterNetworkOptions();
-      });
-    this.productSearchCtrl.valueChanges
-      .pipe(takeUntil(this._onDestroy))
-      .subscribe(() => {
-        this.filterProductOptions();
-      });
-
 
     this.upsellFormGroup = this.fb.group({
       no_of_upsells: [null],
@@ -159,10 +127,61 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       third_party_track: [null],
     });
 
+    this.route.params.subscribe((params: any) => {
+      if (params.id) {
+        this.campaignBuilderService.getCampaignData(params.id).then((data) => {
+          if (data.status) {
+            console.log('call api', data);
+            console.log('data.data.tracking_networks :', data.data.tracking_networks);
+            this.campaignFormGroup.patchValue({
+              name: data.data.name,
+              campaign_type: data.data.campaign_type,
+              tracking_campaigns: [data.data.tracking_campaigns],
+              filteredNetworks: data.data.tracking_networks
+            });
+            this.upsellFormGroup.patchValue({
+              no_of_upsells: data.data.no_of_upsells,
+              no_of_downsells: data.data.no_of_downsells,
+              upsell_products: [data.data.upsell_products],
+              downsell_products: [data.data.downsell_products],
+            });
+
+            this.cyclesFormGroup.patchValue({
+              no_of_cycles: data.data.no_of_cycles,
+              cycle_products: [data.data.cycle_products],
+            });
+
+            this.miscFormGroup.patchValue({
+              cogs_track: data.data.cogs_track,
+              cpa_track: data.data.cpa_track,
+              third_party_track: data.data.third_party_track,
+            });
+          }
+        });
+      } else {
+        // Create your new element here
+      }
+    });
+
     this.campaignBuilderService.getOptionsData();
+
+    this.campaignSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCampaignOptions();
+      });
+
+    this.networkSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterNetworkOptions();
+      });
+    this.productSearchCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterProductOptions();
+      });
   }
-
-
 
   manageOptionsResponse(data) {
     if (data.status) {
@@ -193,14 +212,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.notyf.error(data.message);
       }
     }
-  }
-
-  manageRefreshCampaignsResponse(data) {
-
-  }
-
-  manageRefreshNetworksResponse(data) {
-
   }
 
   counter(N: number) {
@@ -371,7 +382,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     Object.keys(form.controls).forEach(key => {
       form.controls[key].setErrors(null)
     });
-
   }
 
   submit() {
@@ -397,7 +407,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       return;
     }
     let search = this.campaignSearchCtrl.value;
-    // alert(typeof search);
     if (!search) {
       this.filteredCampaigns.next(this.trackingCampaignOptions.slice());
       return;
@@ -443,39 +452,48 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
   }
 
   async refreshCampaigns() {
+    this.notyf.open({ type: 'info', message: 'OfferBrain is pulling new campaigns for you!' });
+    this.isRefreshingCampaign = true;
     await this.campaignBuilderService.refreshCampaignsOptions().then((data) => {
       if (data.status) {
         this.trackingCampaignOptions = data.data.campaigns;
         this.filteredCampaigns.next(this.trackingCampaignOptions.slice());
         this.notyf.success('Campaign Options refreshed successfully')
+        this.isRefreshingCampaign = false;
       }
     });
   }
   async refreshNetworks() {
+    this.notyf.open({ type: 'info', message: 'OfferBrain is pulling new networks for you!' });
+    this.isRefreshingNetwork = true;
     await this.campaignBuilderService.refreshNetworksOptions().then((data) => {
       if (data.status) {
         this.trackingNetworkOptions = data.data.networks;
         this.filteredNetworks.next(this.trackingNetworkOptions.slice());
-        this.notyf.success('Network Options refreshed successfully')
+        this.notyf.success('Network Options refreshed successfully');
+        this.isRefreshingNetwork = false;
+
       }
     });
   }
-  
+
+  async refreshProducts() {
+    this.notyf.open({ type: 'info', message: 'OfferBrain is pulling new products for you!' });
+    this.isRefreshingProduct = true;
+    await this.campaignBuilderService.refreshProductOptions().then((data) => {
+      if (data.status) {
+        this.productOptions = data.data.products;
+        this.filteredProducts.next(this.productOptions.slice());
+        this.notyf.success('Product Options refreshed successfully')
+        this.isRefreshingProduct = false;
+      }
+    });
+  }
+
   ngOnDestroy() {
-    // this._onDestroy.next();
-    // this._onDestroy.complete();
     if (this.saveSubscription) {
       this.saveSubscription.unsubscribe();
       this.campaignBuilderService.saveResponse.next([]);
     }
-    if (this.refreshCampaignsSubscription) {
-      this.refreshCampaignsSubscription.unsubscribe();
-      this.campaignBuilderService.refreshCampaignsResponse.next({});
-    }
-    if (this.refreshNetworksSubscription) {
-      this.refreshNetworksSubscription.unsubscribe();
-      this.campaignBuilderService.refreshNetworksResponse.next({});
-    }
   }
-
 }

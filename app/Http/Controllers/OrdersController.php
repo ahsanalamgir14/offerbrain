@@ -532,7 +532,7 @@ class OrdersController extends Controller
                                 $order->systemNotes = serialize($order->systemNotes);
                             }
                             if(isset($order->employeeNotes)){
-                                $order->parent_affId = self::getAffid($order->affid, $order->employeeNotes, $user->id);
+                                $order->parent_affid = self::getAffid($order->affid, $order->employeeNotes, $user->id);
                             }
 
                             $order->totals_breakdown = serialize($order->totals_breakdown);
@@ -610,7 +610,7 @@ class OrdersController extends Controller
                                         $order->systemNotes = serialize($order->systemNotes);
                                     }
                                     if(isset($order->employeeNotes)){
-                                        $order->parent_affId = self::getAffid($order->affid, $order->employeeNotes, $user->id);
+                                        $order->parent_affid = self::getAffid($order->affid, $order->employeeNotes, $user->id);
                                     }
                                     $order->totals_breakdown = serialize($order->totals_breakdown);
                                     if (in_array($order->order_id, $db_order_ids)) {

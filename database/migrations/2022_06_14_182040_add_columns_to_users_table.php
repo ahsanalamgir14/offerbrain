@@ -80,14 +80,12 @@ class AddColumnsToUsersTable extends Migration
         // });
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->text('parent_affid')->after('affid')->nullable()->default(null)->comment('Parent Affiliate ID');
+            $table->unsignedBigInteger('parent_affid')->after('affid')->nullable()->default(null)->comment('Parent Affiliate ID');
         });
 
         Schema::table('order_products', function (Blueprint $table) {
             $table->text('time_stamp')->before('created_at')->nullable()->default(null);
-        });
-
-        
+        });       
     }
 
     /**

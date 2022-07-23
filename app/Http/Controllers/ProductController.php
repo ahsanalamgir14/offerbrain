@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Product;
@@ -90,7 +92,8 @@ class ProductController extends Controller
     {
         //
     }
-    public function pull_user_products(Request $request)
+    
+        public function pull_user_products(Request $request)
     {
         $created = 0;
         $updated = 0;

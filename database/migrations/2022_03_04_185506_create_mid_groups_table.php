@@ -23,6 +23,7 @@ class CreateMidGroupsTable extends Migration
             $table->string('bank_per')->nullable()->default(20);
             // $table->string('target_bank_balance')->nullable()->default(0);
             $table->string('status')->nullable()->default(null);
+            $table->text('quick_balance')->nullable()->default(null);
             $table->softDeletes();
             $table->timestamps();
         });

@@ -39,6 +39,5 @@ class DailyOrders extends Command
      */
     public function handle()
     {
-        echo OrdersController::testFunction();
     }
 }

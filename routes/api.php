@@ -23,6 +23,7 @@ use App\Http\Controllers\SubAffiliateController;
 use App\Http\Controllers\TicketWeeklyController;
 use App\Http\Controllers\TicketMonthlyController;
 use App\Http\Controllers\CampaignBuilderController;
+use App\Http\Controllers\Quickbook;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +77,8 @@ Route::get('refresh_database_jan', [OrdersController::class, 'refresh_database_j
 Route::get('test_dec', [OrdersController::class, 'test_dec']);
 Route::get('test_jan', [OrdersController::class, 'test_jan']);
 Route::get('pull_cron_orders', [OrdersController::class, 'pull_cron_orders']);
+Route::get('curentTime', [OrdersController::class, 'curentTime']);
+Route::get('pull_yesterday_cron_orders', [OrdersController::class, 'pull_yesterday_cron_orders']);
 Route::get('pull_orders_dec', [OrdersController::class, 'pull_orders_dec']);
 Route::get('pull_orders_jan', [OrdersController::class, 'pull_orders_jan']);
 Route::get('pull_user_orders', [OrdersController::class, 'pull_user_orders']);
@@ -90,6 +93,7 @@ Route::get('get_customer_detail', [CustomerController::class, 'get_customer_deta
 Route::get('get_product_detail', [OrdersController::class, 'get_product_detail']);
 Route::get('getDropDownContent', [OrdersController::class, 'getDropDownContent']);
 Route::get('refresh_customers', [CustomerController::class, 'refresh_customers']);
+Route::get('getOrdersCount', [CustomerController::class, 'getOrdersCount']);
 Route::get('refresh_user_customers', [CustomerController::class, 'refresh_user_customers']);
 Route::get('filter-golden-ticket/{month}/{year}', [GoldenTicketController::class, 'index']);
 Route::get('pull_user_products', [ProductController::class, 'pull_user_products']);
@@ -143,3 +147,20 @@ Route::get('get_EF_key', [SubAffiliateController::class, 'get_EF_key']);
 Route::get('campaign-view-data', [CampaignBuilderController::class, 'campaign_view_data']);
 Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
 Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);
+
+
+
+// route for quickbook
+
+Route::get('/quickbook',[Quickbook::class, 'index']);
+Route::get('/apiCall',[Quickbook::class, 'apicall']);
+Route::POST('/refreshToken',[Quickbook::class, 'refreshToken']);
+Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_all');
+
+
+Route::get('/quickbookConnect/{midGroupId}/{account_id}',[Quickbook::class, 'quickbookConnect']);
+Route::get('/callback.php',[Quickbook::class, 'processCode']);
+Route::get('/bankAccounts',[Quickbook::class, 'bankAccounts']);
+Route::get('/accountNames',[Quickbook::class, 'accountNames']);
+Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
+Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);

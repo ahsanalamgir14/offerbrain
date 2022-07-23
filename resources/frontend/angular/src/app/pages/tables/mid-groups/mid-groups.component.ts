@@ -21,6 +21,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Notyf } from 'notyf';
 import { ListService } from 'src/@fury/shared/list/list.service';
 import { ListComponent } from 'src/@fury/shared/list/list.component';
+import { ActionDialogService } from './action-dialog/action-dialog.service'
 
 @Pipe({ name: 'tooltipList' })
 export class TooltipListPipe implements PipeTransform {
@@ -45,6 +46,9 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   subject$: ReplaySubject<MidGroup[]> = new ReplaySubject<MidGroup[]>(1);
   data$: Observable<MidGroup[]> = this.subject$.asObservable();
   midGroups: any;
+  authUrl:any;
+  // bankAccount : any;
+   
 
   getSubscription: Subscription;
   refreshSubscription: Subscription;
@@ -80,6 +84,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     { name: 'Group Name', property: 'group_name', visible: true, isModelProperty: false },
     { name: 'Assigned Mids', property: 'assigned_mids', visible: true, isModelProperty: false },
+    { name: 'Quick Balance', property: 'quick_balance', visible: true, isModelProperty: false },
     { name: 'Gross Revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'Bank %', property: 'bank_per', visible: true, isModelProperty: true },
     { name: 'Target Bank Balance', property: 'target_bank_balance', visible: true, isModelProperty: true },
@@ -94,7 +99,9 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MidGroupsComponent, { static: true }) MidGroupComponent: MidGroupsComponent;
 
-  constructor(private dialog: MatDialog, private midGroupService: MidGroupsService, private apiService: ApiService, private listService: ListService) {
+  constructor(private dialog: MatDialog, private midGroupService: MidGroupsService,
+     private apiService: ApiService, private listService: ListService,
+      private actionService : ActionDialogService) {
     this.notyf.dismissAll();
   }
 
@@ -119,7 +126,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     this.addGroupSubscription = this.midGroupService.addGroupResponse$.subscribe(data => this.manageAddGroupResponse(data));
     this.deleteGroupSubscription = this.midGroupService.deleteGroupResponse$.subscribe(data => this.manageDeleteGroupResponse(data));
     this.updateGroupSubscription = this.midGroupService.updateGroupResponse$.subscribe(data => this.manageUpdateResponse(data));
-
+    this.bankAccounts();
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -127,8 +134,51 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     ).subscribe((midGroups) => {
       this.midGroups = midGroups;
       this.dataSource.data = midGroups;
+      
+      // const data = this.dataSource.data;
+      // this.dataSource.data.push(this.bankAccount);
+      // this.dataSource.data = data;
+      // console.log('data source is '+this.dataSource);
+      // console.log('data source is '+this.dataSource.data);
+      // console.log('Mid group obj is '+this.midGroups);
+      
     });
   }
+
+  // get account balance from api for respcted midgroup id
+  bankAccounts(){
+     this.midGroupService.getAccounts('bankAccounts').subscribe(
+      {next:(res)=>{console.log(res);
+        this.updateQuickBalance(res);
+      // this.bankAccount = res;
+      },
+      error:(err)=>console.log(err)}
+    );
+   
+  }
+
+    updateQuickBalance(data)
+    {
+      this.midGroupService.updateQuickBalance(data,'updateQuickBalance').subscribe(
+        {next:(res)=>{console.log(res);
+        this.getData()},
+        error:(err)=>console.log(err)}
+      );
+    }
+
+   async getQuickAccounts()
+    {
+      console.log('quickbook mid-group component for getting account names');
+
+      await this.actionService.quickbookCon('quickbookConnect',0,0)
+      .then(res => {
+    
+      console.log(res);
+
+      }, error => {
+      console.log('action-dialg component error in quickbookConnect');
+      });
+    }
 
   mapData() {
     return of(this.midGroups.map(midGroup => new MidGroup(midGroup)));
@@ -202,6 +252,8 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
       } else if (result.event == 'Delete') {
         this.deleteRowData(result.data);
       }
+    
+      
     });
   }
 
@@ -225,6 +277,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     //   return value.id != row_obj.id;
     // });
   }
+
 
   manageGetResponse(data) {
     // this.midGroups = data.data;

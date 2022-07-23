@@ -76,11 +76,13 @@
     <fury-page-layout-content [@fadeInUp]>
         <div fxLayoutAlign="space-between">
             <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Groups</button>
+            <button class="mb" mat-raised-button color="accent" (click)="getQuickAccounts()">Refresh Account Names</button>
             <button class="mb" mat-raised-button color="accent" (click)="actionDialog('Add', {})"><i style="font-size: 20px;"
                     class="bi bi-plus"></i> Add Group</button>
         </div>
         <fury-list name="Mid-Groups" [columns]="columns" (enableLoading)="isLoading = true;" (filterChange)="onFilterChange($event)">
             <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+
             <table [dataSource]="dataSource" mat-table matSort>
 
                 <!-- Checkbox Column -->
@@ -114,6 +116,14 @@
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
                         matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
                         <a routerLink="#">{{ row.assigned_mids }}</a>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="quick_balance">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>Bank Balance</th>
+                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
+                        matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+                        <a routerLink="#">{{ row.quick_balance }}</a>
                     </td>
                 </ng-container>
                

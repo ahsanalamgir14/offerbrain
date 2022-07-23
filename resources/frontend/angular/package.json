@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "postinstall": "ngcc --properties es2015 browser module main --first-only --create-ivy-entry-points",
-    "build:prod": "ng build --prod && copy ..\\..\\..\\public\\assets\\angular\\index.html ..\\..\\views\\angular.blade.php"
+    "build:prod": "ng build --configuration production && copy ..\\..\\..\\public\\assets\\angular\\index.html ..\\..\\views\\angular.blade.php"
   },
   "private": true,
   "dependencies": {

@@ -20,6 +20,7 @@ class Product extends Model
         'images' => 'array'
     ];
     protected $fillable = [
+        'user_id',
         'product_id',
         'user_id',
         'is_trial_product',

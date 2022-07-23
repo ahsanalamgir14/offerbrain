@@ -39,6 +39,7 @@ export class AppComponent {
       this.renderer.addClass(this.document.body, 'is-blink');
     }
 
+    //Note: Do not remove any comment in this file!!!
     this.sidenavService.addItems([
       // {
       //   name: 'APPS',
@@ -150,33 +151,33 @@ export class AppComponent {
       //   type: 'subheading',
       //   position: 30
       // },
-      {
-        name: 'All Campaigns',
-        icon: 'local_mall',
-        position: 31,
-        subItems: [
-          {
-            name: 'Golden Ticket',
-            routeOrFunction: '/campaigns/golden-ticket',
-            position: 12
-          },
-          {
-            name: 'Golden Ticket (Daily)',
-            routeOrFunction: '/campaigns/ticket-daily',
-            position: 13
-          },
-          {
-            name: 'Golden Ticket (Weekly)',
-            routeOrFunction: '/campaigns/ticket-weekly',
-            position: 14
-          },
-          {
-            name: 'Golden Ticket (Monthly)',
-            routeOrFunction: '/campaigns/ticket-monthly',
-            position: 15
-          }
-        ]
-      },
+      // {
+      //   name: 'All Campaigns',
+      //   icon: 'local_mall',
+      //   position: 31,
+      //   subItems: [
+      //     {
+      //       name: 'Golden Ticket',
+      //       routeOrFunction: '/campaigns/golden-ticket',
+      //       position: 12
+      //     },
+      //     {
+      //       name: 'Golden Ticket (Daily)',
+      //       routeOrFunction: '/campaigns/ticket-daily',
+      //       position: 13
+      //     },
+      //     {
+      //       name: 'Golden Ticket (Weekly)',
+      //       routeOrFunction: '/campaigns/ticket-weekly',
+      //       position: 14
+      //     },
+      //     {
+      //       name: 'Golden Ticket (Monthly)',
+      //       routeOrFunction: '/campaigns/ticket-monthly',
+      //       position: 15
+      //     }
+      //   ]
+      // },
       {
         name: 'Automation',
         icon: 'device_hub',

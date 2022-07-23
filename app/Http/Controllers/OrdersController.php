@@ -292,8 +292,8 @@ class OrdersController extends Controller
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
 
-        $start_date = '07/17/2022';
-        $end_date = '07/17/2022';
+        $start_date = '07/18/2022';
+        $end_date = '07/18/2022';
 
         $db_order_ids = Order::where(['user_id' => Auth::id()])->pluck('order_id')->toArray();
         $url = $user->sticky_url . '/api/v1/order_find';
@@ -781,8 +781,8 @@ class OrdersController extends Controller
         $password = Crypt::decrypt($user->sticky_api_key);
         $url = $user->sticky_url . '/api/v1/order_find';
 
-        $starting_day = '2022-07-17';
-        $ending_day = '2022-07-17';
+        $starting_day = '2022-07-18';
+        $ending_day = '2022-07-18';
         // $start_date = Carbon::parse($starting_day)->startOfDay();
         // $end_date = Carbon::parse($ending_day)->endOfDay();
         $date_range = CarbonPeriod::create($starting_day, $ending_day);

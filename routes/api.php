@@ -92,7 +92,7 @@ Route::get('getDropDownContent', [OrdersController::class, 'getDropDownContent']
 Route::get('refresh_customers', [CustomerController::class, 'refresh_customers']);
 Route::get('refresh_user_customers', [CustomerController::class, 'refresh_user_customers']);
 Route::get('filter-golden-ticket/{month}/{year}', [GoldenTicketController::class, 'index']);
-Route::get('pull_all_products', [ProductController::class, 'pull_all_products']);
+Route::get('pull_user_products', [ProductController::class, 'pull_user_products']);
 Route::get('get_states', [OrdersController::class, 'get_states']);
 Route::get('refresh-golden-ticket', [GoldenTicketController::class, 'refresh_golden_ticket']);
 Route::get('refresh-daily', [TicketDailyController::class, 'refresh_daily']);

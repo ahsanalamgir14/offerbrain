@@ -189,16 +189,16 @@ export class MyCampaignsComponent implements OnInit {
   }
 
   onFilterChange(value) {
-    // if (!this.dataSource) {
-    //   return;
-    // }
-    // value = value.trim();
-    // value = value.toLowerCase();
-    // this.dataSource.filter = value;
+    if (!this.dataSource) {
+      return;
+    }
+    value = value.trim();
     value = value.toLowerCase();
-    this.search = value;
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => { this.getData() }, 500)
+    this.dataSource.filter = value;
+    // value = value.toLowerCase();
+    // this.search = value;
+    // clearTimeout(this.timer);
+    // this.timer = setTimeout(() => { this.getData() }, 500)
   }
 
   // manageGetResponse(campaigns) {

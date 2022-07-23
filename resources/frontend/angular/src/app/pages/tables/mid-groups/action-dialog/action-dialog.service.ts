@@ -10,33 +10,29 @@ import { ApiService } from 'src/app/api.service';
 })
     export class ActionDialogService {
 
-    //authUrl:any;
-    //authUrl = '';
-    authUrl='https://appcenter.intuit.com/connect/oauth2?client_id=ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz&scope=com.intuit.quickbooks.accounting&redirect_uri=http%3A%2F%2Foffer-brain.test%2Fcallback.php+&response_type=code&state=WXILD';
-
+        
     endPoint = '';
+    // authUrl = '';
+    authUrl='https://appcenter.intuit.com/connect/oauth2?client_id=ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz&scope=com.intuit.quickbooks.accounting&redirect_uri='+encodeURI(environment.endpoint)+'%2Fcallback.php+&response_type=code&state=WXILD';
     constructor(private http : HttpClient, private apiService:ApiService) { 
-    this.endPoint = environment.endpoint;
+        this.endPoint = environment.endpoint;
     }
+    
+    
+    async quickbookCon(url:any,midGroupId:any,account_id){
+        await this.apiService.getQuickdata(`quickbookConnect`,midGroupId,account_id)
+        .then(res => res.json()).then((data) => {
+            this.authUrl = data;
+            //this.getResponse.next(data);
+        });
 
-
-async quickbookCon(url:any,midGroupId:any,account_id)
-  {
-    await this.apiService.getQuickdata(`quickbookConnect`,midGroupId,account_id)
-    .then(res => res.json()).then((data) => {
-        this.authUrl = data;
-        //this.getResponse.next(data);
-      });
-
-      this.oauth.loginPopup()
+        this.oauth.loginPopup()
         return this.authUrl;
-
   }
 
   
 
    OAuthCode = function(authUrl) {
-
     this.loginPopup = function (parameter) {
         this.loginPopupUri(parameter);
     }

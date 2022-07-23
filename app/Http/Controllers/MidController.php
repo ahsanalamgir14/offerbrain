@@ -21,6 +21,7 @@ class MidController extends Controller
 {
     public function index(Request $request)
     {
+        DB::enableQueryLog();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -42,29 +43,25 @@ class MidController extends Controller
                 ->where('orders.time_stamp', '>=', $start_date)
                 ->where('orders.time_stamp', '<=', $end_date);
         })
-            // ->where(['orders.order_status' => 2])
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-            ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
-            // ->addSelect(DB::raw('SUM(orders.order_total) as gross_revenue'))
-            ->selectRaw("count(case when orders.order_status = 2 then 1 end) as mid_count")
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
+            // ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
+            ->selectRaw("count(case when orders.order_status = 2 or orders.order_status = 8 then 1 end) as mid_count")
             ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
             ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
             ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
             ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
             ->addSelect('mids.mid_group as group_name')
-            // ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
-            // ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
-            // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
+            ->where('mids.user_id', '=', Auth::id())
+            ->where('orders.is_test_cc', 0)
             ->groupBy('mids.id');
-            // ->addSelect('order_products.id as product_id','order_products.name as product_name')
-            // ->groupBy('order_products.name')
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
         }
         $data = $query->get();
-        // dd($data);
+        // dd(DB::getQueryLog());
         return response()->json(['status' => true, 'data' => $data]);
     }
 

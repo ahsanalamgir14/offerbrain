@@ -17,7 +17,7 @@ function refreshToken()
         'client_id' => 'ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz',
         'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
         'oauth_scope' => 'com.intuit.quickbooks.accounting',
-        'oauth_redirect_uri' => 'http://offer-brain.test/callback.php',
+        'oauth_redirect_uri' => env('APP_URL').'/callback.php',
         'company_id' => '4620816365232978110'
     );
      /*

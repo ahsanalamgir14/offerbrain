@@ -66,7 +66,7 @@ export class Mid {
         this.void_count = mid.void_per;
         this.void_per = (mid.void_per / mid.total_count)*100;
         this.chargeback_count = mid.chargeback_per;
-        this.chargeback_per = (mid.chargeback_per / mid.total_count)*100;
+        this.chargeback_per = (mid.chargeback_per / mid.mid_count)*100;
         this.decline_per = (mid.decline_per / mid.total_count)*100;
         this.approved_per = 100 - (mid.decline_per / mid.total_count)*100;
         this.decline_orders = mid.decline_orders;

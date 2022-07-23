@@ -29,11 +29,6 @@ class OrdersController extends Controller
 
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $start_date = $request->start_date;
@@ -85,8 +80,8 @@ class OrdersController extends Controller
             'orders.return_reason',
             'orders.time_stamp',
         )
-            // ->where(['orders.user_id' => 2]); //dev mode
-            ->where(['orders.user_id' => $request->user()->id]);
+            ->where(['orders.user_id' => 2]); //dev mode
+            // ->where(['orders.user_id' => $request->user()->id]);
 
         if ($start_date != null && $end_date != null) {
             $start_date = Carbon::parse($start_date)->startOfDay();
@@ -147,6 +142,7 @@ class OrdersController extends Controller
         $pag['rows_per_page'] = $no_of_records_per_page;
         return response()->json(['status' => true, 'data' => $rows, 'pag' => $pag]);
     }
+
     public function getDropDownContent()
     {
         DB::enableQueryLog();
@@ -439,7 +435,251 @@ class OrdersController extends Controller
         return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
 
     }
+
+    public static function getAffid($orderAff, $orderEmployeeNotes, $user_id){
+        if(empty($orderAff)){
+            if(!empty($orderEmployeeNotes)){
+                $employeeNotes = $orderEmployeeNotes;
+                $parentId = substr($employeeNotes, strpos($employeeNotes, "#") + 1);
+                $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                $affData = DB::table('orders')->select('id','affid','employeeNotes')->where('user_id',$user_id)->where('order_id',$parentId)->first();
+                if(isset($affData->affid) && !empty($affData->affid)){
+                    return $affData->affid;
+                } else {
+                    if(!empty($affData->employeeNotes)){
+                        $employeeNotes = $affData->employeeNotes;
+                        $parentId = substr($employeeNotes, strpos($employeeNotes, "#") + 1);
+                        $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                        $affData = DB::table('orders')->select('id','affid','employeeNotes')->where('user_id',$user_id)->where('order_id',$parentId)->first();
+                        if(isset($affData->affid) && !empty($affData->affid)){
+                            return $affData->affid;
+                        } else {
+                            if(!empty($affData->employeeNotes)){
+                                $employeeNotes = $affData->employeeNotes;
+                                $parentId = substr($employeeNotes, strpos($employeeNotes, "#") + 1);
+                                $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                                $affData = DB::table('orders')->select('id','affid','employeeNotes')->where('user_id',$user_id)->where('order_id',$parentId)->first();
+                                if(isset($affData->affid) && !empty($affData->affid)){
+                                    return $affData->affid;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static function curentTime(){
+        $data['currentDate'] = now();
+        $data['todayStart'] = Carbon::now()->startOfDay()->format('m/d/Y');
+        $data['todayEnd'] = Carbon::now()->endOfDay()->format('m/d/Y');
+        return response()->json($data);
+    }
+
     public static function pull_cron_orders()
+    {
+        $users = User::orderBy('id', 'desc')->get();
+        foreach ($users as $user) {
+            $password = Crypt::decrypt($user->sticky_api_key);
+            $new_orders = 0;
+            $updated_orders = 0;
+            $username = $user->sticky_api_username;
+            $start = Carbon::today();
+            $start_date = '12/01/2021';
+            $end_date = '12/31/2021';
+            // $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
+            // $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
+            
+            $db_order_ids = Order::where(['user_id' => $user->id])->pluck('order_id')->toArray();
+            $url = $user->sticky_url . '/api/v1/order_find';
+
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                $url,
+                ['start_date' => $start_date, 'end_date' => $end_date, 'campaign_id' => 'all', 'criteria' => 'all']
+            )->getBody()->getContents());
+            $total_orders = $api_data->total_orders;
+            
+            if ($total_orders != 0) {
+                $order_ids = $api_data->order_id;
+                if ($total_orders < 50000) {
+                    $chunked_array = array_chunk($order_ids, 500);
+                    foreach ($chunked_array as $chucked_ids) {
+                        $order_view_api = $user->sticky_url . '/api/v1/order_view';
+                        $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                            ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                        $results = $order_views->data;
+                        foreach ($results as $order) {
+                            $order->user_id = $user->id;
+                            $month = Carbon::parse($order->acquisition_date)->format('F');
+                            $year = Carbon::parse($order->acquisition_date)->format('Y');
+                            $order->acquisition_month = $month;
+                            $order->acquisition_year = $year;
+                            $order->trx_month = $month;
+                            $order->billing_email = $order->email_address;
+                            $order->billing_telephone = $order->customers_telephone;
+                            $order->shipping_email = $order->email_address;
+                            $order->shipping_telephone = $order->customers_telephone;
+
+                            if (property_exists($order, 'employeeNotes')) {
+                                $order->employeeNotes = serialize($order->employeeNotes);
+                            }
+                            $order->utm_info = serialize($order->utm_info);
+                            if (property_exists($order, 'products')) {
+                                $order->products = serialize($order->products);
+                            }
+                            if (property_exists($order, 'systemNotes')) {
+                                $order->systemNotes = serialize($order->systemNotes);
+                            }
+                            if(isset($order->employeeNotes)){
+                                $order->parent_affId = self::getAffid($order->affid, $order->employeeNotes, $user->id);
+                            }
+
+                            $order->totals_breakdown = serialize($order->totals_breakdown);
+                            if (in_array($order->order_id, $db_order_ids)) {
+                                $updated_orders++;
+                                $db_order = Order::where(['order_id' => $order->order_id])->where('user_id',$user->id)->first();
+                                $db_order->update((array)$order);
+                                $order->products = unserialize($order->products);
+                                $mass_assignment = self::get_product_order_mass($order, $user->id);
+
+                                OrderProduct::where(['order_id' => $db_order->order_id])->where('user_id',$user->id)->update($mass_assignment);
+                            } else {
+                                $new_orders++;
+                                Order::create((array)$order);
+                                $order->products = unserialize($order->products);
+                                $mass_assignment = self::get_product_order_mass($order, $user->id);
+
+                                OrderProduct::create($mass_assignment);
+                            }
+                        }
+                        $data = null;
+                        $results = null;
+                    }
+                    return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+                } else {
+                    $startDate = Carbon::createFromFormat('m/d/Y', $start_date);
+                    $endDate = Carbon::createFromFormat('m/d/Y', $end_date);
+                    $date_range = CarbonPeriod::create($startDate, $endDate);
+                    $date_range->toArray();
+
+                    foreach ($date_range as $day) {
+                        $days[] = Carbon::parse($day)->format('m/d/Y');
+                    }
+                    foreach ($days as $key => $day) {
+                        //Order_ids for a single day
+                        $start_of_day = Carbon::parse($day)->startOfDay()->format('m/d/Y');
+                        $end_of_day = Carbon::parse($day)->endOfDay()->format('m/d/Y');
+                        $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')->post(
+                            $url,
+                            ['start_date' => $start_of_day, 'end_date' => $end_of_day, 'campaign_id' => 'all', 'criteria' => 'all']
+                        )->getBody()->getContents());
+
+                        $total_orders = $api_data->total_orders;
+                        if ($total_orders != 0) {
+                            $order_ids = $api_data->order_id;
+                            //order_view and array of 500 api call
+                            $chunked_array = array_chunk($order_ids, 500);
+                            // dd($chunked_array);
+                            foreach ($chunked_array as $chucked_ids) {
+                                $order_view_api = $user->sticky_url . '/api/v1/order_view';
+                                $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                                    ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                                $results = $order_views->data;
+                                foreach ($results as $order) {
+                                    $order->user_id = $user->id;
+                                    $month = Carbon::parse($order->acquisition_date)->format('F');
+                                    $year = Carbon::parse($order->acquisition_date)->format('Y');
+                                    $order->acquisition_month = $month;
+                                    $order->acquisition_year = $year;
+                                    $order->trx_month = $month;
+                                    $order->billing_email = $order->email_address;
+                                    $order->billing_telephone = $order->customers_telephone;
+                                    $order->shipping_email = $order->email_address;
+                                    $order->shipping_telephone = $order->customers_telephone;
+
+                                    if (property_exists($order, 'employeeNotes')) {
+                                        $order->employeeNotes = serialize($order->employeeNotes);
+                                    }
+                                    $order->utm_info = serialize($order->utm_info);
+                                    if (property_exists($order, 'products')) {
+                                        $order->products = serialize($order->products);
+                                    }
+                                    if (property_exists($order, 'systemNotes')) {
+                                        $order->systemNotes = serialize($order->systemNotes);
+                                    }
+                                    if(isset($order->employeeNotes)){
+                                        $order->parent_affId = self::getAffid($order->affid, $order->employeeNotes, $user->id);
+                                    }
+                                    $order->totals_breakdown = serialize($order->totals_breakdown);
+                                    if (in_array($order->order_id, $db_order_ids)) {
+                                        $updated_orders++;
+                                        $db_order = Order::where(['order_id' => $order->order_id, 'user_id' => $user->id])->first();
+                                        $db_order->update((array)$order);
+                                        $order->products = unserialize($order->products);
+                                        $mass_assignment = self::get_product_order_mass($order, $user->id);
+
+                                        OrderProduct::where(['order_id' => $db_order->order_id, 'user_id' => $user->id])->update($mass_assignment);
+                                    } else {
+                                        $new_orders++;
+                                        Order::create((array)$order);
+                                        $order->products = unserialize($order->products);
+                                        $mass_assignment = self::get_product_order_mass($order, $user->id);
+                                        
+                                        OrderProduct::create($mass_assignment);
+                                    }
+                                }
+                                $data = null;
+                                $results = null;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+    }
+    public static function get_product_order_mass($order, $user_id)
+    {
+        $result['order_id'] = $order->order_id;
+        $result['user_id'] = $user_id;
+        $result['product_id'] = $order->products[0]->product_id;
+        $result['sku'] = $order->products[0]->sku;
+        $result['price'] = $order->products[0]->price;
+        $result['product_qty'] = $order->products[0]->product_qty;
+        $result['name'] = $order->products[0]->name;
+        $result['is_recurring'] = $order->products[0]->is_recurring;
+        $result['is_terminal'] = $order->products[0]->is_terminal;
+        $result['recurring_date'] = $order->products[0]->recurring_date;
+        $result['subscription_id'] = $order->products[0]->subscription_id;
+        $result['next_subscription_product'] = $order->products[0]->next_subscription_product;
+        $result['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
+        $result['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
+        $result['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
+        $result['billing_model_discount'] = $order->products[0]->billing_model_discount;
+        $result['is_add_on'] = $order->products[0]->is_add_on;
+        $result['is_in_trial'] = $order->products[0]->is_in_trial;
+        $result['step_number'] = $order->products[0]->step_number;
+        $result['is_shippable'] = $order->products[0]->is_shippable;
+        $result['is_full_refund'] = $order->products[0]->is_full_refund;
+        $result['refund_amount'] = $order->products[0]->refund_amount;
+        $result['on_hold'] = $order->products[0]->on_hold;
+        $result['hold_date'] = $order->products[0]->hold_date;
+        $result['time_stamp'] = $order->time_stamp;
+        if (isset($order->products[0]->billing_model)) {
+            $result['billing_model_id'] = $order->products[0]->billing_model->id;
+            $result['billing_model_name'] = $order->products[0]->billing_model->name;
+            $result['billing_model_description'] = $order->products[0]->billing_model->description;
+        }
+        if (isset($order->products[0]->offer)) {
+            $result['offer_id'] = $order->products[0]->offer->id;
+            $result['offer_name'] = $order->products[0]->offer->name;
+        }
+        return $result;
+    }
+
+    public static function pull_yesterday_cron_orders()
     {
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
@@ -450,11 +690,11 @@ class OrdersController extends Controller
             $updated_orders = 0;
             $username = $user->sticky_api_username;
             $start = Carbon::today();
-            $start_date = '01/01/2022';
-            $end_date = '01/31/2022';
-            // $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
-            // $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
-
+            // $start_date = '07/18/2022';
+            // $end_date = '07/18/2022';
+            $start_date = Carbon::yesterday()->startOfDay()->format('m/d/Y');
+            $end_date = Carbon::yesterday()->endOfDay()->format('m/d/Y');
+        
             $db_order_ids = Order::where(['user_id' => $user->id])->pluck('order_id')->toArray();
             $url = $user->sticky_url . '/api/v1/order_find';
 
@@ -639,7 +879,7 @@ class OrdersController extends Controller
                                     $order->totals_breakdown = serialize($order->totals_breakdown);
                                     if (in_array($order->order_id, $db_order_ids)) {
                                         $updated_orders++;
-                                        $db_order = Order::where(['order_id' => $order->order_id, 'user_id' => Auth::id()])->first();
+                                        $db_order = Order::where(['order_id' => $order->order_id, 'user_id' => $user->id])->first();
                                         $db_order->update((array)$order);
 
                                         $order->products = unserialize($order->products);
@@ -676,7 +916,7 @@ class OrdersController extends Controller
                                             $mass_assignment['offer_name'] = $order->products[0]->offer->name;
                                         }
 
-                                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id, 'user_id' => Auth::id()])->update($mass_assignment);
+                                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id, 'user_id' => $user->id])->update($mass_assignment);
                                     } else {
                                         $new_orders++;
                                         Order::create((array)$order);
@@ -726,9 +966,9 @@ class OrdersController extends Controller
                 }
             }
         }
-        return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+        return response()->json(['status' => true, 'Yesterday New Record in todays API' => $new_orders, 'Yesterday orders to be updated in orders table' => $updated_orders]);
     }
-
+    
     public function get_order_product_mass($order)
     {
         $order->products = unserialize($order->products);
@@ -1395,7 +1635,7 @@ class OrdersController extends Controller
                         $db_order->update((array)$result);
 
                         $mass_assignment = $this->get_order_product_mass($result);
-                        $order_product = OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
+                        OrderProduct::where(['order_id' => $db_order->order_id])->update($mass_assignment);
                     }
                     $data = null;
                     $results = null;
@@ -1405,15 +1645,6 @@ class OrdersController extends Controller
                 return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
             }
         }
-    }
-
-    public static function test1()
-    {
-        return response()->json(['message' => 'Test 1']);
-    }
-    public static function test2()
-    {
-        return response()->json(['message' => 'Test 2']);
     }
 
     public function insert_missing_history()
@@ -1488,7 +1719,7 @@ class OrdersController extends Controller
         $response['updated_orders'] = $updated_orders;
         return view('history-response-view', $response);
     }
-
+    
     public static function daily_order_history_cron()
     {
         ini_set('memory_limit', '512M');
@@ -1557,39 +1788,7 @@ class OrdersController extends Controller
                             }
 
                             $order->products = unserialize($order->products);
-                            $mass_assignment['order_id'] = $order->order_id;
-                            $mass_assignment['product_id'] = $order->products[0]->product_id;
-                            $mass_assignment['sku'] = $order->products[0]->sku;
-                            $mass_assignment['price'] = $order->products[0]->price;
-                            $mass_assignment['product_qty'] = $order->products[0]->product_qty;
-                            $mass_assignment['name'] = $order->products[0]->name;
-                            $mass_assignment['is_recurring'] = $order->products[0]->is_recurring;
-                            $mass_assignment['is_terminal'] = $order->products[0]->is_terminal;
-                            $mass_assignment['recurring_date'] = $order->products[0]->recurring_date;
-                            $mass_assignment['subscription_id'] = $order->products[0]->subscription_id;
-                            $mass_assignment['next_subscription_product'] = $order->products[0]->next_subscription_product;
-                            $mass_assignment['next_subscription_product_id'] = $order->products[0]->next_subscription_product_id;
-                            $mass_assignment['next_subscription_product_price'] = $order->products[0]->next_subscription_product_price;
-                            $mass_assignment['next_subscription_qty'] = $order->products[0]->next_subscription_qty;
-                            $mass_assignment['billing_model_discount'] = $order->products[0]->billing_model_discount;
-                            $mass_assignment['is_add_on'] = $order->products[0]->is_add_on;
-                            $mass_assignment['is_in_trial'] = $order->products[0]->is_in_trial;
-                            $mass_assignment['step_number'] = $order->products[0]->step_number;
-                            $mass_assignment['is_shippable'] = $order->products[0]->is_shippable;
-                            $mass_assignment['is_full_refund'] = $order->products[0]->is_full_refund;
-                            $mass_assignment['refund_amount'] = $order->products[0]->refund_amount;
-                            $mass_assignment['on_hold'] = $order->products[0]->on_hold;
-                            $mass_assignment['hold_date'] = $order->products[0]->hold_date;
-                            $mass_assignment['user_id'] = $user->id;
-                            if (isset($order->products[0]->billing_model)) {
-                                $mass_assignment['billing_model_id'] = $order->products[0]->billing_model->id;
-                                $mass_assignment['billing_model_name'] = $order->products[0]->billing_model->name;
-                                $mass_assignment['billing_model_description'] = $order->products[0]->billing_model->description;
-                            }
-                            if (isset($order->products[0]->offer)) {
-                                $mass_assignment['offer_id'] = $order->products[0]->offer->id;
-                                $mass_assignment['offer_name'] = $order->products[0]->offer->name;
-                            }
+                            $mass_assignment = self::get_product_order_mass($order, $user->id);
 
                             if($db_order){
                                 OrderProduct::where(['order_id' => $db_order->order_id])->where('user_id',$user->id)->update($mass_assignment);

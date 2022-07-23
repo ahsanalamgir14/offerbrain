@@ -148,7 +148,7 @@ class Order extends Model
         'website_received',
         'website_sent',
         'ip_details',
-        'parent_affId',
+        'parent_affid',
     ];
     protected $casts = [
         'ip_details' => 'object',

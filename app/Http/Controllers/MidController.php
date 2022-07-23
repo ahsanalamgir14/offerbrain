@@ -58,11 +58,9 @@ class MidController extends Controller
             // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
             // ->addSelect('order_products.id as product_id','order_products.name as product_name')
             // ->groupBy('order_products.name')
-
             ->where('mids.user_id', '=', Auth::id())
             ->where('orders.is_test_cc', 0)
             ->groupBy('mids.id');
-
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);

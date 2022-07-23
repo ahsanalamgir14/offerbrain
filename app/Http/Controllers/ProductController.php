@@ -6,12 +6,11 @@ use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\Product;
 use Illuminate\Support\Facades\Crypt;
-use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DB;
+use Auth;
 
 class ProductController extends Controller
 {
@@ -91,7 +90,8 @@ class ProductController extends Controller
     {
         //
     }
-    public function pull_user_products(Request $request)
+    
+        public function pull_user_products(Request $request)
     {
         $created = 0;
         $updated = 0;

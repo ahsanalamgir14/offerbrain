@@ -102,7 +102,9 @@ class CampaignsController extends Controller
         // return Auth::id();
         $new_campaigns = 0;
         $updated_campaigns = 0;
+        // $db_campaign_ids = Campaign::where(['user_id' => 2])->pluck('campaign_id')->toArray();
         $db_campaign_ids = Campaign::where(['user_id' => Auth::id()])->pluck('campaign_id')->toArray();
+        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
@@ -119,6 +121,7 @@ class CampaignsController extends Controller
             foreach ($campaigns as $result) {
                 $campaign = new Campaign();
                 $result['campaign_id'] = $result['c_id'];
+                // $result['user_id'] = 2;
                 $result['user_id'] = Auth::id();
                 $result['created_at'] = $result['created_at']['date'];
                 if ($result['updated_at']) {
@@ -143,6 +146,7 @@ class CampaignsController extends Controller
                     foreach ($other_campaigns as $result) {
                         $campaign = new Campaign();
                         $result['campaign_id'] = $result['c_id'];
+                        // $result['user_id'] = 2;
                         $result['user_id'] = Auth::id();
                         $result['created_at'] = $result['created_at']['date'];
                         if ($result['updated_at']) {
@@ -155,6 +159,72 @@ class CampaignsController extends Controller
                         } else {
                             $campaign->create($result);
                             $new_campaigns++;
+                        }
+                    }
+                }
+            }
+        }
+        // $campaigns = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        $campaigns = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        return response()->json(['status' => true, 'New campaigns:' => $new_campaigns, 'Updated Campaigns:' => $updated_campaigns, 'data' => ['campaigns' => $campaigns]]);
+    }
+    public static function refresh_campaigns_for_cron()
+    {
+        $users = User::orderBy('id', 'asc')->get();
+        foreach ($users as $user) {
+            $new_campaigns = 0;
+            $updated_campaigns = 0;
+            $db_campaign_ids = Campaign::where(['user_id' => $user->id])->pluck('campaign_id')->toArray();
+            $username = $user->sticky_api_username;
+            $password = Crypt::decrypt($user->sticky_api_key);
+            $url = $user->sticky_url . '/api/v2/campaigns';
+            $page = 1;
+
+            $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
+
+            $last_page = $api_data['last_page'];
+            $campaigns = $api_data['data'];
+
+            if ($campaigns) {
+                foreach ($campaigns as $result) {
+                    $campaign = new Campaign();
+                    $result['campaign_id'] = $result['c_id'];
+                    $result['user_id'] = $user->id;
+                    $result['created_at'] = $result['created_at']['date'];
+                    if ($result['updated_at']) {
+                        $result['updated_at'] = $result['updated_at']['date'];
+                    }
+                    if (in_array($result['campaign_id'], $db_campaign_ids)) {
+                        $campaign->where(['campaign_id' => $result['campaign_id']])->get();
+                        $campaign->update($result);
+                        $updated_campaigns++;
+                    } else {
+                        $campaign->create($result);
+                        $new_campaigns++;
+                    }
+                }
+                // for more pages get data and save
+                if ($last_page > 1) {
+                    $page++;
+                    for ($page; $page <= $last_page; $page++) {
+                        $other_campaigns = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page])['data'];
+
+                        foreach ($other_campaigns as $result) {
+                            $campaign = new Campaign();
+                            $result['campaign_id'] = $result['c_id'];
+                            $result['user_id'] = $user->id;
+                            $result['created_at'] = $result['created_at']['date'];
+                            if ($result['updated_at']) {
+                                $result['updated_at'] = $result['updated_at']['date'];
+                            }
+                            if (in_array($result['campaign_id'], $db_campaign_ids)) {
+                                $campaign->where(['campaign_id' => $result['campaign_id']])->get();
+                                $campaign->update($result);
+                                $updated_campaigns++;
+                            } else {
+                                $campaign->create($result);
+                                $new_campaigns++;
+                            }
                         }
                     }
                 }

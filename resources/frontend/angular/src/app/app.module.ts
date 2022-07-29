@@ -20,6 +20,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableModule} from '@angular/material/table';
 import {MatSortModule} from '@angular/material/sort';
+import { AutomationsComponent } from './pages/automations/automations.component';
 
 
 @NgModule({
@@ -39,7 +40,7 @@ import {MatSortModule} from '@angular/material/sort';
     MatTableModule,
     MatSortModule
   ],
-  declarations: [AppComponent, MidDetailDialogComponent, Spinner2Component],
+  declarations: [AppComponent, MidDetailDialogComponent, Spinner2Component, AutomationsComponent],
   bootstrap: [AppComponent],
   providers: [
     {

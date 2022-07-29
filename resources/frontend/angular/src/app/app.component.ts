@@ -110,7 +110,7 @@ export class AppComponent {
         ]
       },
       {
-        name: 'Campaigns Menu',
+        name: 'Campaigns',
         icon: 'device_hub',
         position: 12,
         subItems: [
@@ -175,6 +175,23 @@ export class AppComponent {
             routeOrFunction: '/campaigns/ticket-monthly',
             position: 15
           }
+        ]
+      },
+      {
+        name: 'Automation',
+        icon: 'device_hub',
+        position: 12,
+        subItems: [
+          {
+            name: 'Automation Builder',
+            routeOrFunction: '/automation-builder',
+            position: 13
+          },
+          {
+            name: 'My Automations',
+            routeOrFunction: '/my-automations',
+            position: 14
+          },
         ]
       },
       {

@@ -164,7 +164,6 @@ Route::get('/callback.php',[Quickbook::class, 'processCode']);
 Route::get('/bankAccounts/{midGroupId}',[Quickbook::class, 'bankAccounts']);
 Route::get('/accountNames/{midGroupId}',[Quickbook::class, 'accountNames']);
 Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
-
 Route::get('/updateRecords',[OrdersController::class, 'updateRecords']);
 Route::put('/updateQuickAccounts/{midGroupId}',[Quickbook::class, 'updateQuickAccounts']);
 Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);

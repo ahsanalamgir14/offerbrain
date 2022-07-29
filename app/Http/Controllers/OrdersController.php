@@ -79,6 +79,7 @@ class OrdersController extends Controller
             'orders.response_code',
             'orders.return_reason',
             'orders.time_stamp',
+            'orders.ip_address'
         )
             ->where(['orders.user_id' => 2]); //dev mode
         // ->where(['orders.user_id' => $request->user()->id]);

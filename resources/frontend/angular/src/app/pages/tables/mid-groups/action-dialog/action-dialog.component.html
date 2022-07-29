@@ -80,7 +80,7 @@
         </mat-form-field>
         <mat-form-field appearance="fill">
             <mat-label>Bank Percentage</mat-label>
-            <input matInput [(ngModel)]="bankPercentage">
+            <input matInput [(ngModel)]="bankPercentage" type="number" min="0" max="100">
             <mat-hint class="text-danger">If field left null, default percentage will be set to 20%</mat-hint>
         </mat-form-field>
 

@@ -12,14 +12,11 @@ import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { formatDate } from '@angular/common';
 import { Campaign } from './my-campaigns.model';
-// import { CustomerDetailComponent } from './campaign-detail/campaign-detail.component';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Notyf } from 'notyf';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
-import { Pipe, PipeTransform } from '@angular/core';
 import { Location } from '@angular/common';
-import { TooltipListPipe } from './tooltip-list.pipe';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -27,7 +24,6 @@ import { Router, ActivatedRoute } from '@angular/router';
   templateUrl: './my-campaigns.component.html',
   styleUrls: ['./my-campaigns.component.scss'],
   animations: [fadeInRightAnimation, fadeInUpAnimation],
-  providers: [TooltipListPipe]
 })
 
 export class MyCampaignsComponent implements OnInit {
@@ -62,7 +58,7 @@ export class MyCampaignsComponent implements OnInit {
   @Input()
   columns: ListColumn[] = [
     // { name: 'id', property: 'id', visible: false, isModelProperty: true },
-    { name: 'campaign_id', property: 'campaign_id', visible: true, isModelProperty: true },
+    { name: 'Campaign ID', property: 'campaign_id', visible: true, isModelProperty: true },
     // { name: 'gateway_id', property: 'gateway_id', visible: true, isModelProperty: true },
     // { name: 'is_active', property: 'is_active', visible: true, isModelProperty: true},
     // { name: 'tax_provider_id', property: 'tax_provider_id', visible: false, isModelProperty: false },
@@ -75,32 +71,35 @@ export class MyCampaignsComponent implements OnInit {
     // { name: 'is_collections_enabled', property: 'is_collections_enabled', visible: false, isModelProperty: false },
     // { name: 'archived_at', property: 'archived_at', visible: false, isModelProperty: false },
     { name: 'Name', property: 'name', visible: true, isModelProperty: true },
-    { name: 'Tracking Networks', property: 'tracking_networks', visible: true, isModelProperty: false },
-    { name: 'Initials', property: 'initials', visible: true, isModelProperty: true },
-    { name: 'Rebills', property: 'rebills', visible: true, isModelProperty: true },
+    { name: 'Networks', property: 'tracking_networks', visible: true, isModelProperty: false },
+    { name: 'Campaigns', property: 'tracking_campaigns', visible: true, isModelProperty: false },
+    { name: 'Initials', property: 'initials', visible: true, isModelProperty: false },
+    { name: 'Rebills', property: 'rebills', visible: true, isModelProperty: false },
+    { name: 'C1', property: 'c1', visible: true, isModelProperty: false },
+    { name: 'C1 $', property: 'c1_revenue', visible: true, isModelProperty: false },
     { name: 'C1 %', property: 'cycle_1_per', visible: true, isModelProperty: false },
-    { name: 'C1', property: 'c1', visible: true, isModelProperty: true },
     { name: 'C1 Decline %', property: 'c1_decline_per', visible: true, isModelProperty: false },
+    { name: 'C2', property: 'c2', visible: true, isModelProperty: false },
+    { name: 'C2 $', property: 'c2_revenue', visible: true, isModelProperty: false },
     { name: 'C2 %', property: 'cycle_2_per', visible: true, isModelProperty: false },
-    { name: 'C2', property: 'c2', visible: true, isModelProperty: true },
     { name: 'C2 Decline %', property: 'c2_decline_per', visible: true, isModelProperty: false },
+    { name: 'C3', property: 'c3', visible: true, isModelProperty: false },
+    { name: 'C3 $', property: 'c3_revenue', visible: true, isModelProperty: false },
     { name: 'C3 %', property: 'cycle_3_per', visible: true, isModelProperty: false },
-    { name: 'C3', property: 'c3', visible: true, isModelProperty: true },
     { name: 'C3 Decline %', property: 'c3_decline_per', visible: true, isModelProperty: false },
-    { name: 'Avg Ticket', property: 'avg_ticket', visible: true, isModelProperty: true },
-    { name: 'Revenue', property: 'revenue', visible: true, isModelProperty: true },
-    { name: 'Refund', property: 'refund', visible: true, isModelProperty: true },
-    { name: 'Refund Rate', property: 'refund_rate', visible: true, isModelProperty: true },
-    { name: 'CBs', property: 'CBs', visible: true, isModelProperty: true },
-    { name: 'CB %', property: 'CB_per', visible: true, isModelProperty: true },
-    { name: 'CB $', property: 'CB_currency', visible: true, isModelProperty: true },
+    { name: 'Avg Ticket', property: 'avg_ticket', visible: true, isModelProperty: false },
+    { name: 'Revenue', property: 'revenue', visible: true, isModelProperty: false },
+    { name: 'Refund', property: 'refund', visible: true, isModelProperty: false },
+    { name: 'Refund Rate', property: 'refund_rate', visible: true, isModelProperty: false },
+    { name: 'CBs', property: 'CBs', visible: true, isModelProperty: false },
+    { name: 'CB %', property: 'CB_per', visible: true, isModelProperty: false },
+    { name: 'CB $', property: 'CB_currency', visible: true, isModelProperty: false },
     // { name: 'Fulfillment', property: 'fulfillment', visible: true, isModelProperty: true },
     // { name: 'Processing', property: 'processing', visible: true, isModelProperty: true },
     // { name: 'CPA', property: 'cpa', visible: true, isModelProperty: true },
     // { name: 'CPA AVG', property: 'cpa_avg', visible: true, isModelProperty: true },
     // { name: 'Net', property: 'net', visible: true, isModelProperty: false },
     { name: 'CLV', property: 'clv', visible: true, isModelProperty: true },
-    // { name: 'Tracking Campaigns', property: 'tracking_campaigns', visible: false, isModelProperty: false },
     // { name: 'Upsell Poducts', property: 'upsell_products', visible: false, isModelProperty: false },
     // { name: 'Downsell Products', property: 'downsell_products', visible: false, isModelProperty: false },
     // { name: 'Cycle Products', property: 'cycle_products', visible: false, isModelProperty: false },
@@ -118,7 +117,7 @@ export class MyCampaignsComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private location: Location, public tooltipList: TooltipListPipe, private router: Router, private route: ActivatedRoute, ) { }
+  constructor(private dialog: MatDialog, private campaignsService: MyCampaignsService, private router: Router, private route: ActivatedRoute, ) { }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property); ''
@@ -276,7 +275,7 @@ export class MyCampaignsComponent implements OnInit {
   }
 
   handleDeleteAction(id) {
-  console.log('id :', id);
+    console.log('id :', id);
     const dialogData = new ConfirmationDialogModel('Confirm Delete', 'Are you sure you want to delete this campaign?');
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       maxWidth: '500px',

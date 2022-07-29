@@ -1,5 +1,5 @@
-import { DatePipe } from '@angular/common';
-const datePipe: DatePipe = new DatePipe('en-US');
+import { DatePipe, formatDate } from '@angular/common';
+const datePipe = new DatePipe('en-US');
 
 export class CampaignView {
 
@@ -30,10 +30,7 @@ export class CampaignView {
     updated_at: any;
 
     constructor(data) {
-
         this.net = data.revenue - data.refund - data.CBs // - data.processing + data.cpa; // - data.COGS 
-        console.log('this.net  :', this.net);
-
         this.id = data.id;
         this.month = data.month;
         this.year = data.year;
@@ -65,7 +62,7 @@ export class CampaignView {
         this.cpa = data.cpa;
         this.cpa_avg = data.cpa_avg;
         this.net = data.net;
-        this.created_at = data.created_at;
+        this.created_at = datePipe.transform(data.created_at, 'Y-m-d');
         this.updated_at = data.updated_at;
     }
 }

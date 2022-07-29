@@ -7,7 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BreadcrumbsModule } from 'src/@fury/shared/breadcrumbs/breadcrumbs.module';
 import { ListModule } from 'src/@fury/shared/list/list.module';
 import { MaterialModule } from 'src/@fury/shared/material-components.module';
-import { MyCampaignsRoutingModule } from '../my-campaigns-routing.module';
 import { FurySharedModule } from 'src/@fury/fury-shared.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';

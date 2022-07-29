@@ -113,7 +113,7 @@
                 
                 <ng-container matColumnDef="assigned_mids">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Assigned Mids</th>
-                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
+                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList: 'mids'"
                         matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
                         <a routerLink="#">{{ row.assigned_mids }}</a>
                     </td>

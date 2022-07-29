@@ -21,53 +21,52 @@ class MidGroupController extends Controller
      */
     public function index(Request $request)
     {
+        // $query = MidGroup::select('*')->where(['user_id' => 2])->whereNull('deleted_at');
         $query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
             $start_date = date('Y-m-d H:i:s', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date));
-            // $query->whereBetween('created_at', [$start_date, $end_date.' 23:59:59']);
         }
         $data = $query->get();
         if ($start_date != null && $end_date != null) {
             foreach ($data as $key => $group) {
+                // $mids = Mid::where(['user_id' => 2, 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
+                // $group['mids_data'] = DB::table('mids')->where(['user_id' => 2, 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
-                $orders = DB::table('orders')
+                $group['gross_revenue'] = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
-                    ->whereIn('gateway_id', $group['assigned_mid_ids'])->sum('order_total');
-                $group['gross_revenue'] = round($orders, 2);
+                    // ->where('user_id', 2)
+                    ->where(['user_id' => Auth::id()])
+                    ->where('order_status', 2)
+                    ->where('is_test_cc', 0)
+                    ->whereIn('gateway_id', $group['assigned_mid_ids'])
+                    ->selectRaw(DB::raw('Round(SUM(order_total) - sum(case when orders.amount_refunded_to_date > 0 then amount_refunded_to_date else 0 end), 2) as revenue'))->pluck('revenue');
             }
         } else {
             foreach ($data as $key => $group) {
+                // $mids = Mid::where(['user_id' => 2, 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
+                // $group['mids_data'] = DB::table('mids')->where(['user_id' => 2, 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
-                $orders = DB::table('orders')
+                $group['gross_revenue'] = DB::table('orders')
+                    ->where('time_stamp', '>=', $start_date)
+                    ->where('time_stamp', '<=', $end_date)
+                    // ->where(['user_id' => 2])
                     ->where(['user_id' => Auth::id()])
+                    ->where('order_status', 2)
+                    ->where('is_test_cc', 0)
                     ->whereIn('gateway_id', $group['assigned_mid_ids'])
-                    ->sum('order_total');
-                $group['gross_revenue'] = round($orders, 2);
+                    ->selectRaw(DB::raw('Round(SUM(order_total) - sum(case when orders.amount_refunded_to_date > 0 then amount_refunded_to_date else 0 end), 2) as revenue'))->pluck('revenue');
             }
         }
-
-        // $start_date = $request->start_date;
-        // $end_date = $request->end_date;
-        // if ($start_date != null && $end_date != null) {
-        //     $start_date = date('Y-m-d H:i:s', strtotime($request->start_date));
-        //     $end_date = date('Y-m-d', strtotime($request->end_date));
-        // }
-
-        // $data = DB::table('mid_groups')
-        // ->join('profiles','mid_groups.group_name = profiles.global_fields->mid_group')
-        // ->join('mids','profiles.profile_id = mids.gateway_id')
-        // ->where('deleted_at',null)
-        // ->get();
 
         return response()->json(['status' => true, 'data' => $data]);
     }

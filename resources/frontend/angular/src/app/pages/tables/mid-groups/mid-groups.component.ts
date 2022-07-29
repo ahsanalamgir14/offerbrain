@@ -13,43 +13,28 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { MidGroupsService } from './mid-groups.service';
 import { Subscription } from 'rxjs';
 import { formatDate } from '@angular/common';
-import { environment } from 'src/environments/environment';
 import { ApiService } from 'src/app/api.service';
 import { MidsDetailComponent } from './mids-detail/mids-detail.component';
 import { ActionDialogComponent } from './action-dialog/action-dialog.component';
-import { Pipe, PipeTransform } from '@angular/core';
 import { Notyf } from 'notyf';
 import { ListService } from 'src/@fury/shared/list/list.service';
-import { ListComponent } from 'src/@fury/shared/list/list.component';
 import { ActionDialogService } from './action-dialog/action-dialog.service'
 
-@Pipe({ name: 'tooltipList' })
-export class TooltipListPipe implements PipeTransform {
-
-  transform(lines: string[]): string {
-    let list: string = '  ';
-    lines.forEach(line => {
-      list += '• ' + line + '\n';
-    });
-    return list;
-  }
-}
 
 @Component({
   selector: 'fury-mid-groups',
   templateUrl: './mid-groups.component.html',
   styleUrls: ['./mid-groups.component.scss'],
-  animations: [fadeInRightAnimation, fadeInUpAnimation]
+  animations: [fadeInRightAnimation, fadeInUpAnimation],
+  // providers: [TooltipListPipe]
 })
-export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit, OnDestroy {
+export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   subject$: ReplaySubject<MidGroup[]> = new ReplaySubject<MidGroup[]>(1);
   data$: Observable<MidGroup[]> = this.subject$.asObservable();
   midGroups: any;
-  authUrl:any;
+  authUrl: any;
   // bankAccount : any;
-   
-
   getSubscription: Subscription;
   refreshSubscription: Subscription;
   addGroupSubscription: Subscription;
@@ -100,22 +85,13 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   @ViewChild(MidGroupsComponent, { static: true }) MidGroupComponent: MidGroupsComponent;
 
   constructor(private dialog: MatDialog, private midGroupService: MidGroupsService,
-     private apiService: ApiService, private listService: ListService,
-      private actionService : ActionDialogService) {
+    private apiService: ApiService, private listService: ListService,
+    private actionService: ActionDialogService) {
     this.notyf.dismissAll();
   }
 
   get visibleColumns() {
     return this.columns.filter(column => column.visible).map(column => column.property);
-  }
-
-  transform(lines: string[]): string {
-    let list: string = '';
-    // list += ' Mids' + '            ' + 'Amount' + '         ' + 'Per' + '\n';
-    lines.forEach(line => {
-      list += '• ' + line + '\n';
-    });
-    return list;
   }
 
   ngOnInit() {
@@ -134,51 +110,56 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     ).subscribe((midGroups) => {
       this.midGroups = midGroups;
       this.dataSource.data = midGroups;
-      
+
       // const data = this.dataSource.data;
       // this.dataSource.data.push(this.bankAccount);
       // this.dataSource.data = data;
       // console.log('data source is '+this.dataSource);
       // console.log('data source is '+this.dataSource.data);
       // console.log('Mid group obj is '+this.midGroups);
-      
+
     });
   }
 
   // get account balance from api for respcted midgroup id
-  bankAccounts(){
-     this.midGroupService.getAccounts('bankAccounts').subscribe(
-      {next:(res)=>{console.log(res);
-        this.updateQuickBalance(res);
-      // this.bankAccount = res;
-      },
-      error:(err)=>console.log(err)}
+  bankAccounts() {
+    this.midGroupService.getAccounts('bankAccounts').subscribe(
+      {
+        next: (res) => {
+          console.log(res);
+          this.updateQuickBalance(res);
+          // this.bankAccount = res;
+        },
+        error: (err) => console.log(err)
+      }
     );
-   
+
   }
 
-    updateQuickBalance(data)
-    {
-      this.midGroupService.updateQuickBalance(data,'updateQuickBalance').subscribe(
-        {next:(res)=>{console.log(res);
-        this.getData()},
-        error:(err)=>console.log(err)}
-      );
-    }
+  updateQuickBalance(data) {
+    this.midGroupService.updateQuickBalance(data, 'updateQuickBalance').subscribe(
+      {
+        next: (res) => {
+          console.log(res);
+          this.getData()
+        },
+        error: (err) => console.log(err)
+      }
+    );
+  }
 
-   async getQuickAccounts()
-    {
-      console.log('quickbook mid-group component for getting account names');
+  async getQuickAccounts() {
+    console.log('quickbook mid-group component for getting account names');
 
-      await this.actionService.quickbookCon('quickbookConnect',0,0)
+    await this.actionService.quickbookCon('quickbookConnect', 0, 0)
       .then(res => {
-    
-      console.log(res);
+
+        console.log(res);
 
       }, error => {
-      console.log('action-dialg component error in quickbookConnect');
+        console.log('action-dialg component error in quickbookConnect');
       });
-    }
+  }
 
   mapData() {
     return of(this.midGroups.map(midGroup => new MidGroup(midGroup)));
@@ -233,6 +214,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
       list += mid.gateway_alias + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + mid.current_monthly_amount + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + mid.processing_percent;
       mid_names.push(list);
     });
+    console.log('mid_names :', mid_names);
     return mid_names;
   }
 
@@ -252,8 +234,6 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
       } else if (result.event == 'Delete') {
         this.deleteRowData(result.data);
       }
-    
-      
     });
   }
 

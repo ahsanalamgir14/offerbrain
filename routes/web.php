@@ -16,6 +16,11 @@ use App\Http\Controllers\Quickbook;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route::get('/test',function(){
+//     session_start();
+//     // $_SESSION['midGroupId'] = '';
+//     var_dump($_SESSION['midGroupId']);
+// });
 Route::get('/quickbook',[Quickbook::class, 'index']);
 Route::get('/callback.php',[Quickbook::class, 'processCode']);
 Route::get('/apiCall',[Quickbook::class, 'apicall']);

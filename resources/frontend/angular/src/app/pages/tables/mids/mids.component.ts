@@ -198,6 +198,7 @@ export class MidsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     await this.midsService.getMids(this.filters).then(mids => {
       this.mids = mids.data
+      console.log(mids);
       this.totalMids = mids.data.length
       this.mapData().subscribe(mids => {
         this.subject$.next(mids);

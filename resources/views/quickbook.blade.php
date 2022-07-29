@@ -13,7 +13,7 @@ $config =array(
     'oauth_redirect_uri' => 'http://offer-brain.test/callback.php '
 );
 
-session_start();
+//session_start();
 
 $dataService = DataService::Configure(array(
     'auth_mode' => 'oauth2',

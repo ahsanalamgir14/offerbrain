@@ -27,14 +27,15 @@ class MidController extends Controller
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
         }
+        DB::enableQueryLog();
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
         if ($request->selected_mids) {
             $selected_mids = explode(",", $request->selected_mids);
-            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1])->whereIn('mids.gateway_id', $selected_mids);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 0])->whereIn('mids.gateway_id', $selected_mids);
         } else {
-            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 1]);
+            $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_active' => 0]);
         }
         $query = $query->join('orders', function ($join) use ($start_date, $end_date) {
             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
@@ -65,7 +66,8 @@ class MidController extends Controller
         }
         $data = $query->get();
         // dd($data);
-        return response()->json(['status' => true, 'data' => $data]);
+        $query1 = DB::getQueryLog();
+        return response()->json(['status' => true, 'data' => $data, 'query'=>$query1]);
     }
 
     public function products()

@@ -150,8 +150,15 @@ Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_
 
 
 Route::get('/quickbookConnect/{midGroupId}/{account_id}',[Quickbook::class, 'quickbookConnect']);
+Route::get('/quickbookGet/{midGroupId}/{account_id}/{status}',[Quickbook::class, 'quickbookConnect']);
 Route::get('/callback.php',[Quickbook::class, 'processCode']);
-Route::get('/bankAccounts',[Quickbook::class, 'bankAccounts']);
-Route::get('/accountNames',[Quickbook::class, 'accountNames']);
+Route::get('/bankAccounts/{midGroupId}',[Quickbook::class, 'bankAccounts']);
+Route::get('/accountNames/{midGroupId}',[Quickbook::class, 'accountNames']);
 Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
+Route::put('/updateQuickAccounts/{midGroupId}',[Quickbook::class, 'updateQuickAccounts']);
 Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);
+Route::get('/checkQuickAccounts',[Quickbook::class, 'checkQuickAccounts']);
+
+    // Invoice routes
+Route::post('/generateInvoice',[Quickbook::class, 'generateInvoice']);
+Route::get('/getInvoices/{midGroupId}',[Quickbook::class, 'getInvoices']);

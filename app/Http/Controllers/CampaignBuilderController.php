@@ -78,7 +78,8 @@ class CampaignBuilderController extends Controller
 
 
         // $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
-        $data = DB::table('campaigns')->where(['campaigns.user_id' => Auth::id()])->whereNull('campaigns.is_active')
+        $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
+        // $data = DB::table('campaigns')->where(['campaigns.user_id' => Auth::id()])->whereNull('campaigns.is_active')
             ->leftJoin('orders', 'orders.user_id', 'campaigns.user_id')
             ->where('orders.time_stamp', '>=', $start_date)
             ->where('orders.time_stamp', '<=', $end_date)
@@ -86,11 +87,12 @@ class CampaignBuilderController extends Controller
             ->whereRaw('FIND_IN_SET(orders.campaign_id, campaigns.tracking_campaign_ids) != 0')
             // ->wherdsaeRaw('FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0')
             ->select('orders.user_id', 'orders.main_product_id', 'campaigns.user_id', 'campaigns.id', 'campaigns.campaign_id', 'campaigns.name', 'campaigns.tracking_networks', 'campaigns.tracking_campaigns', 'campaigns.cycle_product_ids', 'campaigns.created_at')
-            ->addSelect(DB::raw('Round(SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as revenue'))
-            ->addSelect(DB::raw('Round(SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 6 then orders.order_total else 0 end) + sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as refund'))
-            // ->asdsddSelect(DB::raw("count(case when orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[0]'))) and orders.order_status = 2 then 1 end) as initials"))
-            ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 then 1 end) as initials"))
-            ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.main_product_id in (SELECT JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]', '$[2]', '$[3]')) then 1 end) as rebills"))
+            ->addSelect(DB::raw('Round(SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 then orders.order_total else 0 end) - sum(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as revenue'))
+            ->addSelect(DB::raw('Round(SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 6 then orders.order_total else 0 end) + sum(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as refund'))
+            ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 then 1 end) as initials"))
+            ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.order_status = 2 and (orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) 
+            or orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) 
+            or orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]')))) then 1 end) as rebills"))
             ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 2 then 1 end) as c1"))
             ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[2]'))) and orders.order_status = 2 then 1 end) as c2"))
             ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) and orders.order_status = 2 then 1 end) as c3"))
@@ -102,9 +104,6 @@ class CampaignBuilderController extends Controller
             ->addSelect(DB::raw("count(case when FIND_IN_SET(orders.parent_affid, campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[3]'))) and orders.order_status = 7 then 1 end) as c3_declines"))
             ->addSelect(DB::raw('count(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.is_chargeback = 1 then 0 end) as CBs'))
             ->addSelect(DB::raw('SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
-                // ->prevaddSelect(DB::raw("count(case when all_in_set((select distinct o2.affid from orders left join orders as o2 on orders.customer_id = o2.customer_id), campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 2 then 1 end) as c1"));
-                // ->addSelect(DB::raw("count(case when all_in_set(orders.EmployeeNotes, campaigns.tracking_network_ids) != 0 and orders.main_product_id = (SELECT JSON_UNQUOTE(JSON_EXTRACT(campaigns.cycle_product_ids, '$[1]'))) and orders.order_status = 2 then 1 end) as c1"));
-            // });
             ->groupBy('campaigns.campaign_id')->get();
 
         return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);

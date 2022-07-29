@@ -416,7 +416,6 @@ class Quickbook extends Controller
         
         // var_dump($_SESSION['midGroupAccounts']);
 
-        
     }
 
    public static function parseAuthRedirectUrl($url)
@@ -520,7 +519,7 @@ class Quickbook extends Controller
     }
 
     public function insertInvoices($invoices)
-    {
+    
         Invoices::insert($invoices);
         return response()->json(['invoices'=>$invoices, 'status'=>'Invoices Created'],200);
     }

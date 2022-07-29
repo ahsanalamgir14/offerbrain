@@ -30,6 +30,7 @@ class CreateOrdersTable extends Migration
             $table->text('c1')->nullable()->default(null)->comment('PubID');
             $table->text('trx_month')->nullable()->default(null)->comment('derived-acquisition_date');
             $table->text('affid')->nullable()->default(null)->comment('network');
+            $table->text('parent_affId')->nullable()->default(null)->comment('Parent Affiliate ID');
             // $table->text('billing_street_address2')->nullable()->default(null);
             // $table->text('billing_email')->nullable()->default(null);
             // $table->text('billing_telephone')->nullable()->default(null);

@@ -17,6 +17,8 @@ import { ApiService } from 'src/app/api.service';
     authUrl='https://appcenter.intuit.com/connect/oauth2?client_id=ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz&scope=com.intuit.quickbooks.accounting&redirect_uri=http%3A%2F%2Foffer-brain.test%2Fcallback.php+&response_type=code&state=WXILD';
 
     endPoint = '';
+    connect:any;
+    is_valid:any;
     // authUrl = '';
     authUrl='https://appcenter.intuit.com/connect/oauth2?client_id=ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz&scope=com.intuit.quickbooks.accounting&redirect_uri='+encodeURI(environment.endpoint)+'%2Fcallback.php+&response_type=code&state=WXILD';
     constructor(private http : HttpClient, private apiService:ApiService) { 
@@ -37,6 +39,7 @@ async quickbookCon(url:any,midGroupId:any,account_id)
     //     this.oauth.loginPopup();
     //   }
         return this.connect;
+
   }
 
   async quickbookGet(url:any,midGroupId:any, account_id, status)

@@ -131,6 +131,8 @@ export class Order {
   total_pages:string;
   pageno:string;
   rows_per_page:string;
+  // time_stamp:string;
+  time_stamp:Date;
 
   constructor(order) {
     this.id = order.id;
@@ -254,6 +256,8 @@ export class Order {
     // this.systemNotes = order.systemNotes;
     // this.time_stamp = order.time_stamp;
     
+    // this.return_reason = order.time_stamp;
+    this.time_stamp = order.time_stamp;
   }
 
   // get name() {

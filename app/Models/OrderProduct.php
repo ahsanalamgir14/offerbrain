@@ -42,6 +42,7 @@ class OrderProduct extends Model
         'billing_model_name',
         'billing_model_description',
         'offer_id',
-        'offer_name'
+        'offer_name',
+        'time_stamp'
     ];
 }

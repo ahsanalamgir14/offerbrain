@@ -137,6 +137,48 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="cycle_1_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C1 %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.cycle_1_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c1_decline_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C1 Decline %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c1_decline_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cycle_2_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C2 %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.cycle_2_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="c2_decline_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C2 Decline %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c2_decline_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cycle_3_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.cycle_3_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="c3_decline_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 Decline %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c3_decline_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
         <!-- <ng-container matColumnDef="upsell_products">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell Products</th>
           <td *matCellDef="let row" mat-cell>
@@ -207,7 +249,8 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
           <td mat-cell *matCellDef="let row">
-            <a class="view-link" (click)="viewCampaignDetails(row.name)">View</a> |
+            <!-- <a class="view-link" (click)="viewCampaignDetails(row.name)">View</a> | -->
+            <a class="view-link" [routerLink]="'../edit-campaign/'+ row.campaign_id">Edit</a> |
             <a class="delete-link" (click)="handleDeleteAction(row.campaign_id)">Delete</a>
           </td>
         </ng-container>

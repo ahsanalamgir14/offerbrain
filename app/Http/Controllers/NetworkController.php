@@ -24,7 +24,6 @@ class NetworkController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         if ($request->start_date != '' && $request->end_date != '') {
-            DB::enableQueryLog();
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
            
@@ -63,7 +62,6 @@ class NetworkController extends Controller
                 }
             }
             $data['affiliates'] = $query->get();
-            // dd(DB::getQueryLog());
         } else {
             // $data['affiliates'] = Network::where('user_id', 2)->get();
             $data['affiliates'] = Network::where('user_id', Auth::id())->get();
@@ -204,7 +202,7 @@ class NetworkController extends Controller
                 
                 $url = 'https://api.eflow.team/v1/networks/affiliates';
                 $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
-                if(isset($api_data->affiliates)){
+                if (isset($api_data->affiliates)) {
                     $affiliates = $api_data->affiliates;
                 }
 

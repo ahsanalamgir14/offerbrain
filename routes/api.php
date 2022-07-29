@@ -147,6 +147,7 @@ Route::get('get_EF_key', [SubAffiliateController::class, 'get_EF_key']);
 Route::get('campaign-view-data', [CampaignBuilderController::class, 'campaign_view_data']);
 Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
 Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);
+Route::get('get_parent_affid', [OrdersController::class, 'get_parent_affid']);
 
 
 

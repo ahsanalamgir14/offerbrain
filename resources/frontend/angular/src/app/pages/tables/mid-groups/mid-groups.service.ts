@@ -12,7 +12,7 @@ export class MidGroupsService {
 
   midGroups: any;
   gateway: any;
-  accounts : any;
+  accounts: any;
   endPoint = '';
   connect:any;
   mid_group_id:any;
@@ -33,11 +33,11 @@ export class MidGroupsService {
   constructor(private apiService: ApiService, private http:HttpClient, 
     private actionService:ActionDialogService) {
     this.endPoint = environment.endpoint;
-   }
+  }
 
   async getMidGroups(filters): Promise<any> {
     await this.apiService.getData(`mid-groups?start_date=${filters.start}&end_date=${filters.end}`)
-    .then(res => res.json()).then((data) => {
+      .then(res => res.json()).then((data) => {
         this.midGroups = data;
         this.getResponse.next(data);
       });
@@ -84,9 +84,8 @@ export class MidGroupsService {
     return this.http.get(`${this.endPoint}/api/${url}/${id}`);
   }
 
-  updateQuickBalance(data, url):Observable<any>
-  {
-   return this.http.put(`${this.endPoint}/api/${url}`,data);
+  updateQuickBalance(data, url): Observable<any> {
+    return this.http.put(`${this.endPoint}/api/${url}`, data);
   }
 
   updateQuickAccounts(midGroupId, url):Observable<any>
@@ -185,7 +184,4 @@ export class MidGroupsService {
               }
           }, 100);
     }
-
-  
-  
 }

@@ -20,6 +20,7 @@ class ProspectController extends Controller
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
 
+        // $query = Prospect::where('user_id', 2)->select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         $query = Prospect::where('user_id', $request->user()->id)->select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         
         // $total_rows = Prospect::where('id', '>', 0)->count('id');

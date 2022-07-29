@@ -287,8 +287,8 @@ class OrdersController extends Controller
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
 
-        $start_date = '07/18/2022';
-        $end_date = '07/18/2022';
+        $start_date = '07/19/2022';
+        $end_date = '07/24/2022';
 
         $db_order_ids = Order::where(['user_id' => Auth::id()])->pluck('order_id')->toArray();
         $url = $user->sticky_url . '/api/v1/order_find';
@@ -542,6 +542,7 @@ class OrdersController extends Controller
             // $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
             // $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
 
+
             $db_order_ids = DB::table('orders')->select('order_id')
                 ->where('user_id', $user->id)
                 ->where('time_stamp', '>=', date("Y-m-d", strtotime($start_date)) . ' 00:00:00')
@@ -555,6 +556,7 @@ class OrdersController extends Controller
                 ['start_date' => $start_date, 'end_date' => $end_date, 'campaign_id' => 'all', 'criteria' => 'all']
             )->getBody()->getContents());
             $total_orders = $api_data->total_orders;
+
             if ($total_orders != 0) {
                 $order_ids = $api_data->order_id;
                 if ($total_orders < 50000) {
@@ -587,12 +589,15 @@ class OrdersController extends Controller
                             if (property_exists($order, 'systemNotes')) {
                                 $order->systemNotes = serialize($order->systemNotes);
                             }
+
                             if (isset($order->employeeNotes) && strpos($order->employeeNotes, 'ID #') !== false) {
                                 $order->parent_affid = self::getAffid($order->affid, $order->employeeNotes, $user->id);
                             }
 
                             $order->totals_breakdown = serialize($order->totals_breakdown);
+
                             if (!in_array($order->order_id, $db_order_ids)) {
+
                                 $new_orders++;
                                 Order::create((array)$order);
                                 $order->products = unserialize($order->products);
@@ -611,7 +616,7 @@ class OrdersController extends Controller
                         $data = null;
                         $results = null;
                     }
-                    return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
+                    // return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
                 } else {
                     $startDate = Carbon::createFromFormat('m/d/Y', $start_date);
                     $endDate = Carbon::createFromFormat('m/d/Y', $end_date);
@@ -663,6 +668,7 @@ class OrdersController extends Controller
                                     if (property_exists($order, 'systemNotes')) {
                                         $order->systemNotes = serialize($order->systemNotes);
                                     }
+
                                     if (isset($order->employeeNotes) && strpos($order->employeeNotes, 'ID #') !== false) {
                                         $order->parent_affid = self::getAffid($order->affid, $order->employeeNotes, $user->id);
                                     }
@@ -834,6 +840,7 @@ class OrdersController extends Controller
                                         $new_orders++;
                                         Order::create((array)$order);
                                         $mass_assignment = self::get_product_order_mass($order, $user->id);
+
                                         OrderProduct::create($mass_assignment);
                                     } else {
                                         $updated_orders++;
@@ -1419,6 +1426,115 @@ class OrdersController extends Controller
             $result['offer_name'] = $order->products[0]->offer->name;
         }
         return $result;
+    }
+
+    public function pull_user_order_history(Request $request)
+    {
+        $new_orders = 0;
+        $updated_orders = 0;
+        $order_ids = [];
+        $pending_orders = [];
+
+        $user = User::find($request->user()->id);
+        // return $user->id;
+        $username = $user->sticky_api_username;
+        $password = Crypt::decrypt($user->sticky_api_key);
+        $url = $user->sticky_url . '/api/v1/order_find';
+
+        $starting_day = '2022-07-19';
+        $ending_day = '2022-07-24';
+        // $start_date = Carbon::parse($starting_day)->startOfDay();
+        // $end_date = Carbon::parse($ending_day)->endOfDay();
+        $date_range = CarbonPeriod::create($starting_day, $ending_day);
+        $date_range->toArray();
+        // dd($date_range);
+
+        foreach ($date_range as $day) {
+            $month_days[] = $day;
+        }
+        // dd($month_days);
+        foreach ($month_days as $day) {
+            $start_day = Carbon::parse($day)->startOfDay();
+            $end_day = Carbon::parse($day)->endOfDay();
+
+            $url = $user->sticky_url . '/api/v2/orders/histories?start_at=' . $start_day . '&end_at=' . $end_day;
+
+            $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                ->get($url)->getBody()->getContents());
+
+            if ($api_data->status == "SUCCESS") {
+                $last_page = $api_data->last_page;
+                $total = $api_data->total;
+                $orders = $api_data->data;
+                $order_ids = array_merge($order_ids, array_column($orders, 'order_id'));
+
+                // dd($order_ids);
+                for ($i = 2; $i <= $last_page; $i++) {
+                    $api_data = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                        ->get($url . '&page=' . $i)->getBody()->getContents());
+
+                    $orders = $api_data->data;
+                    // dd($orders);
+                    $order_ids = array_merge($order_ids, array_column($orders, 'order_id'));
+                }
+                $order_ids = array_unique($order_ids);
+
+                if ($total < 50000) {
+                    $chunked_array = array_chunk($order_ids, 500);
+                // dd($chunked_array);
+                    foreach ($chunked_array as $chucked_ids) {
+                        $order_view_api = $user->sticky_url . '/api/v1/order_view';
+                        $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
+                            ->post($order_view_api, ['order_id' => $chucked_ids])->getBody()->getContents());
+
+                        $results = $order_views->data;
+                        foreach ($results as $result) {
+                            $result->user_id = $user->id;
+                            $month = Carbon::parse($result->time_stamp)->format('F');
+                            $year = Carbon::parse($result->time_stamp)->format('Y');
+                            $result->acquisition_month = $month;
+                            $result->acquisition_year = $year;
+                            $result->trx_month = $month;
+                            $result->billing_email = $result->email_address;
+                            $result->billing_telephone = $result->customers_telephone;
+                            $result->shipping_email = $result->email_address;
+                            $result->shipping_telephone = $result->customers_telephone;
+                            if (property_exists($result, 'employeeNotes')) {
+                                $result->employeeNotes = serialize($result->employeeNotes);
+                            }
+                            $result->utm_info = serialize($result->utm_info);
+                            if (property_exists($result, 'products')) {
+                                $result->products = serialize($result->products);
+                            }
+                            $result->systemNotes = serialize($result->systemNotes);
+                            $result->totals_breakdown = serialize($result->totals_breakdown);
+                            //update
+                            $updated_orders++;
+                            $db_order = Order::where(['order_id' => $result->order_id, 'user_id' => Auth::id()])->first();
+                            if ($db_order) {
+                                $db_order->update((array)$result);
+                                $mass_assignment = $this->get_order_product_mass($result);
+                                $order_product = OrderProduct::where(['order_id' => $db_order->order_id, 'user_id' => Auth::id()])->update($mass_assignment);
+                            } else {
+                                array_push($pending_orders, $result->order_id);
+                                $new_orders++;
+                                Order::create((array)$result);
+                                $mass_assignment = $this->get_order_product_mass($result);
+                                OrderProduct::create($mass_assignment);
+                            }
+                            // dd('die');
+                        }
+                        $data = null;
+                        $results = null;
+                        $order_ids = [];
+                        // $pending_orders = [];
+                    }
+                } else {
+                    return response()->json(['status' => false, 'user_id' => Auth::id(), 'message' => 'data exceeded 50000 records']);
+                }
+            }
+        }
+        return response()->json(['status' => true, 'user_id' => Auth::id(), 'New Orders' => $new_orders, 'Updated orders:' => $updated_orders, 'New Pending Orders: ' => $pending_orders]);
     }
 
     public static function pull_cron_orders_bk()
@@ -2040,4 +2156,52 @@ class OrdersController extends Controller
         });
         return response()->json(['message' => 'IP Details are added in th correspond ips']);
     }
+
+    public function get_parent_affid()
+    {
+        // return Auth::id();
+        $idArr = [];
+        $data = DB::table('orders')->select('order_id', 'affid', 'parent_affid', 'employeeNotes')
+            ->where('user_id', Auth::id())
+            ->where('is_test_cc', 0)
+            ->where('affid', '')
+            ->get();
+
+        foreach ($data as $order) {
+            if (!empty($order->employeeNotes)) {
+                $employeeNotes = $order->employeeNotes;
+                if (strpos($employeeNotes, 'ID #') !== false) {
+                    $parentId = substr($employeeNotes, strpos($employeeNotes, "ID #") + 1);
+                    $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                    $affData = DB::table('orders')->select('id', 'affid', 'employeeNotes')->where(['order_id' => $parentId, 'user_id' => Auth::id()])->first();
+                    if (isset($affData->affid) && !empty($affData->affid)) {
+                        DB::table('orders')->where('order_id', $order->order_id)->update(['parent_affid' => $affData->affid]);
+                    } else {
+                        if (!empty($affData->employeeNotes)) {
+                            if (strpos($affData->employeeNotes, 'ID #') !== false) {
+                                $parentId = substr($affData->employeeNotes, strpos($affData->employeeNotes, "ID #") + 1);
+                                $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                                $affData = DB::table('orders')->select('id', 'affid', 'employeeNotes')->where(['order_id' => $parentId, 'user_id' => Auth::id()])->first();
+                                if (isset($affData->affid) && !empty($affData->affid)) {
+                                    DB::table('orders')->where('order_id', $order->order_id)->update(['parent_affid' => $affData->affid]);
+                                } else {
+                                    if (!empty($affData->employeeNotes)) {
+                                        if (strpos($affData->employeeNotes, 'ID #') !== false) {
+                                            $parentId = substr($affData->employeeNotes, strpos($affData->employeeNotes, "ID #") + 1);
+                                            $parentId = preg_replace('/[^0-9]/', '', $parentId);
+                                            $affData = DB::table('orders')->select('id', 'affid', 'employeeNotes')->where(['order_id' => $parentId, 'user_id' => Auth::id()])->first();
+                                            if (isset($affData->affid) && !empty($affData->affid)) {
+                                                DB::table('orders')->where('order_id', $order->order_id)->update(['parent_affid' => $affData->affid]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

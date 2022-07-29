@@ -11,10 +11,12 @@ export class CampaignBuilderService {
   public saveResponse = new BehaviorSubject([]);
   public getProductsResponse = new BehaviorSubject([]);
   public getOptionsResponse = new BehaviorSubject([]);
+  public updateResponse = new BehaviorSubject([]);
 
   saveResponse$ = this.saveResponse.asObservable();
   getProductsResponse$ = this.getProductsResponse.asObservable();
   getOptionsResponse$ = this.getOptionsResponse.asObservable();
+  updateResponse$ = this.updateResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -23,6 +25,14 @@ export class CampaignBuilderService {
     data = { ...data, ...a, ...b, ...c, ...d }
     await this.apiService.postData(`campaigns_builder`, data).then(res => res.json()).then((data) => {
       this.saveResponse.next(data);
+    });
+  }
+
+  async update(a, b, c, d, id): Promise<any> {
+    var data = {};
+    data = { ...data, ...a, ...b, ...c, ...d }
+    await this.apiService.updateData(`campaigns_builder/${id}`, data).then(res => res.json()).then((data) => {
+      this.updateResponse.next(data);
     });
   }
 
@@ -62,5 +72,19 @@ export class CampaignBuilderService {
     });
   }
 
-  a
+  selectCampaigns(o1: any, o2: any): boolean {
+    return o1.id === o2.id && o1.campaign_id === o2.campaign_id;
+  }
+
+  selectNetworks(o1: any, o2: any): boolean {
+    return o1.id === o2.id;
+  }
+
+  selectUpsellProducts(o1: any, o2: any): boolean {
+    return o1.product_id === o2.product_id;
+  }
+
+  selectDownsells(o1: any, o2: any): boolean {
+    return o1.product_id === o2.product_id;
+  }
 }

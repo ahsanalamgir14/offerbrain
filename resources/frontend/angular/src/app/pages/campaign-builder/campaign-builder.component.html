@@ -27,7 +27,7 @@
 
                 <mat-form-field fxFlex="25">
                   <mat-label>Select Campaign Type</mat-label>
-                  <mat-select formControlName="campaign_type">
+                  <mat-select formControlName="campaign_type" [(ngModel)]="selectedCampaigns">
                     <ngx-mat-select-search placeholderLabel="Search..." noEntriesFoundLabel="Not Found">
                     </ngx-mat-select-search>
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
@@ -38,7 +38,8 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Campaigns for Tracking</mat-label>
-                  <mat-select formControlName="tracking_campaigns" multiple>
+                  <mat-select formControlName="tracking_campaigns" [compareWith]="campaignBuilderService.selectCampaigns"
+                    multiple>
 
                     <ngx-mat-select-search [formControl]="campaignSearchCtrl" placeholderLabel="Search..."
                       noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
@@ -60,7 +61,8 @@
               <div fxFlex="auto" fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field fxFlex="25">
                   <mat-label>Select All Networks for Tracking</mat-label>
-                  <mat-select formControlName="tracking_networks" multiple>
+                  <mat-select formControlName="tracking_networks" [compareWith]="campaignBuilderService.selectNetworks"
+                    multiple>
 
                     <ngx-mat-select-search [formControl]="networkSearchCtrl" placeholderLabel="Search..."
                       noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
@@ -115,18 +117,6 @@
                         (click)="getSelectValue($event, 'upsell',i)">
                       </ng-multiselect-dropdown>
                     </div>
-                    <!-- <mat-form-field>
-                      <mat-label>Select Product for Upsell {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="upsell_products[i]" [ngModelOptions]="{standalone: true}"
-                        (selectionChange)="avoidDuplication($event, 'upsell',i)"(click)="getSelectValue($event, 'upsell',i)">
-                        <mat-option>
-                          <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
-                            noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
-                        </mat-option>
-                        <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field> -->
                   </div>
                 </div>
               </div>
@@ -148,19 +138,6 @@
                         (click)="getSelectValue($event, 'downsell',i)">
                       </ng-multiselect-dropdown>
                     </div>
-                    <!-- <mat-form-field>
-                      <mat-label>Select Product for Downsells {{i+1}}</mat-label>
-                      <mat-select [(ngModel)]="downsell_products[i]" [ngModelOptions]="{standalone: true}"
-                        (selectionChange)="avoidDuplication($event, 'downsell',i)"(click)="getSelectValue($event, 'downsell',i)">
-                        <mat-option>
-                          <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
-                            noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
-                        </mat-option>
-                        <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
-                          ({{option.id}}) - {{option.price}}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field> -->
                   </div>
                 </div>
               </div>
@@ -211,18 +188,6 @@
                         (click)="getSelectValue($event, 'cycleproducts',i)">
                       </ng-multiselect-dropdown>
                     </div>
-                    <!-- <mat-form-field>
-                        <mat-label>Select Product for Cycle {{i+1}}</mat-label>
-                        <mat-select [(ngModel)]="cycle_products[i]" [ngModelOptions]="{standalone: true}"
-                          (selectionChange)="avoidDuplication($event, 'cycleproducts',i)">
-                          <mat-option>
-                            <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
-                              noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
-                          </mat-option>
-                          <mat-option *ngFor="let option of filteredProducts | async" [value]="option">{{ option.name }}
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field> -->
                   </div>
                 </div>
               </div>
@@ -244,13 +209,16 @@
             <div class="subheading">Select Options.</div>
 
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="cogs_track">Track COGS for Products</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="cogs_track" [checked]="miscFormGroup.get('cogs_track').value === 1">Track
+                COGS for Products</mat-checkbox>
             </div>
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="cpa_track">Track CPA for cycles</mat-checkbox>
+              <mat-checkbox class="checkbox" formControlName="cpa_track" [checked]="miscFormGroup.get('cpa_track').value === 1">Track
+                CPA for cycles</mat-checkbox>
             </div>
             <div class="content" fxLayout="column" fxLayoutGap="8px">
-              <mat-checkbox class="checkbox" formControlName="third_party_track">Track 3rd Party Offers for Thank You
+              <mat-checkbox class="checkbox" formControlName="third_party_track" [checked]="miscFormGroup.get('third_party_track').value === 1">Track
+                3rd Party Offers for Thank You
                 page</mat-checkbox>
             </div>
 
@@ -262,11 +230,9 @@
               </button>
             </div>
           </form>
-
         </mat-step>
       </mat-horizontal-stepper>
     </div>
-
   </div>
 
 </fury-page>

@@ -20,13 +20,15 @@ import { BreadcrumbsModule } from 'src/@fury/shared/breadcrumbs/breadcrumbs.modu
 import { ListModule } from 'src/@fury/shared/list/list.module';
 import { MaterialModule } from 'src/@fury/shared/material-components.module';
 import { MidGroupsRoutingModule } from './mid-groups-routing.module';
-import { MidGroupsComponent, TooltipListPipe } from './mid-groups.component';
+import { MidGroupsComponent } from './mid-groups.component';
 import { MidsDetailComponent } from './mids-detail/mids-detail.component';
 import { RouterModule } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MidsModule } from '../mids/mids.module';
 import { ActionDialogComponent } from './action-dialog/action-dialog.component';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { TooltipListModule } from 'src/@fury/shared/@pipes/tooltip-list.module';
+
 
 @NgModule({
   imports: [
@@ -56,9 +58,10 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatTooltipModule,
     MidsModule,
     NgxSkeletonLoaderModule,
-    MidsModule
+    MidsModule,
+    TooltipListModule
   ],
-  declarations: [MidGroupsComponent, MidsDetailComponent, TooltipListPipe, ActionDialogComponent],
+  declarations: [MidGroupsComponent, MidsDetailComponent, ActionDialogComponent],
   exports: [MidGroupsComponent],
 
 })

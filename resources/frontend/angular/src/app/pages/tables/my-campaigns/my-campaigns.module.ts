@@ -21,9 +21,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-// import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
-import { TooltipListPipe } from './tooltip-list.pipe';
+import { TooltipListModule } from 'src/@fury/shared/@pipes/tooltip-list.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 
@@ -53,10 +52,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatPaginatorModule,
     MatProgressBarModule,
     NgxUiLoaderModule,
-    MatTooltipModule
+    MatTooltipModule,
+    TooltipListModule
   ],
-  declarations: [MyCampaignsComponent, TooltipListPipe],
-  exports: [MyCampaignsComponent, TooltipListPipe],
+  declarations: [MyCampaignsComponent],
+  exports: [MyCampaignsComponent],
 
 })
 export class MyCampaignsModule { }

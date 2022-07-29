@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2b877493dd3d5c3a00dc532fd14f18c",
+    "content-hash": "01fd634d24192abd7e055dcdc387cc25",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -64,34 +64,34 @@
         },
         {
             "name": "barryvdh/laravel-cors",
-            "version": "v2.2.0",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fruitcake/laravel-cors.git",
-                "reference": "783a74f5e3431d7b9805be8afb60fd0a8f743534"
+                "reference": "7c036ec08972d8d5d9db637e772af6887828faf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fruitcake/laravel-cors/zipball/783a74f5e3431d7b9805be8afb60fd0a8f743534",
-                "reference": "783a74f5e3431d7b9805be8afb60fd0a8f743534",
+                "url": "https://api.github.com/repos/fruitcake/laravel-cors/zipball/7c036ec08972d8d5d9db637e772af6887828faf5",
+                "reference": "7c036ec08972d8d5d9db637e772af6887828faf5",
                 "shasum": ""
             },
             "require": {
-                "asm89/stack-cors": "^2.0.1",
+                "fruitcake/php-cors": "^1.2",
                 "illuminate/contracts": "^6|^7|^8|^9",
                 "illuminate/support": "^6|^7|^8|^9",
-                "php": ">=7.2"
+                "php": "^7.4|^8.0"
             },
             "require-dev": {
                 "laravel/framework": "^6|^7.24|^8",
                 "orchestra/testbench-dusk": "^4|^5|^6|^7",
-                "phpunit/phpunit": "^6|^7|^8|^9",
+                "phpunit/phpunit": "^9",
                 "squizlabs/php_codesniffer": "^3.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "3.0-dev"
                 },
                 "laravel": {
                     "providers": [
@@ -127,7 +127,7 @@
             ],
             "support": {
                 "issues": "https://github.com/fruitcake/laravel-cors/issues",
-                "source": "https://github.com/fruitcake/laravel-cors/tree/v2.2.0"
+                "source": "https://github.com/fruitcake/laravel-cors/tree/v3.0.0"
             },
             "funding": [
                 {
@@ -139,7 +139,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-23T14:25:13+00:00"
+            "time": "2022-02-23T14:53:22+00:00"
         },
         {
             "name": "brick/math",
@@ -707,6 +707,77 @@
                 }
             ],
             "time": "2022-02-23T14:25:13+00:00"
+        },
+        {
+            "name": "fruitcake/php-cors",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fruitcake/php-cors.git",
+                "reference": "58571acbaa5f9f462c9c77e911700ac66f446d4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fruitcake/php-cors/zipball/58571acbaa5f9f462c9c77e911700ac66f446d4e",
+                "reference": "58571acbaa5f9f462c9c77e911700ac66f446d4e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4|^8.0",
+                "symfony/http-foundation": "^4.4|^5.4|^6"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^9",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Fruitcake\\Cors\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fruitcake",
+                    "homepage": "https://fruitcake.nl"
+                },
+                {
+                    "name": "Barryvdh",
+                    "email": "barryvdh@gmail.com"
+                }
+            ],
+            "description": "Cross-origin resource sharing library for the Symfony HttpFoundation",
+            "homepage": "https://github.com/fruitcake/php-cors",
+            "keywords": [
+                "cors",
+                "laravel",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/fruitcake/php-cors/issues",
+                "source": "https://github.com/fruitcake/php-cors/tree/v1.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://fruitcake.nl",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/barryvdh",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-02-20T15:07:15+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2875,6 +2946,63 @@
                 "source": "https://github.com/bobthecow/psysh/tree/v0.11.2"
             },
             "time": "2022-02-28T15:28:54+00:00"
+        },
+        {
+            "name": "quickbooks/v3-php-sdk",
+            "version": "6.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/intuit/QuickBooks-V3-PHP-SDK.git",
+                "reference": "a2cc23508c8b1c1d8c595d249e5c114917a2f65d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/intuit/QuickBooks-V3-PHP-SDK/zipball/a2cc23508c8b1c1d8c595d249e5c114917a2f65d",
+                "reference": "a2cc23508c8b1c1d8c595d249e5c114917a2f65d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0 || ^6.0 || ^7.0"
+            },
+            "suggest": {
+                "ext-curl": "Uses Curl to make HTTP Requests",
+                "guzzlehttp/guzzle": "Uses Guzzle to make HTTP Requests"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QuickBooksOnline\\API\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "abisalehalliprasan",
+                    "email": "anil_kumar3@intuit.com"
+                }
+            ],
+            "description": "The Official PHP SDK for QuickBooks Online Accounting API",
+            "homepage": "http://developer.intuit.com",
+            "keywords": [
+                "api",
+                "http",
+                "quickbooks",
+                "rest",
+                "smallbusiness"
+            ],
+            "support": {
+                "issues": "https://github.com/intuit/QuickBooks-V3-PHP-SDK/issues",
+                "source": "https://github.com/intuit/QuickBooks-V3-PHP-SDK/tree/6.0.5"
+            },
+            "time": "2022-05-19T22:36:55+00:00"
         },
         {
             "name": "ralouphie/getallheaders",

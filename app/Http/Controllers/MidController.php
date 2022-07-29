@@ -34,34 +34,34 @@ class MidController extends Controller
         }
         if ($request->selected_mids) {
             $selected_mids = explode(",", $request->selected_mids);
+            // $query = DB::table('mids')->where(['orders.user_id' => 2, 'mids.is_deleted' => 0])->whereIn('mids.gateway_id', $selected_mids);
             $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0])->whereIn('mids.gateway_id', $selected_mids);
         } else {
+            // $query = DB::table('mids')->where(['orders.user_id' => 2, 'mids.is_deleted' => 0]);
             $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0]);
         }
         $query = $query->join('orders', function ($join) use ($start_date, $end_date) {
             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
+                // ->where('orders.user_id', '=', 2)
                 ->where('orders.user_id', '=', Auth::id())
                 ->where('orders.time_stamp', '>=', $start_date)
-                ->where('orders.time_stamp', '<=', $end_date);
+                ->where('orders.time_stamp', '<=', $end_date)
+                ->where('orders.is_test_cc', 0);
         })
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
-            // ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 or orders.order_status = 8 then orders.order_total else 0 end) - sum(case when (orders.order_status = 2 or orders.order_status = 8) and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
             ->selectRaw("count(case when orders.order_status = 2 or orders.order_status = 8 then 1 end) as mid_count")
             ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
             ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
             ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
             ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
             ->addSelect('mids.mid_group as group_name')
-            // ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
-            // ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
-            // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
-            // ->addSelect('order_products.id as product_id','order_products.name as product_name')
-            // ->groupBy('order_products.name')
+            // ->where('mids.user_id', '=', 2)
             ->where('mids.user_id', '=', Auth::id())
             ->where('orders.is_test_cc', 0)
             ->groupBy('mids.id');
+
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
@@ -221,7 +221,9 @@ class MidController extends Controller
         $updated_gateways = 0;
         // $affected = DB::table('mids')->update(['is_active' => 0]);
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
+        // Mid::where('user_id', 2)->update(['is_active' => 0]);
         Mid::where('user_id', Auth::id())->update(['is_active' => 0]);
+        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
@@ -243,6 +245,7 @@ class MidController extends Controller
                 if (in_array($gateway->gateway_id, $db_gateway_ids)) {
                     $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
                     $update->router_id = $router->id;
+                    // $update->user_id = 2;
                     $update->user_id = Auth::id();
                     $update->router_name = $router->name;
                     $update->router_date_in = $router->date_in;
@@ -260,6 +263,7 @@ class MidController extends Controller
                 } else {
                     $mid = new Mid();
                     $mid->router_id = $router->id;
+                    // $mid->user_id = 2;
                     $mid->user_id = Auth::id();
                     $mid->router_name = $router->name;
                     $mid->router_date_in = $router->date_in;

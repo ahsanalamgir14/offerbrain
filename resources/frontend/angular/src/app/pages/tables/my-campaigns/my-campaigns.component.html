@@ -91,31 +91,10 @@
         <ng-container *ngFor="let column of columns">
           <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
             <th *matHeaderCellDef mat-header-cell mat-sort-header> {{ column.name }}</th>
-            <td *matCellDef="let row" mat-cell>
+            <td *matCellDef="let row" [ngClass]="column.property" mat-cell>
               {{ row[column.property] }}
             </td>
           </ng-container>
-        </ng-container>
-        <!-- 
-        <ng-container matColumnDef="tracking_campaigns">
-          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Campaigns</th>
-          <td *matCellDef="let row" mat-cell>
-            <ul class="list-items">
-              <li *ngFor="let campaign of row.tracking_campaigns">
-                {{ campaign.name }}
-              </li>
-            </ul>
-          </td>
-        </ng-container> -->
-
-        <ng-container matColumnDef="tracking_campaigns">
-          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Campaigns</th>
-          <!-- (click)="openDialog(row)" -->
-          <td *matCellDef="let row, index as i" [matTooltip]="row.tracking_campaigns | tooltipList" matTooltipClass="tooltip-list"
-            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-            <a routerLink="#">{{ row.tracking_campaigns.length }}</a>
-
-          </td>
         </ng-container>
 
         <!-- <ng-container matColumnDef="tracking_networks">
@@ -130,10 +109,58 @@
         </ng-container> -->
 
         <ng-container matColumnDef="tracking_networks">
-          <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Networks</th>
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Networks</th>
           <td *matCellDef="let row, index as i" [matTooltip]="row.tracking_networks | tooltipList" matTooltipClass="tooltip-list"
             mat-cell #tooltip="matTooltip" matTooltipPosition="below">
             <a routerLink="#">{{ row.tracking_networks.length }}</a>
+          </td>
+        </ng-container>
+
+        <!-- <ng-container matColumnDef="tracking_campaigns">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header>Tracking Campaigns</th>
+            <td *matCellDef="let row" mat-cell>
+              <ul class="list-items">
+                <li *ngFor="let campaign of row.tracking_campaigns">
+                  {{ campaign.name }}
+                </li>
+              </ul>
+            </td>
+          </ng-container> -->
+
+        <ng-container matColumnDef="tracking_campaigns">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Campaigns</th>
+          <!-- (click)="openDialog(row)" -->
+          <td *matCellDef="let row, index as i" [matTooltip]="row.tracking_campaigns | tooltipList" matTooltipClass="tooltip-list"
+            mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+            <a routerLink="#">{{ row.tracking_campaigns.length }}</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="initials">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Initials #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.initials | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="rebills">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Rebills #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.rebills | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c1">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C1 #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c1 | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c1_revenue">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C1 $</th>
+          <td *matCellDef="let row" class="c1-revenue" mat-cell>
+            ${{ row.c1_revenue | number : '1.2-2' }}
           </td>
         </ng-container>
 
@@ -147,7 +174,21 @@
         <ng-container matColumnDef="c1_decline_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>C1 Decline %</th>
           <td *matCellDef="let row" mat-cell>
-            {{ row.c1_decline_per | number : '1.2-2' }}%
+            {{ row.c1_decline_per? ( row.c1_decline_per | number : '1.2-2'): '0.00'}}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c2">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C2 #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c2 | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c2_revenue">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C2 $</th>
+          <td *matCellDef="let row" class="c2-revenue" mat-cell>
+            ${{ row.c2_revenue | number : '1.2-2' }}
           </td>
         </ng-container>
 
@@ -157,25 +198,39 @@
             {{ row.cycle_2_per | number : '1.2-2' }}%
           </td>
         </ng-container>
-        
+
         <ng-container matColumnDef="c2_decline_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>C2 Decline %</th>
           <td *matCellDef="let row" mat-cell>
-            {{ row.c2_decline_per | number : '1.2-2' }}%
+            {{ row.c2_decline_per? ( row.c2_decline_per | number : '1.2-2'): '0.00'}}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c3">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.c3 | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="c3_revenue">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 $</th>
+          <td *matCellDef="let row" class="c3-revenue" mat-cell>
+            ${{ row.c3_revenue | number : '1.2-2' }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="cycle_3_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 %</th>
           <td *matCellDef="let row" mat-cell>
-            {{ row.cycle_3_per | number : '1.2-2' }}%
+            {{ row.cycle_3_per | number : '1.2-2' || 0}}%
           </td>
         </ng-container>
-        
+
         <ng-container matColumnDef="c3_decline_per">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>C3 Decline %</th>
           <td *matCellDef="let row" mat-cell>
-            {{ row.c3_decline_per | number : '1.2-2' }}%
+            {{ row.c3_decline_per? ( row.c3_decline_per | number : '1.2-2'): '0.00'}}%
           </td>
         </ng-container>
 
@@ -189,6 +244,55 @@
             </ul>
           </td>
         </ng-container> -->
+
+        <ng-container matColumnDef="avg_ticket">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Avg Ticket $</th>
+          <td *matCellDef="let row" mat-cell>
+            ${{ row.avg_ticket | number : '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="revenue">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Revenue $</th>
+          <td *matCellDef="let row" mat-cell>
+            ${{ row.revenue | number : '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="refund">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund $</th>
+          <td *matCellDef="let row" mat-cell>
+            ${{ row.refund | number : '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="refund_rate">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>Refund Rate</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.refund_rate | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="CBs">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>CBs #</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.CBs | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="CB_per">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>CB %</th>
+          <td *matCellDef="let row" mat-cell>
+            {{ row.CB_per | number : '1.2-2' }}%
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="CB_currency">
+          <th *matHeaderCellDef mat-header-cell mat-sort-header>CB $</th>
+          <td *matCellDef="let row" mat-cell>
+            ${{ row.CB_currency | number : '1.2-2' }}
+          </td>
+        </ng-container>
 
         <ng-container matColumnDef="upsell_products">
           <th *matHeaderCellDef mat-header-cell mat-sort-header>Upsell Products</th>
@@ -244,7 +348,6 @@
           </td>
         </ng-container>
 
-
         <!-- Action Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> Actions </th>
@@ -256,8 +359,7 @@
         </ng-container>
 
         <tr *matHeaderRowDef="visibleColumns; sticky: true" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements"
-          mat-row></tr>
+        <tr *matRowDef="let row; columns: visibleColumns;" class="clickable route-animations-elements" mat-row></tr>
       </table>
       <!-- </div> -->
 

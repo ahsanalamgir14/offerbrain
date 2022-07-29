@@ -128,7 +128,7 @@
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Bank Balance</th>
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
                         matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-                        <a routerLink="#">{{ row.quick_balance }}</a>
+                        {{ row.quick_balance }}
                     </td>
                 </ng-container>
 
@@ -136,7 +136,7 @@
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Suggested Invoice</th>
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
                             matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-                            <a routerLink="#">{{ row.quick_balance }}</a>
+                            {{ row.target_bank_balance }}
                     </td>
                 </ng-container>
 
@@ -144,7 +144,7 @@
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Last Invoice Date</th>
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
                                 matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-                                <a routerLink="#">{{ row.quick_balance }}</a>
+                                {{ row.created_at | date:'medium'}}
                     </td>
                 </ng-container>
 
@@ -152,7 +152,7 @@
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>Last Invoice Amount</th>
                     <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
                                     matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
-                                    <a routerLink="#">{{ row.quick_balance }}</a>
+                                    {{ row.amount }}
                     </td>
                 </ng-container>
                

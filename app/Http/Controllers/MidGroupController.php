@@ -22,7 +22,12 @@ class MidGroupController extends Controller
     public function index(Request $request)
     {
       
-        $query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
+        //$query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
+        $query = MidGroup::select('mid_groups.*','invoices.created_at','invoices.amount')->leftJoin('invoices', function ($leftJoin) {
+            $leftJoin->on('invoices.mid_group_id', '=', 'mid_groups.id')
+                 ->where('invoices.created_at', '=', DB::raw("(select max(`created_at`) from invoices where invoices.mid_group_id=mid_groups.id)"));
+        })->where(['mid_groups.user_id' => Auth::id()])->whereNull('mid_groups.deleted_at')->orderBy('mid_groups.id','ASC');
+
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -69,13 +74,7 @@ class MidGroupController extends Controller
         // ->join('mids','profiles.profile_id = mids.gateway_id')
         // ->where('deleted_at',null)
         // ->get();
-        // DB::enableQueryLog();
-        // $queryok = MidGroup::select('*')->leftJoin('invoices', function ($leftJoin) {
-        //     $leftJoin->on('invoices.mid_group_id', '=', 'mid_groups.id')
-        //          ->where('invoices.create_at', '=', DB::raw("(select max(`create_at`) from invoices)"));
-        // })->get();
-        // $query1 = DB::getQueryLog();
-        return response()->json(['status' => true, 'data' => $data, 'query'=>'$query1']);
+        return response()->json(['status' => true, 'data' => $data]);
     }
     public function getMidDetail(Request $request)
     {

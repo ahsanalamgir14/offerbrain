@@ -58,6 +58,9 @@ export class MidGroupsService {
       {
         this.quickbookConnect(data['mid_group_id'],mydata.account_id)
       }
+      else{
+        this.updateMyQuickAccounts(data['mid_group_id']);
+      }
       this.addGroupResponse.next(data);
     });
   }
@@ -99,7 +102,7 @@ export class MidGroupsService {
     
     console.log('quickbook action-dialog component for Mid-Group ID#'+midGroupId);
     console.log('(in quick connect)account id is '+ account_id);
-    await this.actionService.quickbookCon('quickbookConnect',midGroupId,account_id)
+    await this.actionService.quickbookGet('quickbookGet',midGroupId,account_id,'add_balance')
     .then(res => {
       this.connect = res;
       console.log('in mid-group services quickbookConnect() '+this.connect);
@@ -112,7 +115,11 @@ export class MidGroupsService {
         // oauth.loginPopup();
         this.logingPopupUri(this.authUrl, midGroupId, event)
       }
-      //this.bankAccounts(event);
+      else
+      {
+        this.bankAccounts(midGroupId,event);
+      }
+      
       
     }, error => {
       console.log('action-dialg component error in quickbookConnect');
@@ -147,6 +154,7 @@ export class MidGroupsService {
    
     }
 
+    // update the mid_group_id in quick_accounts 
     updateMyQuickAccounts(midGroupId)
     {
       this.updateQuickAccounts(midGroupId,'updateQuickAccounts').subscribe(

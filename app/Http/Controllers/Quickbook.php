@@ -53,7 +53,10 @@ class Quickbook extends Controller
             'client_id' => 'ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz',
             'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
             'oauth_scope' => 'com.intuit.quickbooks.accounting',
-            'oauth_redirect_uri' => 'http://offer-brain.test/callback.php'
+            'oauth_redirect_uri' => env('APP_URL').'/callback.php'
+            // 'oauth_redirect_uri' => 'http://offer-brain.test/callback.php'
+
+            
         );
 
         // return response()->json(['config'=>$config]);
@@ -71,10 +74,28 @@ class Quickbook extends Controller
         $OAuth2LoginHelper = $dataService->getOAuth2LoginHelper();
         $authUrl = $OAuth2LoginHelper->getAuthorizationCodeURL();
         // Store the url in PHP Session ;
-        $_SESSION['authUrl'] = $authUrl;
-        // $_SESSION['customMidGroupId'] = $midGroupId;
+
+        if(isset($midGroupId) && isset($_SESSION['mid_info']))
+        {
+            $j = count($_SESSION['mid_info']);
+
+            for($i=0;$i<$j;$i++)
+            {
+                if(!isset($_SESSION['mid_info'][$i]))
+                    {
+                        $i++;
+                        continue;
+                    }
+                if($_SESSION['mid_info'][$i]['mid_group_id'] == "undefined")
+                {
+                    $_SESSION['mid_info'][$i]['mid_group_id'] = $midGroupId;
+                }
+            }
+        }
+
         $_SESSION['midGroupId'] = $midGroupId;
         $_SESSION['account_id'] = $account_id;
+        $_SESSION['authUrl'] = $authUrl;
 
     //   var_dump($midGroupId);exit();
        // return response()->json($_SESSION);
@@ -148,7 +169,7 @@ class Quickbook extends Controller
                 'client_id' => 'ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz',
                 'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
                 'oauth_scope' => 'com.intuit.quickbooks.accounting',
-                'oauth_redirect_uri' => 'http://offer-brain.test/callback.php'
+                'oauth_redirect_uri' =>  env('APP_URL').'/callback.php'
             );
     
             // return response()->json(['config'=>$config]);
@@ -266,6 +287,11 @@ class Quickbook extends Controller
 
             for($i=0;$i<$j;$i++)
             {
+                if(!isset($_SESSION['mid_info'][$i]))
+                    {
+                        $i++;
+                        continue;
+                    }
                 if($_SESSION['mid_info'][$i]['mid_group_id'] == $mid_group_id)
                 {
                    $company_id = $_SESSION['mid_info'][$i]['mid_group_company'];
@@ -273,7 +299,7 @@ class Quickbook extends Controller
                 }
                 else
                 {
-                    unset($_SESSION['sessionAccessToken']);
+                    //unset($_SESSION['sessionAccessToken']);
                     return;
                 }
             }
@@ -286,7 +312,7 @@ class Quickbook extends Controller
         'client_id' => 'ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz',
         'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
         'oauth_scope' => 'com.intuit.quickbooks.accounting',
-        'oauth_redirect_uri' => 'http://offer-brain.test/callback.php',
+        'oauth_redirect_uri' =>  env('APP_URL').'/callback.php',
         'company_id' => $company_id
     );
 
@@ -327,7 +353,7 @@ class Quickbook extends Controller
             'client_id' => 'ABYkMNEjxULZh9YxOGY7Qf6wlSW3a7d5fZG0f6qr6WwBZDydNz',
             'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
             'oauth_scope' => 'com.intuit.quickbooks.accounting',
-            'oauth_redirect_uri' => 'http://offer-brain.test/callback.php',
+            'oauth_redirect_uri' =>  env('APP_URL').'/callback.php'
             
         );
         $dataService = DataService::Configure(array(
@@ -396,7 +422,7 @@ class Quickbook extends Controller
                         }
                         //for loop end
                         
-                        var_dump('in process code invoice section, mid-group id# '.$_SESSION['midGroupId'].' '.$amount);
+                        //var_dump('in process code invoice section, mid-group id# '.$_SESSION['midGroupId'].' '.$amount);
                         
                        return $this->insertInvoices($invoices);  
 
@@ -409,7 +435,7 @@ class Quickbook extends Controller
         $_SESSION['midGroupAccounts'] = ['midGroupId'=> $_SESSION['midGroupId'],
         'account_id'=> $_SESSION['account_id'],
         'midGroupAccounts'=>$allAccounts];
-        var_dump($_SESSION['mid_info']);
+        //var_dump($_SESSION['mid_info']);
         
         }
         
@@ -533,10 +559,16 @@ class Quickbook extends Controller
             $mid_group->quick_balance = $request->quick_balance;
             $mid_group->update();
             // unset session for mid_if on disconnect
+            unset($_SESSION['mid_info']);
             $j = count($_SESSION['mid_info']);
 
             for($i=0;$i<$j;$i++)
             {
+                if(!isset($_SESSION['mid_info'][$i]))
+                    {
+                        $i++;
+                        continue;
+                    }
                 if($_SESSION['mid_info'][$i]['mid_group_id'] == $id)
                 {
                     unset($_SESSION['mid_info'][$i]);
@@ -572,7 +604,9 @@ class Quickbook extends Controller
     // update the mid-group id in quick accounts table
     public function updateQuickAccounts(Request $request, $mid_group_id)
     {
+        
         QuickAccounts::where('mid_group_id', 0)->update(['mid_group_id' => $mid_group_id]);
+       
         return response()->json(['in quick_ccountsMid-group-id updated to #'=>$mid_group_id],200);
     }
 

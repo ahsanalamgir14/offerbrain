@@ -81,7 +81,7 @@ export class ActionDialogComponent {
       {
         // const oauth = new this.OAuthCode(this.authUrl);
         // oauth.loginPopup();
-        this.logingPopupUri(this.authUrl,event)
+        this.logingPopupUri(this.authUrl,event,'')
       }
       //this.bankAccounts(event);
 
@@ -141,6 +141,14 @@ export class ActionDialogComponent {
   }
 
   doQuickAction(status) {
+
+    var data: {};
+    data = {
+      'id': this.local_data.id,
+      'group_name': this.groupName,
+      'bank_per': this.bankPercentage,
+      'account_id':this.account_id,
+    };
     if(!this.account_id)
     {
       //alert('ok');
@@ -149,16 +157,10 @@ export class ActionDialogComponent {
     }
     if(this.local_data.id)
     {
-      this.quickbookConnect(this.local_data.id, status)
+      this.quickbookConnect(this.local_data.id, status, data)
       return;
     }
-    var data: {};
-    data = {
-      'id': this.local_data.id,
-      'group_name': this.groupName,
-      'bank_per': this.bankPercentage,
-      'account_id':this.account_id,
-    };
+    
     this.dialogRef.close({ event: this.action, data: data });
 
   }
@@ -183,7 +185,7 @@ export class ActionDialogComponent {
 
 
   
- async quickbookConnect(midGroupId:number,status)
+ async quickbookConnect(midGroupId:number,status, data)
   {
     
     console.log('quickbook action-dialog component for Mid-Group ID#'+midGroupId);
@@ -203,9 +205,12 @@ export class ActionDialogComponent {
       {
         // const oauth = new this.OAuthCode(this.authUrl);
         // oauth.loginPopup();
-        this.logingPopupUri(this.authUrl, event)
+        this.logingPopupUri(this.authUrl, event, data)
       }
-      //this.bankAccounts(event);
+      else{
+        this.bankAccounts(event, data);
+      }
+      
 
     }, error => {
       console.log('action-dialg component error in quickbookConnect');
@@ -230,7 +235,7 @@ export class ActionDialogComponent {
       const event='connect';
       if(!is_valid)
       {
-        this.logingPopupUri(this.authUrl,event)
+        this.logingPopupUri(this.authUrl,event, '')
       }
 
     }, error => {
@@ -239,11 +244,11 @@ export class ActionDialogComponent {
   }
 
    // get account balance from api for respcted midgroup id
-   bankAccounts(event){
+   bankAccounts(event, data){
      //alert('bankAccounts()');
     this.midGroupService.getAccounts('bankAccounts',0).subscribe(
      {next:(res)=>{console.log(res);
-       this.updateQuickBalance(res,event);
+       this.updateQuickBalance(res,event, data);
      },
      error:(err)=>console.log(err)}
    );
@@ -251,7 +256,7 @@ export class ActionDialogComponent {
    
  }
 
-   updateQuickBalance(data,event)
+   updateQuickBalance(data,event, data1)
    {
      this.midGroupService.updateQuickBalance(data,'updateQuickBalance').subscribe(
        {next:(res)=>{console.log(res);
@@ -259,7 +264,7 @@ export class ActionDialogComponent {
        if(event!='')
        {
          //alert('event not empty '+event);
-        this.dialogRef.close({event: event});
+        this.dialogRef.close({event: event, data:data1});
        }
        else
        {
@@ -313,7 +318,7 @@ export class ActionDialogComponent {
 
   
     
- logingPopupUri(authUrl,event)
+ logingPopupUri(authUrl,event, data)
  {
        // Launch Popup
        var parameters = "location=1,width=800,height=650";
@@ -325,9 +330,9 @@ export class ActionDialogComponent {
 
                if (win.document.URL.indexOf("code") != -1) {
                    window.clearInterval(pollOAuth);
-                   //win.close();
+                   win.close();
                    //location.reload();
-                   this.bankAccounts(event);
+                   this.bankAccounts(event, data);
                }
            } catch (e) {
                console.log(e)

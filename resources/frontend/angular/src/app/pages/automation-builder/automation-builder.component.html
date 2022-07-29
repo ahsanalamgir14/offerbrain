@@ -47,7 +47,7 @@
                   <mat-select formControlName="networks" multiple>
                     <ngx-mat-select-search [formControl]="networkSearchCtrl" placeholderLabel="Search..."
                       noEntriesFoundLabel="Not Found"></ngx-mat-select-search>
-                      <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">#{{ option.id }} - {{
+                      <mat-option *ngFor="let option of filteredNetworks | async" [value]="option">#{{ option.network_affiliate_id }} - {{
                         option.name }}
                       </mat-option>
                   </mat-select>

@@ -127,7 +127,7 @@ class MidGroupController extends Controller
         $result = MidGroup::create($data);
         $id = $result->id;
         $this->refresh_mids_groups();
-        return response()->json(['status' => true, 'mid_group_id'=> $id, ['message' => 'Mid Group created successfully']]);
+        return response()->json(['status' => true, 'mid_group_id'=> $id, 'data' => ['message' => 'Mid Group created successfully']]);
     }
 
     /**

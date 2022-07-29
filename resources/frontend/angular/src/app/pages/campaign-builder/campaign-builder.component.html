@@ -28,10 +28,8 @@
                 <mat-form-field fxFlex="25">
                   <mat-label>Select Campaign Type</mat-label>
                   <mat-select formControlName="campaign_type">
-
                     <ngx-mat-select-search placeholderLabel="Search..." noEntriesFoundLabel="Not Found">
                     </ngx-mat-select-search>
-
                     <mat-option *ngFor="let option of campaignTypeOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -52,7 +50,10 @@
                   </mat-select>
                 </mat-form-field>
                 <div>
-                  <mat-icon class="refresh-icon" matTooltip="Refresh Campaigns" (click)="refreshCampaigns()">replay</mat-icon>
+                  <mat-icon class="refresh-icon" *ngIf="!isRefreshingCampaign" matTooltip="Refresh Campaigns" (click)="refreshCampaigns()">replay</mat-icon>
+                </div>
+                <div>
+                  <div id="loading" *ngIf="isRefreshingCampaign"></div>
                 </div>
               </div>
 
@@ -71,8 +72,11 @@
                   </mat-select>
                 </mat-form-field>
                 <div>
-                    <mat-icon class="refresh-icon" matTooltip="Refresh Networks" (click)="refreshNetworks()">replay</mat-icon>
-                  </div>
+                  <mat-icon class="refresh-icon" *ngIf="!isRefreshingNetwork" matTooltip="Refresh Networks" (click)="refreshNetworks()">replay</mat-icon>
+                </div>
+                <div>
+                  <div id="loading" *ngIf="isRefreshingNetwork"></div>
+                </div>
               </div>
             </div>
 
@@ -174,18 +178,28 @@
           <form [formGroup]="cyclesFormGroup">
             <ng-template matStepLabel>Cycles</ng-template>
 
-            <div class="heading">Cycles</div>
+            <div class="heading flex">Cycles
+              <div>
+                <mat-icon class="refresh-product-icon" *ngIf="!isRefreshingProduct" matTooltip="Refresh Products"
+                  (click)="refreshProducts()">replay</mat-icon>
+              </div>
+              <div>
+                <div id="loading" class="product-loader" *ngIf="isRefreshingProduct"></div>
+              </div>
+            </div>
+
             <div class="subheading">Add Cycles</div>
 
             <div class="content" fxLayout="row" fxLayoutGap="30px">
 
               <div fxLayout="column" fxFlex="25">
-                <mat-form-field>
-                  <mat-label>Select Number of Cycles</mat-label>
+                <mat-form-field class="mb">
+                  <mat-label>Select Cycles</mat-label>
                   <mat-select formControlName="no_of_cycles" [(ngModel)]="no_of_cycles" (selectionChange)="clearSelection('cycles')"
                     Fchange>
                     <mat-option *ngFor="let option of noOfCyclesOptions" [value]="option">{{ option }}</mat-option>
                   </mat-select>
+                  <mat-hint>Select products to track cycles. Cycle 0 is must. </mat-hint>
                 </mat-form-field>
 
                 <div *ngFor='let operand of countercycle(no_of_cycles); let i = index'>

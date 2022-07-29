@@ -74,6 +74,18 @@ class AddColumnsToUsersTable extends Migration
         // Schema::table('campaigns', function (Blueprint $table) {
         //     $table->json('cycle_product_ids')->after('cycle_products')->nullable()->default(null);
         // });
+
+        // Schema::table('products', function (Blueprint $table) {
+        //     $table->UnsignedBigInteger('user_id')->after('product_id');
+        // });
+
+        Schema::table('orders', function (Blueprint $table) {
+            $table->unsignedBigInteger('parent_affid')->after('affid')->nullable()->default(null)->comment('Parent Affiliate ID');
+        });
+
+        Schema::table('order_products', function (Blueprint $table) {
+            $table->text('time_stamp')->before('created_at')->nullable()->default(null);
+        });       
     }
 
     /**

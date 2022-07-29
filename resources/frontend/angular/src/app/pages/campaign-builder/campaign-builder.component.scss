@@ -4,7 +4,8 @@
 
 :host {
   // background: url("~/public/assets/images/backgrounds/2.jpg");
-  background: url("/assets/img/backgrounds/2.jpg");
+  background: url('../../../../../../../public/assets/images/2.jpg');
+  // background: url("/assets/img/backgrounds/2.jpg");
   background-size: cover;
   display: block;
   height: 100%;
@@ -144,4 +145,53 @@
   opacity: 0.7;
   margin-top: 15px;
   font-size: 20px !important;
+}
+
+.refresh-product-icon {
+  margin-top: 4px !important;
+  margin-left: 10px !important;
+  font-size: 20px !important;
+}
+
+.mt {
+  margin-top: 20px;
+}
+
+.mb {
+  margin-bottom: 20px;
+}
+
+.flex {
+  display: flex !important;
+}
+
+// loader css starts
+
+#loading {
+  margin-top: 13px;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: red;
+  animation: spin 1s ease-in-out infinite !important;
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+//loader ends here
+
+.product-loader {
+  margin-top: 0px !important;
+  margin-left: 10px;
 }

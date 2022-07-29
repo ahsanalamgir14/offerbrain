@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Models\Product;
+use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use DB;
+use Auth;
 
 class ProductController extends Controller
 {
@@ -84,15 +90,19 @@ class ProductController extends Controller
     {
         //
     }
-    public function pull_all_products()
+    
+        public function pull_user_products(Request $request)
     {
         $created = 0;
         $updated = 0;
-        $db_products = Product::pluck('product_id')->toArray();
-        $username = "yasir_dev";
-        $password = "yyutmzvRpy5TPU";
-        $url = 'https://thinkbrain.sticky.io/api/v2/products';
-        $model = new Product();
+        // return Auth::id();
+        $db_products = Product::where(['user_id' => Auth::id()])->pluck('product_id')->toArray();
+        // return $db_products;
+        // $user = User::find(2);
+        $user = User::find($request->user()->id);
+        $username = $user->sticky_api_username;
+        $password = Crypt::decrypt($user->sticky_api_key);
+        $url = $user->sticky_url . '/api/v2/products';
         $page = 1;
 
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
@@ -101,9 +111,8 @@ class ProductController extends Controller
         // dd($last_page);
         if ($response['products']) {
             foreach ($response['products'] as $result) {
-                $product = new Product();
-
                 $result['product_id'] = $result['id'];
+                $result['user_id'] = Auth::id();
                 $result['created_at'] = $result['created_at']['date'];
                 if (isset($result['updated_at'])) {
                     $result['updated_at'] = $result['updated_at']['date'];
@@ -117,11 +126,11 @@ class ProductController extends Controller
                 $result['images'] = json_encode($result['images']);
                 if (in_array($result['product_id'], $db_products)) {
                     $updated++;
-                    $product = Product::where(['product_id' => $result['product_id']])->first();
+                    $product = Product::where(['product_id' => $result['product_id'], 'user_id' => Auth::id()])->first();
                     $product->update($result);
                 } else {
                     $created++;
-                    $product->create($result);
+                    Product::create($result);
                 }
             }
             if ($last_page > 1) {
@@ -130,9 +139,8 @@ class ProductController extends Controller
 
                     $response['products'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page])['data'];
                     foreach ($response['products'] as $result) {
-                        $product = new Product();
-
                         $result['product_id'] = $result['id'];
+                        $result['user_id'] = Auth::id();
                         $result['created_at'] = $result['created_at']['date'];
                         if (isset($result['updated_at'])) {
                             $result['updated_at'] = $result['updated_at']['date'];
@@ -146,17 +154,28 @@ class ProductController extends Controller
                         $result['images'] = json_encode($result['images']);
                         if (in_array($result['product_id'], $db_products)) {
                             $updated++;
-                            $product = Product::where(['product_id' => $result['product_id']])->first();
+                            $product = Product::where(['product_id' => $result['product_id'], 'user_id' => Auth::id()])->first();
                             $product->update($result);
                         } else {
                             $created++;
-                            $product->create($result);
+                            Product::create($result);
                         }
                         $response = null;
                     }
                 }
             }
         }
-        return response()->json(['status' => true, 'new products created' => $created, 'Updated products' => $updated]);
+        $products = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('product_id')->get();
+        return response()->json(
+            [
+                'status' => true,
+                'user_id' => Auth::id(),
+                'new products created' => $created,
+                'Updated products' => $updated,
+                'data' => [
+                    'products' => $products
+                ],
+            ]
+        );
     }
 }

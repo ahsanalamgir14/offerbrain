@@ -48,6 +48,7 @@ class CreateOrderProductsTable extends Migration
             // $table->foreign('order_id')->nullable()->references('order_id')->on('orders')
             // $table->foreign('user_id')->references('id')->on('users');
             $table->unique(['order_id', 'product_id']);
+            $table->text('time_stamp')->nullable()->default(null);
              $table->softDeletes();
             $table->timestamps();
 

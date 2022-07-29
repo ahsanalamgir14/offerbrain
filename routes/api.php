@@ -164,3 +164,5 @@ Route::get('/bankAccounts',[Quickbook::class, 'bankAccounts']);
 Route::get('/accountNames',[Quickbook::class, 'accountNames']);
 Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
 Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);
+
+Route::get('/updateRecords',[OrdersController::class, 'updateRecords']);

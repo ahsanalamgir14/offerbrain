@@ -248,7 +248,8 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
       .then(midGroups => {
         this.midGroups = midGroups.data;
         this.dataSource.data = midGroups.data;
-        //console.log('In mid-group component getData() '+midGroups.data)
+        console.log('In mid-group component getData() '+midGroups.data);
+        console.log('In mid-group component getData() '+midGroups.query);
         this.mapData().subscribe(midGroups => {
           this.subject$.next(midGroups);
         });
@@ -304,6 +305,7 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       else if (result.event == 'connect') {
         //alert('to dialog close action(connect)')
+        this.updateRowData(result.data);
         this.getData();
       }
       else if (result.event == 'disConnect') {

@@ -15,6 +15,8 @@ export class MidGroup {
     updated_at: string;
     balance : number;
     color: string;
+    amount:any;
+    created_at:any;
 
     constructor(midGroup) {
         this.id = midGroup.id;
@@ -30,8 +32,9 @@ export class MidGroup {
         this.quick_balance = midGroup.quick_balance;
         // this.updated_at = datePipe.transform(midGroup.updated_at, 'MM-dd-yyyy');
         this.color = midGroup.quick_balance < midGroup.target_bank_balance?'red':'black';
-        // this.updated_at = datePipe.transform(midGroup.updated_at, 'MM-dd-yyyy');
         this.updated_at = midGroup.updated_at;
+        this.amount = midGroup.amount;
+        this.created_at = midGroup.created_at;
 
     }
 }

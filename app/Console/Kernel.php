@@ -2,6 +2,9 @@
 
 namespace App\Console;
 
+use Carbon\Carbon;
+use App\Models\Setting;
+use App\Console\Commands\Cron;
 use App\Console\Commands\DailyOrders;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\NetworkController;
@@ -30,14 +33,29 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        echo OrdersController::pull_cron_orders();
-        echo OrdersController::daily_order_history_cron();
+        $start_date = Carbon::now()->startOfDay()->format('m/d/Y');
+        $end_date = Carbon::now()->endOfDay()->format('m/d/Y');
+        $setting = Setting::where('key','_last_date_for_history_api')->first();
+        $historyStartDate = date($setting->value);
+        $historyEndDate = date('Y-m-d H:i:s');
+
+        $prospectsStartDate = Carbon::now()->startOfDay()->format('Y-m-d');
+        $prospectsEndDate = date('Y-m-d', strtotime($prospectsStartDate) + 86400);
+        
+        // echo OrdersController::curentTime();
+        echo OrdersController::pull_cron_orders($start_date, $end_date);
+        echo OrdersController::daily_order_history_cron($historyStartDate, $historyEndDate);
         echo NetworkController::pull_affiliates_for_cron();
         echo CampaignsController::refresh_campaigns_for_cron();
-        echo ProspectController::pull_prospects();
         echo CustomerController::refresh_customers();
-        // $schedule->command('inspire')->hourly();
-        // $schedule->command('daily:orders')->cron('*/1 * * * *');
+        echo ProspectController::pull_prospects($prospectsStartDate, $prospectsEndDate);
+
+        $now_date = Carbon::now()->startOfDay()->format('m/d/Y');
+        if($now_date != $start_date){
+            echo OrdersController::pull_cron_orders($start_date, $end_date);
+        } else {
+            echo 'Start date is equal to now date';
+        }
     }
 
     /**

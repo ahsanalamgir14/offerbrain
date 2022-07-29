@@ -11,14 +11,10 @@ export class CampaignBuilderService {
   public saveResponse = new BehaviorSubject([]);
   public getProductsResponse = new BehaviorSubject([]);
   public getOptionsResponse = new BehaviorSubject([]);
-  public refreshCampaignsResponse = new BehaviorSubject({});
-  public refreshNetworksResponse = new BehaviorSubject({});
 
   saveResponse$ = this.saveResponse.asObservable();
   getProductsResponse$ = this.getProductsResponse.asObservable();
   getOptionsResponse$ = this.getOptionsResponse.asObservable();
-  refreshCampaignsResponse$ = this.refreshCampaignsResponse.asObservable();
-  refreshNetworksResponse$ = this.refreshNetworksResponse.asObservable();
 
   constructor(private apiService: ApiService) { }
 
@@ -53,4 +49,18 @@ export class CampaignBuilderService {
       return data;
     });
   }
+
+  async refreshProductOptions(): Promise<any> {
+    return await this.apiService.getData(`pull_user_products`).then(res => res.json()).then((data) => {
+      return data;
+    });
+  }
+
+  async getCampaignData(id): Promise<any> {
+    return await this.apiService.getData(`campaigns_builder/${id}`).then(res => res.json()).then((data) => {
+      return data;
+    });
+  }
+
+  a
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -51,6 +51,8 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   timer: any;
   notyf = new Notyf();
   customer_id = '';
+  isOrderLoader = false;
+  orderCount = null;
 
 
 
@@ -66,7 +68,6 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Email', property: 'email', visible: true, isModelProperty: true },
     { name: 'Phone', property: 'phone', visible: true, isModelProperty: true },
     { name: 'IP Address', property: 'ip_address', visible: true, isModelProperty: true },
-    // { name: 'Type', property: 'type', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
   ] as ListColumn[];
   dataSource: MatTableDataSource<Customer> | null;
@@ -152,9 +153,16 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
       let index = this.all_fields.indexOf(field);
       this.all_values[index] = value;
     }
-
   }
-
+  @ViewChild("conunt") conunt: ElementRef;
+  async getOrdersCount(id, event){
+    // this.isOrderLoader = true;
+    await this.customersService.getOrdersCount(id)
+      .then(count => {
+        // this.orderCount = count;
+        // this.pickUp.value = 
+    })
+  }
   
   onFilterChange(value) {
     // if (!this.dataSource) {

@@ -395,7 +395,7 @@ class ProspectController extends Controller
         }
     }
 
-    public static function pull_prospects()
+    public static function pull_prospects($startDate, $endDate)
     {
         // ini_set('memory_limit', '512M');
         // set_time_limit(0);
@@ -407,9 +407,9 @@ class ProspectController extends Controller
             $username = $user->sticky_api_username;
             $password = Crypt::decrypt($user->sticky_api_key);
             $url = $user->sticky_url.'/api/v1/prospect_find';
-            $startDate = Carbon::now()->startOfDay()->format('Y-m-d');
 
-            $endDate = date('Y-m-d', strtotime($startDate) + 86400);
+            // $startDate = Carbon::now()->startOfDay()->format('Y-m-d');
+            // $endDate = date('Y-m-d', strtotime($startDate) + 86400);
 
             $startDate = Carbon::createFromFormat('Y-m-d', $startDate);
             $endDate = Carbon::createFromFormat('Y-m-d', $endDate);

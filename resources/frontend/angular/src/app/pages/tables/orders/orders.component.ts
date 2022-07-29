@@ -113,6 +113,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Taxable Total', property: 'order_sales_tax_amount', visible: false, isModelProperty: true },
     { name: 'Sub Total', property: 'order_total', visible: true, isModelProperty: true },
     { name: 'IP Address', property: 'ip_address', visible: true, isModelProperty: true },
+    { name: 'Order Date', property: 'time_stamp', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
 
   ] as ListColumn[];

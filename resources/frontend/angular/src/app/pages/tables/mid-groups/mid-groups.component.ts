@@ -69,6 +69,11 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   toolTipMids = [];
   start_date = '';
   end_date = '';
+  selectAll: boolean = false;
+  selectedRows: MidGroup[] = [];
+  isBulkUpdate: boolean = false;
+  width:string;
+
 
   range = new FormGroup({
     start: new FormControl(),
@@ -81,10 +86,14 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   columns: ListColumn[] = [
     // { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'router_id', property: 'router_id', visible: true, isModelProperty: true },
+    { name: 'Checkbox', property: 'checkbox', visible: true},
     { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     { name: 'Group Name', property: 'group_name', visible: true, isModelProperty: false },
     { name: 'Assigned Mids', property: 'assigned_mids', visible: true, isModelProperty: false },
     { name: 'Quick Balance', property: 'quick_balance', visible: true, isModelProperty: false },
+    { name: 'Suggested Invoice', property: 'suggested_invoice', visible: false, isModelProperty: false },
+    { name: 'Last Invoice Date', property: 'last_invoice_date', visible: false, isModelProperty: false },
+    { name: 'Last Invoice Amount', property: 'last_invoice_amount', visible: false, isModelProperty: false },
     { name: 'Gross Revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'Bank %', property: 'bank_per', visible: true, isModelProperty: true },
     { name: 'Target Bank Balance', property: 'target_bank_balance', visible: true, isModelProperty: true },
@@ -145,9 +154,57 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     });
   }
 
+  checkQuickAccounts()
+  {
+    this.midGroupService.checkQuickAccounts('checkQuickAccounts').subscribe(
+      {next:(res)=>{console.log(res);
+      this.getData()},
+      error:(err)=>console.log(err)}
+    );
+  }
+
+  updateCheck() {
+    console.log('this.selectAll = ' ,this.selectAll)
+    this.selectedRows = [];
+    if (this.selectAll === true) {
+    this.midGroups.map((midGroups) => {
+    midGroups.checked = true;
+    this.selectedRows.push(midGroups);
+    this.isBulkUpdate = true;
+    });
+    
+    } else {
+    this.midGroups.map((midGroups) => {
+    midGroups.checked = false;
+    this.isBulkUpdate = false;
+    });
+    this.isBulkUpdate = false;
+    }
+    console.log(this.selectedRows);
+    console.log('in update check '+ this.isBulkUpdate);
+    }
+    
+    updateCheckedRow(event: any, row) {
+    console.log('event.id =',event.id)
+    if (event.checked) {
+    row.checked = true;
+    this.selectedRows.push(row);
+    this.isBulkUpdate = true;
+    } else {
+    row.checked = false;
+    this.selectedRows.splice(this.selectedRows.indexOf(row), 1);
+    if (this.selectedRows.length === 0) {
+    this.isBulkUpdate = false;
+    }
+    }
+    console.log(this.selectedRows);
+    console.log('in update check row'+ this.isBulkUpdate);
+    }
+
   // get account balance from api for respcted midgroup id
   bankAccounts(){
-     this.midGroupService.getAccounts('bankAccounts').subscribe(
+    //alert('bankAccounts()');
+     this.midGroupService.getAccounts('bankAccounts',0).subscribe(
       {next:(res)=>{console.log(res);
         this.updateQuickBalance(res);
       // this.bankAccount = res;
@@ -172,8 +229,9 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
 
       await this.actionService.quickbookCon('quickbookConnect',0,0)
       .then(res => {
-    
-      console.log(res);
+        let data = res;
+        this.bankAccounts(); 
+        console.log(res);
 
       }, error => {
       console.log('action-dialg component error in quickbookConnect');
@@ -212,6 +270,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
       .then(midGroups => {
         this.midGroups = midGroups.data;
         this.dataSource.data = midGroups.data;
+        //console.log('In mid-group component getData() '+midGroups.data)
         this.mapData().subscribe(midGroups => {
           this.subject$.next(midGroups);
         });
@@ -236,10 +295,21 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     return mid_names;
   }
 
-  actionDialog(action, obj) {
+  actionDialog(action, quick, obj) {
     obj.action = action;
+    obj.quick = quick;
+    obj.midRow = this.selectedRows;
+    if (quick == 'invoice' || quick == 'Invoice History') {
+      this.width = '700px';
+    } else {
+      this.width = '500px';
+    }
+    if(action == 'Add')
+    { 
+      this.checkQuickAccounts();
+    }
     const dialogRef = this.dialog.open(ActionDialogComponent, {
-      width: '500px',
+      width:this.width,
       disableClose: true,
       data: obj
     });
@@ -247,10 +317,19 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
     dialogRef.afterClosed().subscribe(result => {
       if (result.event == 'Add') {
         this.addNewGroup(result.data);
+       
       } else if (result.event == 'Update') {
         this.updateRowData(result.data);
       } else if (result.event == 'Delete') {
         this.deleteRowData(result.data);
+      }
+      else if (result.event == 'connect') {
+        //alert('to dialog close action(connect)')
+        this.getData();
+      }
+      else if (result.event == 'disConnect') {
+        //alert('to dialog close action(disConnect)')
+        this.getData();
       }
     
       
@@ -260,6 +339,7 @@ export class MidGroupsComponent implements OnInit, PipeTransform, AfterViewInit,
   addNewGroup(data) {
     if (data) {
       this.midGroupService.addGroup(data);
+      
     }
   }
 

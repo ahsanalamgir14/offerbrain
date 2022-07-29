@@ -31,8 +31,30 @@ export class ApiService {
     return response;
   }
 
+  getQuickBalance(url,midGroupId,account_id,status):Promise<any>
+  {
+    const response = fetch(`${this.endPoint}/api/${url}/${midGroupId}/${account_id}/${status}`)
+      .catch(error => {
+        if (error.response) {
+          console.log(error)
+        }
+      });
+    return response;
+  }
+
+  getInvoice(url,data):Promise<any>
+  {
+    const response = fetch(`${this.endPoint}/api/${url}/${data}`)
+      .catch(error => {
+        if (error.response) {
+          console.log(error)
+        }
+      });
+    return response;
+  }
+
   postData(url, data): Promise<any> {
-    console.log("API data", data);
+    console.log("in api service,API data is ", data);
     const response = fetch(`${this.endPoint}/api/${url}`, {
       method: 'POST',
       body: JSON.stringify(data),

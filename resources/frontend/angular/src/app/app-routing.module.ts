@@ -96,6 +96,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/tables/my-campaigns/campaign-view/campaign-view.module').then(m => m.CampaignViewModule),
       },
       {
+        path: 'edit-campaign/:id',
+        loadChildren: () => import('./pages/campaign-builder/campaign-builder.module').then(m => m.CampaignBuilderModule),
+      },
+      {
         path: 'automation-builder',
         loadChildren: () => import('./pages/automation-builder/automation-builder.module').then(m => m.AutomationBuilderModule),
       },

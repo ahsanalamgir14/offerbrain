@@ -77,6 +77,8 @@ Route::get('refresh_database_jan', [OrdersController::class, 'refresh_database_j
 Route::get('test_dec', [OrdersController::class, 'test_dec']);
 Route::get('test_jan', [OrdersController::class, 'test_jan']);
 Route::get('pull_cron_orders', [OrdersController::class, 'pull_cron_orders']);
+Route::get('curentTime', [OrdersController::class, 'curentTime']);
+Route::get('pull_yesterday_cron_orders', [OrdersController::class, 'pull_yesterday_cron_orders']);
 Route::get('pull_orders_dec', [OrdersController::class, 'pull_orders_dec']);
 Route::get('pull_orders_jan', [OrdersController::class, 'pull_orders_jan']);
 Route::get('pull_user_orders', [OrdersController::class, 'pull_user_orders']);
@@ -91,9 +93,10 @@ Route::get('get_customer_detail', [CustomerController::class, 'get_customer_deta
 Route::get('get_product_detail', [OrdersController::class, 'get_product_detail']);
 Route::get('getDropDownContent', [OrdersController::class, 'getDropDownContent']);
 Route::get('refresh_customers', [CustomerController::class, 'refresh_customers']);
+Route::get('getOrdersCount', [CustomerController::class, 'getOrdersCount']);
 Route::get('refresh_user_customers', [CustomerController::class, 'refresh_user_customers']);
 Route::get('filter-golden-ticket/{month}/{year}', [GoldenTicketController::class, 'index']);
-Route::get('pull_all_products', [ProductController::class, 'pull_all_products']);
+Route::get('pull_user_products', [ProductController::class, 'pull_user_products']);
 Route::get('get_states', [OrdersController::class, 'get_states']);
 Route::get('refresh-golden-ticket', [GoldenTicketController::class, 'refresh_golden_ticket']);
 Route::get('refresh-daily', [TicketDailyController::class, 'refresh_daily']);
@@ -156,8 +159,16 @@ Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_
 
 
 Route::get('/quickbookConnect/{midGroupId}/{account_id}',[Quickbook::class, 'quickbookConnect']);
+Route::get('/quickbookGet/{midGroupId}/{account_id}/{status}',[Quickbook::class, 'quickbookConnect']);
 Route::get('/callback.php',[Quickbook::class, 'processCode']);
-Route::get('/bankAccounts',[Quickbook::class, 'bankAccounts']);
-Route::get('/accountNames',[Quickbook::class, 'accountNames']);
+Route::get('/bankAccounts/{midGroupId}',[Quickbook::class, 'bankAccounts']);
+Route::get('/accountNames/{midGroupId}',[Quickbook::class, 'accountNames']);
 Route::put('/updateQuickBalance',[Quickbook::class, 'updateQuickBalance']);
+Route::get('/updateRecords',[OrdersController::class, 'updateRecords']);
+Route::put('/updateQuickAccounts/{midGroupId}',[Quickbook::class, 'updateQuickAccounts']);
 Route::put('/quickbookDisconnect/{midGroupId}',[Quickbook::class, 'updateQuickBalance']);
+Route::get('/checkQuickAccounts',[Quickbook::class, 'checkQuickAccounts']);
+
+    // Invoice routes
+Route::post('/generateInvoice',[Quickbook::class, 'generateInvoice']);
+Route::get('/getInvoices/{midGroupId}',[Quickbook::class, 'getInvoices']);

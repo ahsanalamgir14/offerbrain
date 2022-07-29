@@ -66,12 +66,12 @@ export class Campaign {
         }
         this.c1 = campaign.c1;
         if (campaign.c1 && campaign.c1 != 0) {
-            this.c1_decline_per = ((campaign.c1 / campaign.c1_declines) * 100).toFixed(2);
-            console.log('this.c1_decline_per :', this.c1_decline_per);
+            this.c1_decline_per = ((campaign.c1_declines / campaign.total_c1) * 100).toFixed(2);
+            console.log('this.c1_decline_per:', this.c1_decline_per);
         }
         this.c2 = campaign.c2;
         if (campaign.c2 && campaign.c2 != 0) {
-            this.c2_decline_per = ((campaign.c2 / campaign.c2_declines) * 100).toFixed(2);
+            this.c2_decline_per = (( campaign.c2_declines / campaign.total_c2) * 100).toFixed(2);
         }
         // if (campaign.rebills && campaign.rebills != 0) {
         //     this.cycle_2_per = (campaign.c2 / campaign.rebills * 100).toFixed(2);
@@ -81,7 +81,7 @@ export class Campaign {
         // }
         this.c3 = campaign.c3;
         if (campaign.c3 && campaign.c3 != 0) {
-            this.c3_decline_per = ((campaign.c3 / campaign.c3_declines) * 100).toFixed(2);
+            this.c3_decline_per = ((campaign.c3_declines / campaign.total_c3) * 100).toFixed(2);
         }
         // if (campaign.c1_declines && campaign.c1_declines != 0) {
         //     this.c3_decline_per = campaign.c3_declines;

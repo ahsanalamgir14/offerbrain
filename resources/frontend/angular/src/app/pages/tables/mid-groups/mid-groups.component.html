@@ -74,10 +74,14 @@
     </fury-page-layout-content>
 
     <fury-page-layout-content [@fadeInUp]>
+            
+           
         <div fxLayoutAlign="space-between">
             <button class="mb" mat-raised-button color="accent" (click)="refresh()">Refresh Groups</button>
-            <button class="mb" mat-raised-button color="accent" (click)="getQuickAccounts()">Refresh Account Names</button>
-            <button class="mb" mat-raised-button color="accent" (click)="actionDialog('Add', {})"><i style="font-size: 20px;"
+            <button class="mb" *ngIf="isBulkUpdate" mat-raised-button color="accent" (click)="actionDialog('Invoice', 'invoice' , selectedRows)" >({{selectedRows.length}})
+                Generate Invoice(s)</button>
+            <!-- <button class="mb" mat-raised-button color="accent" (click)="getQuickAccounts()">Refresh Accounts Name</button> -->
+            <button class="mb" mat-raised-button color="accent" (click)="actionDialog('Add', 'Connect to QuickBooks' , {})"><i style="font-size: 20px;"
                     class="bi bi-plus"></i> Add Group</button>
         </div>
         <fury-list name="Mid-Groups" [columns]="columns" (enableLoading)="isLoading = true;" (filterChange)="onFilterChange($event)">
@@ -88,12 +92,13 @@
                 <!-- Checkbox Column -->
                 <ng-container matColumnDef="checkbox">
                     <th *matHeaderCellDef class="actions-cell" mat-header-cell>
-                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"></mat-checkbox>
+                        <mat-checkbox color="primary" (click)="$event.stopPropagation()" [(ngModel)]="selectAll" (change)="updateCheck()"></mat-checkbox>
                     </th>
                     <td *matCellDef="let row" class="actions-cell" mat-cell>
-                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"></mat-checkbox>
+                        <mat-checkbox color="primary" (click)="$event.stopPropagation()" [(ngModel)]="row.checked" (change)='updateCheckedRow($event, row)'></mat-checkbox>
                     </td>
                 </ng-container>
+                
 
                 <ng-container *ngFor="let column of columns">
                     <ng-container *ngIf="column.isModelProperty" [matColumnDef]="column.property">
@@ -126,14 +131,39 @@
                         <a routerLink="#">{{ row.quick_balance }}</a>
                     </td>
                 </ng-container>
+
+                <ng-container matColumnDef="suggested_invoice">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>Suggested Invoice</th>
+                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
+                            matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+                            <a routerLink="#">{{ row.quick_balance }}</a>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="last_invoice_date">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>Last Invoice Date</th>
+                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
+                                matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+                                <a routerLink="#">{{ row.quick_balance }}</a>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="last_invoice_amount">
+                    <th *matHeaderCellDef mat-header-cell mat-sort-header>Last Invoice Amount</th>
+                    <td (click)="openDialog(row)" *matCellDef="let row, index as i" [matTooltip]="toolTipMids[i] | tooltipList"
+                                    matTooltipClass="tooltip-list" mat-cell #tooltip="matTooltip" matTooltipPosition="below">
+                                    <a routerLink="#">{{ row.quick_balance }}</a>
+                    </td>
+                </ng-container>
                
 
                 <!-- Action Column -->
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef> Actions </th>
                     <td mat-cell *matCellDef="let row">
-                        <a class="edit-link" (click)="actionDialog('Update', row)">Edit</a> |
-                        <a class="delete-link" (click)="actionDialog('Delete', row)">Delete</a>
+                        <a class="edit-link" (click)="actionDialog('Update', 'Connect to QuickBooks', row)">Edit</a> |
+                        <a class="delete-link" (click)="actionDialog('Delete', 'Delete', row)">Delete</a> |
+                        <a class="history-link" (click)="actionDialog('History', 'Invoice History', row)">History</a>
                     </td>
                 </ng-container>
 

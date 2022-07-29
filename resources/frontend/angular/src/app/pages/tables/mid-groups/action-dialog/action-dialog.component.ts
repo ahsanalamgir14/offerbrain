@@ -18,7 +18,7 @@ export class ActionDialogComponent {
   title: string;
   message: string;
   groupName: string;
-  bankPercentage: string;
+  bankPercentage: number;
   timeout: any = null;
   isExecute = false;
   assignedMids: string;

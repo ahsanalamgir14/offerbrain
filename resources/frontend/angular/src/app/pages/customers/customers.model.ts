@@ -6,6 +6,7 @@ export class Customer {
     last_name: string;
     phone: string;
     addresses: string;
+    ip_address: string;
     
     constructor(customer) {
         this.id = customer.customer_id;
@@ -15,5 +16,6 @@ export class Customer {
         this.last_name = customer.last_name;
         this.phone = customer.phone;
         this.addresses = customer.addresses;
+        this.ip_address = customer.ip_address;
     }
 }

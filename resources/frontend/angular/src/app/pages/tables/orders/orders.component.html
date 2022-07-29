@@ -65,9 +65,12 @@
                 <div>
                   <mat-form-field appearance="fill">
                     <mat-label>Campaign</mat-label>
-                    <mat-select [(value)]="campaign_id" multiple>
+                    <mat-select [(value)]="campaign_id" multiple [(ngModel)]="filteredCampaign">
                       <!-- <mat-option [value]="">ALL Campaigns</mat-option> -->
-                      <mat-option class="uppercase-options" *ngFor="let campaign of campaignOptions" [value]="campaign['campaign_id']">{{campaign['name']}}</mat-option>
+                      <ngx-mat-select-search placeholderLabel="Search..." [formControl]="campaignSearchCtrl"
+                        noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      <mat-option class="uppercase-options" *ngFor="let campaign of filteredCampaigns | async" [value]="campaign['campaign_id']">
+                        #{{campaign['campaign_id']}} - {{campaign['name']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>
@@ -75,9 +78,11 @@
                   <mat-form-field appearance="fill">
                     <mat-label>Product</mat-label>
                     <mat-select [formControl]="product" (selectionChange)="commonFilter($event.value, 'products')"
-                      #singleSelect>
-                     
-                      <mat-option class="uppercase-options" *ngFor="let product of productOptions " [value]="product['name']">{{product['name']}}</mat-option>
+                      #singleSelect  [(ngModel)]="filteredProduct">
+                     <ngx-mat-select-search placeholderLabel="Search..." [formControl]="productSearchCtrl"
+                        noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
+                      <mat-option class="uppercase-options" *ngFor="let product of filteredProducts | async" [value]="product['name']">
+                        #{{product['id']}} - {{product['name']}} - ${{product['price']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>

@@ -43,9 +43,12 @@ export class SubAffiliate {
     this.sub4 = subAff.sub4;
     this.sub5 = subAff.sub5;
     this.impressions = subAff.impressions;
-    if (subAff.gross_revenue && subAff.gross_revenue != null) {
-      this.gross_revenue = subAff.gross_revenue;
-    } else { this.gross_revenue = '-' }
+    // if (subAff.gross_revenue && subAff.gross_revenue != null) {
+    //   this.gross_revenue = subAff.gross_revenue;
+    // } else { this.gross_revenue = '-' }
+    if (subAff.revenue && subAff.revenue != null) {
+      this.revenue = subAff.revenue;
+    } else { this.revenue = '-' }
     this.gross_clicks = subAff.gross_clicks;
     this.total_clicks = subAff.total_clicks;
     this.unique_clicks = subAff.unique_clicks;

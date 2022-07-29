@@ -63,6 +63,7 @@ export class SubAffiliatesComponent implements OnInit {
   sub1 = "";
   sub2 = "";
   sub3 = "";
+  network_affiliate_id = "";
   key = '';
   allSelected=false;
 
@@ -82,7 +83,8 @@ export class SubAffiliatesComponent implements OnInit {
     { name: 'sub3', property: 'sub3', visible: true, isModelProperty: true },
     // { name: 'sub4', property: 'sub4', visible: true, isModelProperty: true },
     // { name: 'sub5', property: 'sub5', visible: true, isModelProperty: true },
-    { name: 'gross_revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
+    { name: 'gross_revenue', property: 'revenue', visible: true, isModelProperty: true },
+    // { name: 'gross_revenue', property: 'gross_revenue', visible: true, isModelProperty: true },
     { name: 'impressions', property: 'impressions', visible: true, isModelProperty: true },
     { name: 'gross_clicks', property: 'gross_clicks', visible: true, isModelProperty: true },
     { name: 'total_clicks', property: 'total_clicks', visible: true, isModelProperty: true },
@@ -90,29 +92,28 @@ export class SubAffiliatesComponent implements OnInit {
     { name: 'duplicate_clicks', property: 'duplicate_clicks', visible: true, isModelProperty: true },
     { name: 'invalid_clicks', property: 'invalid_clicks', visible: true, isModelProperty: true },
     { name: 'total_conversions', property: 'total_conversions', visible: true, isModelProperty: true },
-    { name: 'CV', property: 'CV', visible: false, isModelProperty: false },
-    { name: 'invalid_conversions_scrub', property: 'invalid_conversions_scrub', visible: false, isModelProperty: false },
-    { name: 'view_through_conversions', property: 'view_through_conversions', visible: false, isModelProperty: false },
-    { name: 'events', property: 'events', visible: false, isModelProperty: false },
-    { name: 'view_through_events', property: 'view_through_events', visible: false, isModelProperty: false },
-    { name: 'CVR', property: 'CVR', visible: false, isModelProperty: false },
-    { name: 'EVR', property: 'EVR', visible: false, isModelProperty: false },
-    { name: 'CTR', property: 'CTR', visible: false, isModelProperty: false },
-    { name: 'CPC', property: 'CPC', visible: false, isModelProperty: false },
-    { name: 'CPA', property: 'CPA', visible: false, isModelProperty: false },
-    { name: 'EPC', property: 'EPC', visible: false, isModelProperty: false },
-    { name: 'RPC', property: 'RPC', visible: false, isModelProperty: false },
-    { name: 'RPA', property: 'RPA', visible: false, isModelProperty: false },
-    { name: 'payout', property: 'payout', visible: false, isModelProperty: false },
-    { name: 'revenue', property: 'revenue', visible: false, isModelProperty: false },
-    { name: 'margin', property: 'margin', visible: false, isModelProperty: false },
-    { name: 'profit', property: 'profit', visible: false, isModelProperty: false },
-    { name: 'gross_sales', property: 'gross_sales', visible: false, isModelProperty: false },
-    { name: 'ROAS', property: 'ROAS', visible: false, isModelProperty: false },
-    { name: 'gross_sales_vt', property: 'gross_sales_vt', visible: false, isModelProperty: false },
-    { name: 'RPM', property: 'RPM', visible: false, isModelProperty: false },
-    { name: 'CPM', property: 'CPM', visible: false, isModelProperty: false },
-    { name: 'avg_sale_value', property: 'avg_sale_value', visible: false, isModelProperty: false }
+    { name: 'CV', property: 'CV', visible: false, isModelProperty: true },
+    { name: 'invalid_conversions_scrub', property: 'invalid_conversions_scrub', visible: false, isModelProperty: true },
+    { name: 'view_through_conversions', property: 'view_through_conversions', visible: false, isModelProperty: true },
+    { name: 'events', property: 'events', visible: false, isModelProperty: true },
+    { name: 'view_through_events', property: 'view_through_events', visible: false, isModelProperty: true },
+    { name: 'CVR', property: 'CVR', visible: false, isModelProperty: true },
+    { name: 'EVR', property: 'EVR', visible: false, isModelProperty: true },
+    { name: 'CTR', property: 'CTR', visible: false, isModelProperty: true },
+    { name: 'CPC', property: 'CPC', visible: false, isModelProperty: true },
+    { name: 'CPA', property: 'CPA', visible: false, isModelProperty: true },
+    { name: 'EPC', property: 'EPC', visible: false, isModelProperty: true },
+    { name: 'RPC', property: 'RPC', visible: false, isModelProperty: true },
+    { name: 'RPA', property: 'RPA', visible: false, isModelProperty: true },
+    { name: 'payout', property: 'payout', visible: false, isModelProperty: true },
+    { name: 'margin', property: 'margin', visible: false, isModelProperty: true },
+    { name: 'profit', property: 'profit', visible: false, isModelProperty: true },
+    { name: 'gross_sales', property: 'gross_sales', visible: false, isModelProperty: true },
+    { name: 'ROAS', property: 'ROAS', visible: false, isModelProperty: true },
+    { name: 'gross_sales_vt', property: 'gross_sales_vt', visible: false, isModelProperty: true },
+    { name: 'RPM', property: 'RPM', visible: false, isModelProperty: true },
+    { name: 'CPM', property: 'CPM', visible: false, isModelProperty: true },
+    { name: 'avg_sale_value', property: 'avg_sale_value', visible: false, isModelProperty: true }
   ] as ListColumn[];
 
   dataSource: MatTableDataSource<SubAffiliate>;
@@ -194,15 +195,46 @@ export class SubAffiliatesComponent implements OnInit {
     this.end_date = formatDate(this.range.get('end').value, 'yyyy-MM-dd', 'en');
     const headers = { "Content-type": "application/json; charset=UTF-8", 'X-Eflow-API-Key': this.key };
     this.getSummary(headers);
-    result = await this.getSubAffiliates(headers);
-    let affiliatesArray = result.map(a => [a.sub1, a.sub2, a.sub3]);
-    let filter = {
-      'data': affiliatesArray,
-      'start_date': this.start_date,
-      'end_date': this.end_date,
-      'affiliate_id': this.affiliate
-    };
-    this.subAffiliatesService.getGrossRevenue(filter);
+
+    this.filters = {
+      "start": this.start_date,
+      "end": this.end_date,
+      "affiliate_id": this.affiliate,
+      "sub1": this.sub1,
+      "sub2": this.sub2,
+      "sub3": this.sub3,
+    }
+    this.subAffiliatesService.getSubAffiliates(this.filters)
+    .then(subAffiliates => {
+      this.subAffiliates = subAffiliates.data;
+      setTimeout(() => {
+        this.dataSource.paginator = this.paginator;
+        // this.paginator.length = subAffiliates.pag.count;
+      });
+      this.mapData().subscribe(subAffiliates => {
+        this.subject$.next(subAffiliates);
+      });
+      // this.dataSource.data = this.subAffiliates;
+      this.skeletonloader = false;
+      this.isLoading = false;
+    }
+    // , error => {
+    //   this.skeletonloader = false;
+    //   this.isLoading = false;
+    // }
+    );
+
+
+
+    // result = await this.getSubAffiliates(headers);
+    // let affiliatesArray = result.map(a => [a.sub1, a.sub2, a.sub3]);
+    // let filter = {
+    //   'data': affiliatesArray,
+    //   'start_date': this.start_date,
+    //   'end_date': this.end_date,
+    //   'affiliate_id': this.affiliate
+    // };
+    // this.subAffiliatesService.getGrossRevenue(filter);
   }
 
   getSummary(headers) {
@@ -234,85 +266,85 @@ export class SubAffiliatesComponent implements OnInit {
 
   }
 
-  async getSubAffiliates(headers) {
-    const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
-    const body =
-    {
-      "from": this.start_date,
-      "to": this.end_date,
-      "timezone_id": 67,
-      "currency_id": "USD",
-      "columns": [
-        { "column": "sub1" },
-        { "column": "sub2" },
-        { "column": "sub3" },
-        // { "column": "sub4" },
-        // { "column": "sub5" }
-      ],
-      "query": {
-        "filters": [
+  // async getSubAffiliates(headers) {
+  //   const url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
+  //   const body =
+  //   {
+  //     "from": this.start_date,
+  //     "to": this.end_date,
+  //     "timezone_id": 67,
+  //     "currency_id": "USD",
+  //     "columns": [
+  //       { "column": "sub1" },
+  //       { "column": "sub2" },
+  //       { "column": "sub3" },
+  //       // { "column": "sub4" },
+  //       // { "column": "sub5" }
+  //     ],
+  //     "query": {
+  //       "filters": [
 
-        ]
-      },
-      "format": "json"
-    };
-    if (this.affiliate) {
-      this.affiliate.forEach(function (e) {
-        body.query.filters.push(
-          {
-            "filter_id_value": e,
-            "resource_type": "affiliate"
-          }
-        )
-      })
-    }
-    if (this.sub1) {
-      body.query.filters.push(
-        {
-          "filter_id_value": this.sub1,
-          "resource_type": "sub1"
-        }
-      )
-    }
-    if (this.sub2) {
-      body.query.filters.push(
-        {
-          "filter_id_value": this.sub2,
-          "resource_type": "sub2"
-        }
-      )
-    }
-    if (this.sub3) {
-      body.query.filters.push(
-        {
-          "filter_id_value": this.sub3,
-          "resource_type": "sub3"
-        }
-      )
-    }
-    let jsonData = [];
-    const response2 = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: headers,
-      credentials: 'same-origin'
-    }).then(res => res.text()).then((res: any) => {
-      jsonData = ndjsonParser(res);
-      this.subAffiliates = jsonData;
-      setTimeout(() => {
-        this.dataSource.paginator = this.paginator
-        // this.paginator.length = 100;
-        // this.paginator.length = jsonData.count;
-      });
-      this.mapData().subscribe(subAffiliates => {
-        this.subject$.next(subAffiliates);
-      });
-      this.isLoading = false;
-      this.skeletonloader = false;
-    });
+  //       ]
+  //     },
+  //     "format": "json"
+  //   };
+  //   if (this.affiliate) {
+  //     this.affiliate.forEach(function (e) {
+  //       body.query.filters.push(
+  //         {
+  //           "filter_id_value": e,
+  //           "resource_type": "affiliate"
+  //         }
+  //       )
+  //     })
+  //   }
+  //   if (this.sub1) {
+  //     body.query.filters.push(
+  //       {
+  //         "filter_id_value": this.sub1,
+  //         "resource_type": "sub1"
+  //       }
+  //     )
+  //   }
+  //   if (this.sub2) {
+  //     body.query.filters.push(
+  //       {
+  //         "filter_id_value": this.sub2,
+  //         "resource_type": "sub2"
+  //       }
+  //     )
+  //   }
+  //   if (this.sub3) {
+  //     body.query.filters.push(
+  //       {
+  //         "filter_id_value": this.sub3,
+  //         "resource_type": "sub3"
+  //       }
+  //     )
+  //   }
+  //   let jsonData = [];
+  //   const response2 = await fetch(url, {
+  //     method: 'POST',
+  //     body: JSON.stringify(body),
+  //     headers: headers,
+  //     credentials: 'same-origin'
+  //   }).then(res => res.text()).then((res: any) => {
+  //     jsonData = ndjsonParser(res);
+  //     this.subAffiliates = jsonData;
+  //     setTimeout(() => {
+  //       this.dataSource.paginator = this.paginator
+  //       // this.paginator.length = 100;
+  //       // this.paginator.length = jsonData.count;
+  //     });
+  //     this.mapData().subscribe(subAffiliates => {
+  //       this.subject$.next(subAffiliates);
+  //     });
+  //     this.isLoading = false;
+  //     this.skeletonloader = false;
+  //   });
 
-    return jsonData;
-  }
+  //   return jsonData;
+  // }
 
   onFilterChange(value) {
     if (!this.dataSource) {

@@ -22,6 +22,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MatSelectSearchVersion } from 'ngx-mat-select-search';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   imports: [
@@ -48,10 +50,12 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     MatPaginatorModule,
     MatProgressBarModule,
     NgxSkeletonLoaderModule,
+    NgxMatSelectSearchModule,
   ],
   declarations: [OrdersComponent],
   exports: [OrdersComponent],
 
 })
 export class OrdersModule {
+  matSelectSearchVersion = MatSelectSearchVersion;
 }

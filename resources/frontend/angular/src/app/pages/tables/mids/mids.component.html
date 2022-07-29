@@ -84,8 +84,8 @@
                       <ngx-mat-select-search [formControl]="productSearchCtrl" placeholderLabel="Search..."
                         noEntriesFoundLabel="'Not Found'"></ngx-mat-select-search>
                       <mat-option [value]="" *ngIf="productOptions.length == 0">No Product Found</mat-option>
-                      <mat-option style="width:380px;" *ngFor="let product of filteredProducts | async" [value]="product['name']">{{product['name']}}
-                        ({{product['product_id']}}) - {{product['price']}}</mat-option>
+                      <mat-option style="width:380px;" *ngFor="let product of filteredProducts | async" [value]="product['name']">#{{product['product_id']}} - {{product['name']}}
+                       - ${{product['price']}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>

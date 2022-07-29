@@ -42,7 +42,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   id: number;
   totalRows = 0;
   pageSize = 25;
-  currentPage = 0;
+  currentPage = 1;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   name: string;
   isChecked: boolean = false;
@@ -65,6 +65,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Last Name', property: 'last_name', visible: true, isModelProperty: true },
     { name: 'Email', property: 'email', visible: true, isModelProperty: true },
     { name: 'Phone', property: 'phone', visible: true, isModelProperty: true },
+    { name: 'IP Address', property: 'ip_address', visible: true, isModelProperty: true },
     // { name: 'Type', property: 'type', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
   ] as ListColumn[];

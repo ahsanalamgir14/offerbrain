@@ -16,7 +16,6 @@ use App\Http\Controllers\Quickbook;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/quickbook',[Quickbook::class, 'index']);
 Route::get('/callback.php',[Quickbook::class, 'processCode']);
 Route::get('/apiCall',[Quickbook::class, 'apicall']);

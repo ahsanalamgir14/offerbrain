@@ -21,6 +21,7 @@ class MidGroupController extends Controller
      */
     public function index(Request $request)
     {
+      
         $query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
         $start_date = $request->start_date;
         $end_date = $request->end_date;
@@ -68,8 +69,13 @@ class MidGroupController extends Controller
         // ->join('mids','profiles.profile_id = mids.gateway_id')
         // ->where('deleted_at',null)
         // ->get();
-
-        return response()->json(['status' => true, 'data' => $data]);
+        // DB::enableQueryLog();
+        // $queryok = MidGroup::select('*')->leftJoin('invoices', function ($leftJoin) {
+        //     $leftJoin->on('invoices.mid_group_id', '=', 'mid_groups.id')
+        //          ->where('invoices.create_at', '=', DB::raw("(select max(`create_at`) from invoices)"));
+        // })->get();
+        // $query1 = DB::getQueryLog();
+        return response()->json(['status' => true, 'data' => $data, 'query'=>'$query1']);
     }
     public function getMidDetail(Request $request)
     {
@@ -119,9 +125,10 @@ class MidGroupController extends Controller
         if (!$request->bank_per) {
             $data['bank_per'] = '20';
         }
-        MidGroup::create($data);
+        $result = MidGroup::create($data);
+        $id = $result->id;
         $this->refresh_mids_groups();
-        return response()->json(['status' => true, 'data' => ['message' => 'Mid Group created successfully']]);
+        return response()->json(['status' => true, 'mid_group_id'=> $id, ['message' => 'Mid Group created successfully']]);
     }
 
     /**

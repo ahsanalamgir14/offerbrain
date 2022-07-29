@@ -5,14 +5,14 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, of, ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil, map} from 'rxjs/operators';
 import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { Order } from './order.model';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
 import { FormGroup, FormControl } from '@angular/forms';
 import { OrdersService } from './orders.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { formatDate } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
@@ -32,7 +32,9 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   subject$: ReplaySubject<Order[]> = new ReplaySubject<Order[]>(1);
   data$: Observable<Order[]> = this.subject$.asObservable();
   orders: Order[];
-
+  _onDestroy: Subject<void> = new Subject<void>();
+  filteredProducts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+  filteredCampaigns: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
   getSubscription: Subscription;
   getCampaignsSubscription: Subscription;
   getProductsSubscription: Subscription;
@@ -54,6 +56,8 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   product: FormControl = new FormControl();
   filterProduct: FormControl = new FormControl();
+  productSearchCtrl: FormControl = new FormControl();
+  campaignSearchCtrl: FormControl = new FormControl();
   selected = "transactionCreatedDate";
   campaign_id = '';
   campaignCategory = "allCategories";
@@ -83,11 +87,12 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   end_date = '';
   field_value = '';
   filteredProduct = '';
+  filteredCampaign = '';
   field = '';
   gateway_id: '';
   is_filtered = false;
   productOptions = [];
-  campaignOptions: [];
+  campaignOptions: any;
   cardOptions: string[] = ['VISA', 'MASTER'];
   pageSizeOptions: number[] = [5, 10, 25, 100];
   stateOptions: any = (states as any).default;
@@ -100,12 +105,14 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Bill First', property: 'billing_first_name', visible: true, isModelProperty: true },
     { name: 'Bill Last', property: 'billing_last_name', visible: true, isModelProperty: true },
     { name: 'Bill Address1', property: 'billing_street_address', visible: true, isModelProperty: true },
-    { name: 'Acq Date', property: 'acquisition_date', visible: true, isModelProperty: true },
+    // { name: 'Acq Date', property: 'acquisition_date', visible: true, isModelProperty: true },
+    { name: 'Time Stamp', property: 'time_stamp', visible: true, isModelProperty: true },
     { name: 'Acq Month', property: 'acquisition_month', visible: true, isModelProperty: true },
     { name: 'Pub ID', property: 'c1', visible: true, isModelProperty: true },
     { name: 'Network', property: 'affid', visible: true, isModelProperty: true },
     { name: 'Taxable Total', property: 'order_sales_tax_amount', visible: false, isModelProperty: true },
     { name: 'Sub Total', property: 'order_total', visible: true, isModelProperty: true },
+    { name: 'IP Address', property: 'ip_address', visible: true, isModelProperty: true },
     { name: 'Order Date', property: 'time_stamp', visible: true, isModelProperty: true },
     { name: 'Actions', property: 'actions', visible: true },
 
@@ -170,7 +177,51 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.orders = orders;
       this.dataSource.data = orders;
     });
+    this.productSearchCtrl.valueChanges
+    .pipe(takeUntil(this._onDestroy))
+    .subscribe(() => {
+      this.filterProductOptions();
+    });
+    this.campaignSearchCtrl.valueChanges
+    .pipe(takeUntil(this._onDestroy))
+    .subscribe(() => {
+      this.filterCampaignOptions();
+    });
   }
+  protected filterCampaignOptions() {
+    if (!this.campaignOptions) {
+      return;
+    }
+    // get the search keyword
+    let search = this.campaignSearchCtrl.value;
+    if (!search) {
+      this.filteredCampaigns.next(this.campaignOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredCampaigns.next(
+    this.campaignOptions.filter( campaign =>  campaign.name.toLowerCase().indexOf(search) > -1)
+    );
+    
+  }
+  protected filterProductOptions() {
+    if (!this.productOptions) {
+      return;
+    }
+    // get the search keyword
+    let search = this.productSearchCtrl.value;
+    if (!search) {
+      this.filteredProducts.next(this.productOptions.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredProducts.next(
+      this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
+    );
+  }
+  
 
   mapData() {
     return of(this.orders.map(order => new Order(order)));
@@ -265,13 +316,18 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   manageCampaignsResponse(data) {
     if (data.status) {
       this.campaignOptions = data.data;
+      this.filteredCampaigns.next(data.data);
     }
   }
 
   manageProductsResponse(data) {
     if (data.status) {
       this.productOptions = data.data;
+      this.filteredProducts.next(this.productOptions.slice());
     }
+    // if (data.status) {
+    //   this.productOptions = data.data;
+    // }
   }
 
   onFilterChange(value) {

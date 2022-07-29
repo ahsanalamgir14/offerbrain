@@ -28,6 +28,7 @@ class MidController extends Controller
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
         }
+        DB::enableQueryLog();
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }

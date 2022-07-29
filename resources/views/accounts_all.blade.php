@@ -1,6 +1,6 @@
 <?php
 //Replace the line with require "vendor/autoload.php" if you are using the Samples from outside of _Samples folder
-session_start();
+//session_start();
 
 use QuickBooksOnline\API\Core\ServiceContext;
 use QuickBooksOnline\API\DataService\DataService;

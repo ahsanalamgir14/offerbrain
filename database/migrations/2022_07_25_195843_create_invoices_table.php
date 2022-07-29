@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSubAffiliatesTable extends Migration
+class CreateInvoicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,12 @@ class CreateSubAffiliatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('sub_affiliates', function (Blueprint $table) {
+        Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->integer('user_id');
+            $table->integer('invoice_number');
+            $table->integer('mid_group_id');
+            $table->text('amount');
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ class CreateSubAffiliatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sub_affiliates');
+        Schema::dropIfExists('invoices');
     }
 }

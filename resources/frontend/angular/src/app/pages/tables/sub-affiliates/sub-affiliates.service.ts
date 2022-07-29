@@ -19,11 +19,21 @@ export class SubAffiliatesService {
 
   constructor(private apiService: ApiService) { }
 
-  async getSubAffiliates(): Promise<any> {
-    await this.apiService.getData(`sub-affiliates`).then(res => res.json()).then((data) => {
-      this.affiliates = data;
-      // this.affiliatesGetResponse.next(data);
-    });
+  // async getSubAffiliates(): Promise<any> {
+  //   await this.apiService.getData(`sub-affiliates`).then(res => res.json()).then((data) => {
+  //     this.affiliates = data;
+  //     // this.affiliatesGetResponse.next(data);
+  //   });
+  //   return this.affiliates;
+  // }
+
+  async getSubAffiliates(filters): Promise<any> {
+    await this.apiService.getData(`sub-affiliates?pageno=${filters.currentPage}&per_page=${filters.pageSize}&start_date=${filters.start}&end_date=${filters.end}&affiliate_id=${filters.affiliate_id}&sub1=${filters.sub1}&sub2=${filters.sub2}&sub3=${filters.sub3}`)
+      .then(res => res.json()).then((data) => {
+        console.log('data in service', data);
+        this.affiliates = data;
+        // this.affiliatesGetResponse.next(data);
+      });
     return this.affiliates;
   }
 
@@ -43,7 +53,7 @@ export class SubAffiliatesService {
 
   async getAPIKey(): Promise<any> {
     return await this.apiService.getData(`get_EF_key`).then(res => res.json()).then((data) => {
-      if(data.status){
+      if (data.status) {
         console.log('return data.key; :', data.key);
         return data.key;
       }

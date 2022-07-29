@@ -26,10 +26,12 @@ class NetworkController extends Controller
         if ($request->start_date != '' && $request->end_date != '') {
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
-
+           
             // $query = DB::table('networks')->where(['networks.user_id' => 2])
             $query = DB::table('networks')->where(['networks.user_id' => Auth::id()])
-                ->select('networks.*', 'orders.id', 'orders.order_status', 'orders.order_total', 'orders.is_refund', 'orders.affid', 'networks.network_affiliate_id', 'orders.time_stamp')
+                ->select('networks.*', 'orders.id', 'orders.order_status', 
+                'orders.order_total', 'orders.is_refund', 'orders.affid', 
+                'networks.network_affiliate_id', 'orders.time_stamp')
                 ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affid', '=', 'networks.network_affiliate_id')
                         // ->where('orders.user_id', '=', 2)
@@ -37,14 +39,15 @@ class NetworkController extends Controller
                         ->where('orders.time_stamp', '>=', $start_date)
                         ->where('orders.time_stamp', '<=', $end_date)
                         ->where('orders.order_status', 2)
-                        ->orWhere('orders.order_status', 8)
                         ->where('orders.is_test_cc', 0);
                 })
                 ->selectRaw('COUNT(orders.id) as total_count')
                 ->selectRaw('ROUND(SUM(orders.order_total) - sum(case when orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue')
+                // ->selectRaw('ROUND(SUM(orders.order_total), 2) as gross_revenue')
                 ->selectRaw("ROUND(COUNT(case when orders.upsell_product_quantity > 1 then 0 end), 2) as upsell_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_chargeback = 1 then 0 end) , 2) as chargeback_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'yes' then 0 end), 2) as refund_per")
+                // ->join('order_products', 'order_products.order_id', '=', 'orders.order_id')
                 ->selectRaw('COUNT(case when orders.products NOT LIKE "%(c)%" then 0 end) as rebill_per')
                 ->groupBy('networks.id')
                 ->orderBy('networks.id', 'ASC');

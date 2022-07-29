@@ -53,8 +53,8 @@ class CustomerController extends Controller
             ini_set('memory_limit', '512M');
             set_time_limit(0);
             // $query = Customer::doesnthave('customers')
+
             $query = Customer::where('customers.user_id', Auth::id())
-            // $query = Customer::where('user_id', 2)
                 ->select('customers.id', 'customers.customer_id', 'customers.user_id', 'customers.email', 
                 'customers.first_name', 'customers.last_name', 'customers.phone', 'customers.addresses', 
                 'customers.deleted_at', 'orders.ip_address')
@@ -62,10 +62,11 @@ class CustomerController extends Controller
                 ->where('orders.user_id',Auth::id())
                 ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
                 ->orderBy('orders.ip_address','asc');
+                
             $total_rows = $query->count('customers.id');
         } else {
-            ini_set('memory_limit', '512M');
-            set_time_limit(0);
+            // ini_set('memory_limit', '512M');
+            // set_time_limit(0);
             $query = DB::table('customers')
                     ->select('customers.id', 'customers.user_id', 'customers.email', 
                     'customers.first_name', 'customers.last_name', 'customers.phone', 'customers.customer_id', 
@@ -80,6 +81,7 @@ class CustomerController extends Controller
                     ->orderBy('orders.ip_address','asc');
             ini_set('memory_limit', '512M');
             set_time_limit(0);
+
             $total_rows = $query->get()->count('customers.id');
         }
 
@@ -89,7 +91,7 @@ class CustomerController extends Controller
                 ->orWhere('customers.last_name', 'like', '%' . $request->search . '%');
         }
         $data = $query->orderBy('customers.id', 'asc')->SimplePaginate($no_of_records_per_page);
-
+        // return $data;
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
@@ -113,7 +115,6 @@ class CustomerController extends Controller
                 'customers.addresses', 'customers.deleted_at', 'orders.id', 'orders.customer_id',
                 DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count'))
                 ->where('customers.user_id', Auth::id())
-                // ->where('customers.user_id', 2)
                 ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
                 ->groupBy('customers.id');
         ini_set('memory_limit', '512M');
@@ -268,6 +269,7 @@ class CustomerController extends Controller
                             $response = null;
                         }
                         Setting::where('key', 'customer_last_page')->where('user_id',$user->id)->update(['value' => $previousPage]);
+                        // Setting::where('key', 'customer_last_page')->where('user_id',2)->update(['value' => $previousPage]);
                     }
                 }
             }

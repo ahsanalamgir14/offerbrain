@@ -62,8 +62,8 @@
                                             <div class="select-all">
                                                 <mat-checkbox [(ngModel)]="allSelected" (change)="toggleAllSelection()">Select All</mat-checkbox>
                                             </div>
-                                            <mat-option *ngFor="let affiliate of affiliateOptions"(click)="optionClick()" [value]="affiliate['network_affiliate_id']">{{affiliate['name']
-                                                }} ({{ affiliate['network_affiliate_id'] }})</mat-option>
+                                            <mat-option *ngFor="let affiliate of affiliateOptions"(click)="optionClick()" [value]="affiliate['network_affiliate_id']">
+                                                #{{ affiliate['network_affiliate_id'] }} - {{affiliate['name']}}</mat-option>
                                         </mat-select>
                                     </mat-form-field>
                                 </div>

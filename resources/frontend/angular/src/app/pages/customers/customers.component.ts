@@ -42,7 +42,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   id: number;
   totalRows = 0;
   pageSize = 25;
-  currentPage = 0;
+  currentPage = 1;
   pageSizeOptions: number[] = [5, 10, 25, 100];
   name: string;
   isChecked: boolean = false;

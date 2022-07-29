@@ -38,7 +38,7 @@ export class Order {
   // preserve_gateway: number;
   // gateway_descriptor: string;
   // processor_id: string;
-  // ip_address: string;
+  ip_address: string;
   decline_reason: string;
   is_cascaded: number;
   decline_reason_details: string;
@@ -120,7 +120,7 @@ export class Order {
   // stop_after_next_rebill: number;
   // sub_affiliate: string;
   // systemNotes: null;
-  // time_stamp: string;
+  time_stamp: string;
   // totals_breakdown: null;
   transaction_id: string;
   // upsell_product_id: string;
@@ -170,7 +170,7 @@ export class Order {
     // this.preserve_gateway = order.preserve_gateway;
     // this.gateway_descriptor = order.gateway_descriptor;
     // this.processor_id = order.processor_id;
-    // this.ip_address = order.ip_address;
+    this.ip_address = order.ip_address;
     this.decline_reason = order.decline_reason;
     this.is_cascaded = order.is_cascaded;
     this.decline_reason_details = order.decline_reason_details;
@@ -254,7 +254,7 @@ export class Order {
     // this.stop_after_next_rebill = order.stop_after_next_rebill;
     // this.sub_affiliate = order.sub_affiliate;
     // this.systemNotes = order.systemNotes;
-    // this.time_stamp = order.time_stamp;
+    this.time_stamp = order.time_stamp;
     
     // this.return_reason = order.time_stamp;
     this.time_stamp = order.time_stamp;

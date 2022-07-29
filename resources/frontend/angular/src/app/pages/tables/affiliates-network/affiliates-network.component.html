@@ -68,8 +68,9 @@
                     <mat-label>Networks</mat-label>
                     <mat-select [(value)]="network_affiliate_id" (selectionChange)="commonFilter($event.value, 'network_affiliate_id')">
                       <mat-option [value]="">All Networks</mat-option>
-                      <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">{{affiliate['name']}}
-                        ({{ affiliate['network_affiliate_id'] }})</mat-option>
+                      <mat-option *ngFor="let affiliate of affiliateOptions" [value]="affiliate['network_affiliate_id']">
+                        #{{ affiliate['network_affiliate_id'] }} - {{affiliate['name']}}
+                        </mat-option>
                     </mat-select>
                   </mat-form-field>
                 </div>

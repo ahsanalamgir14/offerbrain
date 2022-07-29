@@ -40,7 +40,7 @@ export class ProspectsComponent implements OnInit {
   isLoading = false;
   totalRows = 0;
   pageSize = 25;
-  currentPage = 0;
+  currentPage = 1;
   all_fields = [];
   all_values = [];
   filterData: any = [];

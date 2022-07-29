@@ -3,7 +3,74 @@
 </button>
 
 <h4 mat-dialog-title>{{action}}</h4>
-<div mat-dialog-content>
+
+<div mat-dialog-content *ngIf="quick=='Invoice History';">
+    <p>{{message}}</p>
+    <div _ngcontent-btx-c228="" mat-dialog-content="" class="mat-typography">
+                <table _ngcontent-btx-c228="" class="ng-star-inserted" >
+                <thead _ngcontent-btx-c228="">
+                <tr _ngcontent-btx-c228="">
+                <th _ngcontent-btx-c228="">Invoice Date</th>
+                <th _ngcontent-btx-c228="">Invoice Number</th>
+                <th _ngcontent-btx-c228="">Invoice Amount</th>
+                <th _ngcontent-btx-c228="">Status</th>
+                </tr>
+                </thead>
+            <tbody _ngcontent-btx-c228="">
+                <tr _ngcontent-btx-c228="" class="ng-star-inserted" *ngFor="let invoice of invoices; let i=index;">
+                    
+                    <td _ngcontent-btx-c228="">{{invoice.created_at | date:'medium'}}</td>
+                    <td _ngcontent-btx-c228="">{{invoice.invoice_number}}</td>
+                    <td _ngcontent-btx-c228="">{{invoice.amount}}</td>
+                   
+                    <td _ngcontent-btx-c228="">
+                        <a class="history-link clickable" >Complete</a>
+                    </td>
+                   
+                </tr>
+               
+               
+            </tbody>
+            </table>
+    </div> 
+</div>
+
+<div mat-dialog-content *ngIf="quick=='invoice';">
+    <p>{{message}}</p>
+    <div _ngcontent-btx-c228="" mat-dialog-content="" class="mat-typography">
+                <table _ngcontent-btx-c228="" class="ng-star-inserted" >
+                <thead _ngcontent-btx-c228="">
+                <tr _ngcontent-btx-c228="">
+                <th _ngcontent-btx-c228="">Mid Group</th>
+                <th _ngcontent-btx-c228="">Bank Balance</th>
+                <th _ngcontent-btx-c228="">Invoice Amount</th>
+                <th _ngcontent-btx-c228="">Actions</th>
+                </tr>
+                </thead>
+            <tbody _ngcontent-btx-c228="">
+                <tr _ngcontent-btx-c228="" class="ng-star-inserted" *ngFor="let mid of midGroup; let i=index;">
+
+                    <td _ngcontent-btx-c228="">{{mid.group_name}}</td>
+                    <td _ngcontent-btx-c228="" style="color:{{mid.color}}"> {{mid.quick_balance}}</td>
+                    <td _ngcontent-btx-c228="">
+                        <input type="text" id="balance_input{{i}}" style="width:70px;" #target_bank_balance 
+                        value="{{mid.target_bank_balance}}" (keyup)="changeInvoice(target_bank_balance.value, target_balance.value, i)">
+                        </td>
+                        <input type="hidden" value="{{mid.target_bank_balance}}" #target_balance>
+                    <td _ngcontent-btx-c228="">
+                        <a class="edit-link clickable" id="update{{i}}" (click) = "updateInvoice(i,target_bank_balance.value)" >Update</a> |
+                        <a class="delete-link clickable" (click) = "deleteInvoice(i);" >Delete</a>
+                    </td>
+                
+                </tr>
+               
+               
+            </tbody>
+            </table>
+    </div> 
+</div>
+
+<div mat-dialog-content *ngIf="quick!='invoice' && quick!='Invoice History'">
     <p>{{message}}</p>
     <div fxLayout="column" *ngIf="action != 'Delete'; else elseDelete">
         <mat-form-field appearance="fill">
@@ -13,7 +80,7 @@
         </mat-form-field>
         <mat-form-field appearance="fill">
             <mat-label>Bank Percentage</mat-label>
-            <input matInput [(ngModel)]="bankPercentage">
+            <input matInput [(ngModel)]="bankPercentage" type="number" min="0" max="100">
             <mat-hint class="text-danger">If field left null, default percentage will be set to 20%</mat-hint>
         </mat-form-field>
 
@@ -23,7 +90,7 @@
             <mat-hint class="text-danger">Mid Group ID {{midGroupId}}</mat-hint>
         </mat-form-field> -->
 
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="fill" *ngIf = "account_obj!=''">
             <mat-label>Select Account</mat-label>
             <mat-select [(ngModel)]="account_id">
                 <mat-option value="">Select</mat-option>
@@ -31,6 +98,7 @@
                   {{ account.account_name }}
                 </mat-option>
             </mat-select>
+            <mat-hint class="text-danger" style="color:red;" *ngIf='msg' >{{ msg }}</mat-hint>
         </mat-form-field>
 
     </div>
@@ -38,17 +106,28 @@
         <p>Are you sure to delete Mid Group <b>"{{local_data.group_name}}"</b>?</p>
     </ng-template>
 </div>
-
+<!-- Buttons for Generate Invoice -->
+<div mat-dialog-actions fxLayoutAlign="end end" *ngIf="quick == 'invoice';">
+    <button mat-raised-button color="primary" (click) = "generateInvoice(midGroup)">Generate {{action}}</button>
+    <button mat-raised-button color="gray" (click)="closeDialog()">Cancel</button>
+</div>
+<!-- Buttons for Connect to QuickBooks -->
+<div *ngIf="quick!='invoice' && quick!='Invoice History'">
 <div mat-dialog-actions fxLayoutAlign="end end" *ngIf="action != 'Delete'; else elseDeleteButtons">
-    <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="quickbookConnect(midGroupId)">Connect to Quickbooks</button>
-    <button  mat-raised-button color="warn" *ngIf = "quick_balance" (click) = "quickbookDisconnect(midGroupId)">Disconnect from Quickbooks</button>
+    <!-- <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="quickbookConnect(midGroupId)">{{quick}}</button> -->
+    <!-- <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="doQuickAction()">{{quick}}</button> -->
+    <button class="mb" mat-raised-button color="accent" *ngIf="account_obj==''"  (click)="getQuickAccounts(midGroupId)">{{quick}} </button>
+    <button  mat-raised-button color="primary" *ngIf="account_obj!=''"  (click)="doQuickAction('add_balance')">Add Balance</button>
+    <button  mat-raised-button color="warn" *ngIf = "account_obj!=''" (click) = "quickbookDisconnect(midGroupId);">Disconnect from Quickbooks</button>
     <button mat-raised-button color="primary" (click)="doAction()">{{action}}</button>
     <button mat-raised-button color="gray" (click)="closeDialog()">Cancel</button>
 </div>
 
+<!-- Buttons for Delete -->
 <ng-template #elseDeleteButtons>
     <div mat-dialog-actions fxLayoutAlign="end end">
         <button mat-raised-button color="warn" (click)="doAction()">{{action}}</button>
         <button mat-raised-button color="gray" (click)="closeDialog()">Cancel</button>
     </div>
 </ng-template>
+</div>

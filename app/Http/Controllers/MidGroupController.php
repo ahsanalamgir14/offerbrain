@@ -69,6 +69,7 @@ class MidGroupController extends Controller
         }
 
         return response()->json(['status' => true, 'data' => $data]);
+
     }
     public function getMidDetail(Request $request)
     {
@@ -118,9 +119,11 @@ class MidGroupController extends Controller
         if (!$request->bank_per) {
             $data['bank_per'] = '20';
         }
-        MidGroup::create($data);
+        $result = MidGroup::create($data);
+        $id = $result->id;
         $this->refresh_mids_groups();
-        return response()->json(['status' => true, 'data' => ['message' => 'Mid Group created successfully']]);
+
+        return response()->json(['status' => true, 'mid_group_id'=> $id, 'data' => ['message' => 'Mid Group created successfully']]);
     }
 
     /**

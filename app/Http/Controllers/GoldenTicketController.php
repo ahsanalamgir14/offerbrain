@@ -102,7 +102,6 @@ class GoldenTicketController extends Controller
 
     public function refresh_golden_ticket(Request $request)
     {
-        // $golden_tickets = GoldenTicket::where(['year'=>Carbon::now()->format('Y')-1])->get();
         if ($request->month && $request->year) {
             if ($request->month != "null" && $request->year != "null") {
                 $golden_tickets = GoldenTicket::where(['month' => $request->month, 'year' => $request->year])->get();

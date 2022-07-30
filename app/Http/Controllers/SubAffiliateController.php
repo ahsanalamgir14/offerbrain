@@ -22,7 +22,6 @@ class SubAffiliateController extends Controller
      */
     public function index(Request $request)
     {
-        // return $request->sub1;
         $AffArray = explode(",", $request->affiliate_id);
         $start_date = $request->start_date;
         $end_date = $request->end_date;
@@ -42,7 +41,6 @@ class SubAffiliateController extends Controller
         $updated_sub_affiliates = 0;
         $not_updated_sub_affiliates = 0;
         $key = "X-Eflow-API-Key";
-        // $user = User::find(2);
         $user = User::find(Auth::id());
         $username = $user->sticky_api_username;
         if ($user->everflow_api_key) {
@@ -50,7 +48,6 @@ class SubAffiliateController extends Controller
         } else {
             return response()->json(['status' => false, 'message' => 'No API key found for Everflow']);
         }
-        // return $value;
         $networks = Network::where(['user_id' => Auth::id()])->get();
         foreach ($networks as $network) {
             $filterId = (string)$network->network_affiliate_id;
@@ -204,7 +201,6 @@ class SubAffiliateController extends Controller
         if ($request->start_date != '' && $request->end_date != '') {
             $sub_affiliates = $request->data;
             $affiliate_id = $request->affiliate_id;
-            // dd($affiliate_id);
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
 

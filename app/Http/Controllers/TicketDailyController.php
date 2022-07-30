@@ -19,12 +19,10 @@ class TicketDailyController extends Controller
     public function index()
     {
         DB::statement("SET SQL_MODE=''");
-        // DB::table('sticket_daily')->truncate();
-        // return ;
         $db_dates = TicketDaily::pluck('date')->toArray();
         $date_today = Carbon::now()->format('Y-m-d');
 
-            // ?previous two month records insert query 
+        // ?previous two month records insert query 
         /* for ($i = 142 ; $i > 0; $i--) {
             $model = new TicketDaily();
             $date_of_the_day = Carbon::now()->subDays($i)->format('Y-m-d');
@@ -74,9 +72,7 @@ class TicketDailyController extends Controller
             ->groupBy('orders.order_id');
 
         $decline = $orders->where(['orders.order_status' => 7])->get()->count();
-        // dd($join->pluck('order_products')->toArray());
         $initials = $join->where(['order_products.offer_name' => 'Golden Ticket Offer'])->where('order_products.name', 'LIKE', '%(c)%')->get()->count();
-        // dd($initials);
         $EOT_approved = $join->where(['order_products.offer_name' => 'EssentialSweep'])->where('order_products.name', 'LIKE', '%(CR1)%')->get()->count();
 
         if ($initials != 0) {
@@ -212,16 +208,13 @@ class TicketDailyController extends Controller
             ->where('orders.time_stamp', '>=', $start_day)
             ->where('orders.time_stamp', '<=', $end_day)
             ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year');
-        // dd($orders->get());
 
         $join = $orders->join('order_products', 'orders.order_id', 'order_products.order_id')
             ->select('order_products.*')
             ->groupBy('orders.order_id');
 
         $decline = $orders->where(['orders.order_status' => 7])->get()->count();
-        // dd($decline);
         $initials = $join->where(['order_products.offer_name' => 'Golden Ticket Offer'])->where('order_products.name', 'LIKE', '%(c)%')->get()->count();
-        // dd($initials);
         $EOT_approved = $join->where(['order_products.offer_name' => 'EssentialSweep'])->where('order_products.name', 'LIKE', '%(CR1)%')->get()->count();
 
         if ($initials != 0) {

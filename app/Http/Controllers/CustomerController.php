@@ -15,42 +15,17 @@ use Illuminate\Support\Facades\Crypt;
 
 class CustomerController extends Controller
 {
-    public function index1(Request $request)
-    {
-        $pageno = isset($request->page) ? $request->page : 1;
-        $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-        $query = DB::table('customers')->select('id', 'email', 'first_name', 'last_name', 'phone', 'addresses', 'deleted_at');
-        $total_rows = $query->count('id');
-
-        if ($request->search != '') {
-            $query->Where('email', 'like', '%' . $request->search . '%')
-                ->orWhere('first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('last_name', 'like', '%' . $request->search . '%');
-        }
-        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page);
-        $total_pages = ceil($total_rows / $data->perPage());
-        $pag['count'] = $total_rows;
-        $pag['total_pages'] = $total_pages;
-        $pag['pageno'] = $pageno;
-        $pag['rows_per_page'] = $no_of_records_per_page;
-        return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
-    }
     public function index(Request $request)
     {
-        // return Auth::id();
         $is_count = $request->customer_id;
         if ($is_count == null) {
             $is_count = 0;
         }
 
         DB::statement("SET SQL_MODE=''");
-        DB::enableQueryLog();
         $pageno = isset($request->page) ? $request->page : 0;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
         if ($is_count == 0 && $is_count != 1 && $is_count != '') {
-            ini_set('memory_limit', '512M');
-            set_time_limit(0);
-            // $query = Customer::doesnthave('customers')
 
             $query = Customer::where('customers.user_id', Auth::id())
                 ->select(
@@ -72,8 +47,6 @@ class CustomerController extends Controller
 
             $total_rows = $query->count('customers.id');
         } else {
-            // ini_set('memory_limit', '512M');
-            // set_time_limit(0);
             $query = DB::table('customers')
                 ->select(
                     'customers.id',
@@ -91,13 +64,10 @@ class CustomerController extends Controller
                     DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count')
                 )
                 ->where('customers.user_id', Auth::id())
-                    // ->where('customers.user_id', 2)
                 ->where('orders.user_id', Auth::id())
                 ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
                 ->groupBy('customers.id')
                 ->orderBy('orders.ip_address', 'asc');
-            ini_set('memory_limit', '512M');
-            set_time_limit(0);
 
             $total_rows = $query->get()->count('customers.id');
         }
@@ -108,52 +78,6 @@ class CustomerController extends Controller
                 ->orWhere('customers.last_name', 'like', '%' . $request->search . '%');
         }
         $data = $query->orderBy('customers.id', 'asc')->SimplePaginate($no_of_records_per_page);
-        // return $data;
-        $total_pages = ceil($total_rows / $data->perPage());
-        $pag['count'] = $total_rows;
-        $pag['total_pages'] = $total_pages;
-        $pag['pageno'] = $pageno;
-        $pag['rows_per_page'] = $no_of_records_per_page;
-        // dd(DB::getQueryLog());
-        return response()->json(['status' => true, 'data' => $data, 'pag' => $pag]);
-    }
-    public function index_2(Request $request)
-    {
-        DB::statement("SET SQL_MODE=''");
-        $pageno = isset($request->page) ? $request->page : 0;
-
-        $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
-        $query = DB::table('customers')
-            ->select(
-                'customers.id',
-                'customers.user_id',
-                'customers.email',
-                'customers.first_name',
-                'customers.last_name',
-                'customers.phone',
-                'customers.customer_id',
-                'customers.addresses',
-                'customers.deleted_at',
-                'orders.id',
-                'orders.customer_id',
-                DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count')
-            )
-            ->where('customers.user_id', Auth::id())
-            ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
-            ->groupBy('customers.id');
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
-        $total_rows = $query->get()->count('customers.id');
-        if ($request->search != '') {
-            $query->Where('customers.email', 'like', '%' . $request->search . '%')
-                ->orWhere('customers.first_name', 'like', '%' . $request->search . '%')
-                ->orWhere('customers.last_name', 'like', '%' . $request->search . '%');
-        }
-        $data = $query->orderBy('customers.id', 'asc')->SimplePaginate($no_of_records_per_page);
-
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
@@ -294,7 +218,6 @@ class CustomerController extends Controller
                             $response = null;
                         }
                         Setting::where('key', 'customer_last_page')->where('user_id', $user->id)->update(['value' => $previousPage]);
-                        // Setting::where('key', 'customer_last_page')->where('user_id',2)->update(['value' => $previousPage]);
                     }
                 }
             }
@@ -341,7 +264,6 @@ class CustomerController extends Controller
                 }
             }
             if ($last_page > $page) {
-                // $page++;
                 for ($page; $page <= $last_page; $page++) {
 
                     $response['customers'] = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page])['data'];

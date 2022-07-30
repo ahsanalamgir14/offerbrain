@@ -95,10 +95,7 @@ class ProductController extends Controller
     {
         $created = 0;
         $updated = 0;
-        // return Auth::id();
         $db_products = Product::where(['user_id' => Auth::id()])->pluck('product_id')->toArray();
-        // return $db_products;
-        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
@@ -108,7 +105,6 @@ class ProductController extends Controller
         $api_data = Http::withBasicAuth($username, $password)->accept('application/json')->get($url, ['page' => $page]);
         $response['products'] = $api_data['data'];
         $last_page = $api_data['last_page'];
-        // dd($last_page);
         if ($response['products']) {
             foreach ($response['products'] as $result) {
                 $result['product_id'] = $result['id'];

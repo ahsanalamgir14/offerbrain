@@ -82,7 +82,6 @@ class OrdersController extends Controller
             'orders.time_stamp',
             'orders.ip_address'
         )
-            // ->where(['orders.user_id' => 2]); //dev mode
             ->where(['orders.user_id' => $request->user()->id]);
 
         if ($start_date != null && $end_date != null) {
@@ -189,7 +188,6 @@ class OrdersController extends Controller
 
     public function pull_user_orders(Request $request)
     {
-        // return Auth::id();
         $new_orders = 0;
         $updated_orders = 0;
         $user = User::find($request->user()->id);
@@ -212,7 +210,6 @@ class OrdersController extends Controller
 
             if ($total_orders < 50000) {
                 $chunked_array = array_chunk($order_ids, 500);
-                // return $chunked_array;
                 foreach ($chunked_array as $chucked_ids) {
                     $order_view_api = $user->sticky_url . '/api/v1/order_view';
                     $order_views = json_decode(Http::asForm()->withBasicAuth($username, $password)->accept('application/json')
@@ -328,10 +325,7 @@ class OrdersController extends Controller
                         }
                     }
                 }
-                // if ($key == 3) {
                 return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
-                // }
-                // return response()->json(['status' => false, 'message' => 'data exceeded 50000 records']);
             }
         }
         return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
@@ -505,19 +499,11 @@ class OrdersController extends Controller
                                 $mass_assignment = self::get_product_order_mass($order, $user->id);
 
                                 OrderProduct::create($mass_assignment);
-                            } else {
-                                // $updated_orders++;
-                                // $db_order = Order::where(['order_id' => $order->order_id])->where('user_id',$user->id)->first();
-                                // $db_order->update((array)$order);
-                                // $order->products = unserialize($order->products);
-                                // $mass_assignment = self::get_product_order_mass($order, $user->id);
-                                // OrderProduct::where('order_id',$order->order_id)->where('user_id',$user->id)->update($mass_assignment);
                             }
                         }
                         $data = null;
                         $results = null;
                     }
-                    // return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
                 } else {
                     $startDate = Carbon::createFromFormat('m/d/Y', $start_date);
                     $endDate = Carbon::createFromFormat('m/d/Y', $end_date);
@@ -582,15 +568,6 @@ class OrdersController extends Controller
 
                                         OrderProduct::create($mass_assignment);
                                     }
-                                    // else {
-                                    //     $updated_orders++;
-                                    //     $db_order = Order::where(['order_id' => $order->order_id])->where('user_id',$user->id)->first();
-                                    //     $db_order->update((array)$order);
-                                    //     $order->products = unserialize($order->products);
-                                    //     $mass_assignment = self::get_product_order_mass($order, $user->id);
-
-                                    //     OrderProduct::where(['order_id' => $db_order->order_id])->where('user_id',$user->id)->update($mass_assignment);
-                                    // }
                                 }
                                 $data = null;
                                 $results = null;
@@ -603,8 +580,7 @@ class OrdersController extends Controller
         return response()->json(['status' => true, 'New Record in todays API' => $new_orders, 'Previous orders to be updated in orders table' => $updated_orders]);
     }
 
-    // public static function pull_cron_orders($start_date, $end_date)
-    public static function pull_cron_orders()
+    public static function pull_cron_orders($start_date, $end_date)
     {
         $users = User::orderBy('id', 'desc')->get();
         $new_orders = 0;
@@ -612,9 +588,6 @@ class OrdersController extends Controller
         foreach ($users as $user) {
             $password = Crypt::decrypt($user->sticky_api_key);
             $username = $user->sticky_api_username;
-
-            $start_date = '07/05/2022';
-            $end_date = '07/05/2022';
 
             $db_order_ids = DB::table('orders')->select('order_id')
                 ->where('user_id', $user->id)
@@ -764,10 +737,7 @@ class OrdersController extends Controller
     }
 
     public static function daily_order_history_cron($start_date, $end_date)
-    // public static function daily_order_history_cron()
     {
-        // $start_date = '2022-07-29 13:06:00';
-        // $end_date = '2022-07-29 23:59:59';
         $endingDate = date('Y-m-d H:i:s', strtotime($end_date . ' -20 minutes'));
         ini_set('memory_limit', '512M');
         set_time_limit(0);
@@ -1003,8 +973,6 @@ class OrdersController extends Controller
 
     public static function pull_yesterday_cron_orders($start_date, $end_date)
     {
-        // ini_set('memory_limit', '512M');
-        // set_time_limit(0);
         $users = User::orderBy('id', 'desc')->get();
         foreach ($users as $user) {
             $password = Crypt::decrypt($user->sticky_api_key);
@@ -1012,9 +980,6 @@ class OrdersController extends Controller
             $updated_orders = 0;
             $username = $user->sticky_api_username;
             $start = Carbon::today();
-
-            // $start_date = Carbon::yesterday()->startOfDay()->format('m/d/Y');
-            // $end_date = Carbon::yesterday()->endOfDay()->format('m/d/Y');
 
             $db_order_ids = Order::where(['user_id' => $user->id])->pluck('order_id')->toArray();
             $url = $user->sticky_url . '/api/v1/order_find';

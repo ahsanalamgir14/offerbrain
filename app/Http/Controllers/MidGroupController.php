@@ -22,7 +22,6 @@ class MidGroupController extends Controller
     public function index(Request $request)
     {
       
-        //$query = MidGroup::select('*')->where(['user_id' => Auth::id()])->whereNull('deleted_at');
         $query = MidGroup::select('mid_groups.*','invoices.created_at','invoices.amount')->leftJoin('invoices', function ($leftJoin) {
             $leftJoin->on('invoices.mid_group_id', '=', 'mid_groups.id')
                  ->where('invoices.created_at', '=', DB::raw("(select max(`created_at`) from invoices where invoices.mid_group_id=mid_groups.id)"));
@@ -37,16 +36,13 @@ class MidGroupController extends Controller
         $data = $query->get();
         if ($start_date != null && $end_date != null) {
             foreach ($data as $key => $group) {
-                // $mids = Mid::where(['user_id' => 2, 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
-                // $group['mids_data'] = DB::table('mids')->where(['user_id' => 2, 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['gross_revenue'] = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
-                    // ->where('user_id', 2)
                     ->where(['user_id' => Auth::id()])
                     ->where('order_status', 2)
                     ->where('is_test_cc', 0)
@@ -55,16 +51,13 @@ class MidGroupController extends Controller
             }
         } else {
             foreach ($data as $key => $group) {
-                // $mids = Mid::where(['user_id' => 2, 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $mids = Mid::where(['user_id' => Auth::id(), 'is_active' => 1, 'mid_group' => $group['group_name']]);
                 $group['assigned_mids'] = $mids->count();
                 $group['assigned_mid_ids'] = $mids->pluck('gateway_id')->toArray();
-                // $group['mids_data'] = DB::table('mids')->where(['user_id' => 2, 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['mids_data'] = DB::table('mids')->where(['user_id' => Auth::id(), 'is_active' => 1])->whereIn('gateway_id', $group['assigned_mid_ids'])->get();
                 $group['gross_revenue'] = DB::table('orders')
                     ->where('time_stamp', '>=', $start_date)
                     ->where('time_stamp', '<=', $end_date)
-                    // ->where(['user_id' => 2])
                     ->where(['user_id' => Auth::id()])
                     ->where('order_status', 2)
                     ->where('is_test_cc', 0)

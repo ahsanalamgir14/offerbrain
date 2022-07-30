@@ -18,8 +18,6 @@ class ProspectController extends Controller
     {
         $pageno = isset($request->page) ? $request->page : 1;
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-
-        // $query = Prospect::where('user_id', 2)->select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         $query = Prospect::where('user_id', $request->user()->id)->select('id', 'first_name', 'last_name', 'address', 'city', 'state', 'zip', 'country', 'phone', 'email', 'affiliate', 'sub_affiliate')->orderBy('id', 'desc');
         $total_rows = $query->count('id');
 
@@ -123,8 +121,6 @@ class ProspectController extends Controller
 
     public static function pull_prospects($startDate, $endDate)
     {
-        // ini_set('memory_limit', '512M');
-        // set_time_limit(0);
         $users = User::orderBy('id','desc')->get();
         foreach($users as $user){
             $new_prospects = 0;
@@ -133,9 +129,6 @@ class ProspectController extends Controller
             $username = $user->sticky_api_username;
             $password = Crypt::decrypt($user->sticky_api_key);
             $url = $user->sticky_url.'/api/v1/prospect_find';
-
-            // $startDate = Carbon::now()->startOfDay()->format('Y-m-d');
-            // $endDate = date('Y-m-d', strtotime($startDate) + 86400);
 
             $startDate = Carbon::createFromFormat('Y-m-d', $startDate);
             $endDate = Carbon::createFromFormat('Y-m-d', $endDate);
@@ -348,11 +341,8 @@ class ProspectController extends Controller
 
     public function pull_user_prospects(Request $request)
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(0);
         $new_prospects = 0;
         $updated_prospects = 0;
-        // return Auth::id();
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);

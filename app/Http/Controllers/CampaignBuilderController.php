@@ -19,7 +19,6 @@ class CampaignBuilderController extends Controller
         $this->middleware(function ($request, $next) {
 
             $this->user = Auth::user();
-
             return $next($request);
         });
     }
@@ -36,10 +35,7 @@ class CampaignBuilderController extends Controller
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
         }
-
-        DB::enableQueryLog();
         $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
-        // $data = DB::table('campaigns')->where(['campaigns.user_id' => Auth::id()])->whereNull('campaigns.is_active')
             ->leftJoin('orders', 'orders.user_id', 'campaigns.user_id')
             ->where('orders.time_stamp', '>=', $start_date)
             ->where('orders.time_stamp', '<=', $end_date)
@@ -66,7 +62,7 @@ class CampaignBuilderController extends Controller
             ->addSelect(DB::raw('SUM(case when FIND_IN_SET(orders.affid, campaigns.tracking_network_ids) != 0 and orders.is_chargeback = 1 then orders.order_total else 0 end) as CB_currency'))
             ->groupBy('campaigns.campaign_id')->get();
 
-        return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
     /**
@@ -95,8 +91,7 @@ class CampaignBuilderController extends Controller
         $data['downsell_product_ids'] = [];
         $data['cycle_product_ids'] = [];
         $db_campaign_ids = Campaign::all()->pluck('campaign_id')->toArray();
-        $data['user_id'] = 2;
-        // $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $request->user()->id;
         $data['created_at'] = Carbon::now();
         if (in_array($data['campaign_id'], $db_campaign_ids)) {
             return response()->json(['status' => false, 'message' => 'Please click again to save']);
@@ -114,7 +109,7 @@ class CampaignBuilderController extends Controller
      */
     public function show($id)
     {
-        $data = Campaign::where(['campaign_id' => $id, 'user_id' => 2])->first();
+        $data = Campaign::where(['campaign_id' => $id, 'user_id' => Auth::id()])->first();
         return response()->json(['status' => true, 'data' => $data]);
         // return Campaign::where(['campaign_id'=>$id, 'user_id'=> Auth::id()])->first();
     }
@@ -145,13 +140,10 @@ class CampaignBuilderController extends Controller
         $data['upsell_product_ids'] = [];
         $data['downsell_product_ids'] = [];
         $data['cycle_product_ids'] = [];
-        $data['user_id'] = 2;
-        // $data['user_id'] = $request->user()->id;
-        Campaign::where(['user_id' => 2, 'campaign_id' => $campaign_id])->update($data);
-        //Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->update($data);
+        $data['user_id'] = $request->user()->id;
+        Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->update($data);
         $data['created_at'] = Carbon::now();
-        // $campaign = Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->first();
-        $campaign = Campaign::where(['user_id' => 2, 'campaign_id' => $campaign_id])->first();
+        $campaign = Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->first();
         if ($campaign) {
             $campaign->update($data);
         }
@@ -179,30 +171,20 @@ class CampaignBuilderController extends Controller
         $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
         $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
 
-        //local
-        // $data['products'] = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('product_id')->get();
-        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
-
         return response()->json(['status' => true, 'data' => $data]);
     }
 
     public function campaign_view_data(Request $request)
     {
-        DB::enableQueryLog();
-        // $campaign = Campaign::where(['name' => $request->name, 'user_id' => 2])->first();
         $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
         $tracking_campaign_ids = array_column($campaign->tracking_campaigns, 'campaign_id');
         $tracking_network_ids = array_column($campaign->tracking_networks, 'network_affiliate_id');
         $cycle_product_ids = array_column($campaign->cycle_products, 'product_id');
 
-        // $query = DB::table('orders')->where(['orders.user_id' => 2, 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
         $query = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
             ->whereIn('orders.campaign_id', $tracking_campaign_ids)
             ->whereIn('orders.affiliate', $tracking_network_ids)
             ->select('orders.acquisition_month as month', 'orders.acquisition_year as year', 'order_products.name')
-            // ->where('orders.time_stamp', '>=', $start_day)
-            // ->where('orders.time_stamp', '<=', $end_day)
             ->leftJoin('order_products', 'orders.order_id', 'order_products.order_id')
             ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end), 2) as revenue'))
             ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 6 then orders.order_total else 0 end), 2) as refund'))
@@ -223,6 +205,6 @@ class CampaignBuilderController extends Controller
         }
         $query->groupBy('orders.acquisition_month');
         $data = $query->get();
-        return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
+        return response()->json(['status' => true, 'data' => $data]);
     }
 }

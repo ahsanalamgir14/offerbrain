@@ -24,11 +24,9 @@ class NetworkController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         if ($request->start_date != '' && $request->end_date != '') {
-            DB::enableQueryLog();
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
            
-            // $query = DB::table('networks')->where(['networks.user_id' => 2])
             $query = DB::table('networks')->where(['networks.user_id' => Auth::id()])
                 ->select(
                     'networks.*',
@@ -42,11 +40,9 @@ class NetworkController extends Controller
                 )
                 ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affid', '=', 'networks.network_affiliate_id')
-                        // ->where('orders.user_id', '=', 2)
                         ->where('orders.user_id', Auth::id())
                         ->where('orders.time_stamp', '>=', $start_date)
                         ->where('orders.time_stamp', '<=', $end_date)
-                        // ->where('orders.order_status', 2)
                         ->where('orders.is_test_cc', 0);
                 })
                 ->selectRaw('COUNT(case when orders.order_status = 2 then orders.id end) as total_count')
@@ -69,7 +65,6 @@ class NetworkController extends Controller
             }
             $data['affiliates'] = $query->get();
         } else {
-            // $data['affiliates'] = Network::where('user_id', 2)->get();
             $data['affiliates'] = Network::where('user_id', Auth::id())->get();
         }
         return response()->json(['status' => true, 'data' => $data]);
@@ -147,11 +142,9 @@ class NetworkController extends Controller
     }
     public function pull_affiliates(Request $request)
     {
-        // return Auth::id();
         $new_affiliates = 0;
         $updated_affiliates = 0;
         $key = "X-Eflow-API-Key";
-        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         if ($user->everflow_api_key) {
@@ -159,7 +152,6 @@ class NetworkController extends Controller
         } else {
             return response()->json(['status' => false, 'message' => 'No API key found for Everflow']);
         }
-        // return $value;
         $url = 'https://api.eflow.team/v1/networks/affiliates';
         $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
         $affiliates = $api_data->affiliates;
@@ -167,9 +159,7 @@ class NetworkController extends Controller
 
         if ($affiliates) {
             foreach ($affiliates as $affiliate) {
-                // $affiliate->user_id = 2;
                 $affiliate->user_id = Auth::id();
-                // $network = Network::where(['user_id' => 2, 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
                 $network = Network::where(['user_id' => Auth::id(), 'network_affiliate_id' => $affiliate->network_affiliate_id])->first();
                 if ($network) {
                     $network->update((array)$affiliate);
@@ -179,7 +169,6 @@ class NetworkController extends Controller
                     $new_affiliates++;
                 }
             }
-            // $networks = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
             $networks = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
 
             return response()->json(

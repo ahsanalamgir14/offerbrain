@@ -190,7 +190,6 @@ class ProfileController extends Controller
         $db_profile_ids = Profile::pluck('profile_id')->toArray();
 
         foreach ($profiles as $data) {
-            // dd($data->id);
             $model = new Profile();
             $data->profile_id = $data->id;
             $data->currency_id = $data->currency->id;

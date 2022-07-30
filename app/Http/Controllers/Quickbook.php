@@ -34,11 +34,6 @@ class Quickbook extends Controller
     {
         return view('apiCall');
     }
-    
-    // public function refreshToken()
-    // {
-    //     return view('refreshToken');
-    // }
 
     public function accounts_all()
     {
@@ -56,13 +51,7 @@ class Quickbook extends Controller
             'client_secret' => '2ct6zBGzsMUCqGj95Ob0BJG5fUaS9VtnNyvQaMpS',
             'oauth_scope' => 'com.intuit.quickbooks.accounting',
             'oauth_redirect_uri' => env('APP_URL') . '/callback.php'
-            // 'oauth_redirect_uri' => 'http://offer-brain.test/callback.php'
-
-
         );
-
-        // return response()->json(['config'=>$config]);
-        // exit;
 
         $dataService = DataService::Configure(array(
             'auth_mode' => 'oauth2',
@@ -121,7 +110,6 @@ class Quickbook extends Controller
                 $is_valid = false;
             } else {
                 $dataService->updateOAuth2Token($accessToken);
-                //$oauthLoginHelper = $dataService -> getOAuth2LoginHelper();
                 $CompanyInfo = $dataService->getCompanyInfo();
                 $allAccounts = $dataService->FindAll('Account');
                 $_SESSION['midGroupAccounts'] = [
@@ -266,7 +254,6 @@ class Quickbook extends Controller
                 $company_id = $_SESSION['mid_info'][$i]['mid_group_company'];
                 break;
             } else {
-                //unset($_SESSION['sessionAccessToken']);
                 return;
             }
         }
@@ -303,14 +290,10 @@ class Quickbook extends Controller
 
         $_SESSION['sessionAccessToken'] = $refreshedAccessTokenObj;
 
-    // print_r($refreshedAccessTokenObj);
-    // return $refreshedAccessTokenObj;
     }
 
     public function processCode()
     {
-        // $midGroupId = $_SESSION['midGroupId'];
-        // $account_id = $_SESSION['account_id'];
         $config = array(
             'authorizationRequestUrl' => 'https://appcenter.intuit.com/connect/oauth2',
             'tokenEndPointUrl' => 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
@@ -344,10 +327,8 @@ class Quickbook extends Controller
 
         $_SESSION['sessionAccessToken'] = $accessToken;
         $dataService->updateOAuth2Token($accessToken);
-        //$oauthLoginHelper = $dataService -> getOAuth2LoginHelper();
         $CompanyInfo = $dataService->getCompanyInfo();
         $allAccounts = $dataService->FindAll('Account');
-        //unset($_SESSION['invoice_data']);
         if (isset($_SESSION['invoice_data'])) {
             $data = $_SESSION['invoice_data'];
             $length = count($data);
@@ -357,8 +338,6 @@ class Quickbook extends Controller
                 $amount = $data[$i]['target_bank_balance'];
                 $amount = str_replace(',', '', $amount);
                 $amount = floatval($amount);
-                            // $mid_group_id = 1;
-                            //$amount = 199;
                 $theResourceObj = Invoice::create([
                     "Line" => [
                         [
@@ -387,7 +366,6 @@ class Quickbook extends Controller
             return $this->insertInvoices($invoices);
 
         } else {
-            //return response()->json(['accounts'=>$allAccounts]);
             $_SESSION['mid_info'][] = ['mid_group_company' => $parseUrl['realmId'], 'mid_group_id' => $_SESSION['midGroupId']];
 
             $_SESSION['midGroupAccounts'] = [
@@ -444,7 +422,6 @@ class Quickbook extends Controller
                         continue;
                     }
                     if ($_SESSION['info'][$i]['midGroupId'] == $accounts['midGroupId']) {
-                        // $_SESSION['info'][$i] = ' ';
                         unset($_SESSION['info'][$i]);
                     }
 
@@ -456,7 +433,6 @@ class Quickbook extends Controller
         }
 
         if (isset($_SESSION['info'])) {
-            //unset($_SESSION['info']);
             return response()->json(['accounts' => $_SESSION['info']]);
 
         } else {
@@ -467,7 +443,6 @@ class Quickbook extends Controller
     // add data in quick accounts table in database
     public function addQuickAccounts($accounts, $mid_group_id)
     {
-        //QuickAccounts::truncate();
         $data = QuickAccounts::where('mid_group_id', $mid_group_id)->get();
         $length = count($data);
         if ($length > 0) {
@@ -494,8 +469,6 @@ class Quickbook extends Controller
             $mid_group = MidGroup::find($id);
             $mid_group->quick_balance = $request->quick_balance;
             $mid_group->update();
-            // unset session for mid_if on disconnect
-            //unset($_SESSION['mid_info']);
             $j = count($_SESSION['mid_info']);
 
             for ($i = 0; $i < $j; $i++) {
@@ -554,7 +527,6 @@ class Quickbook extends Controller
 
     public function accountNames($mid_group_id)
     {
-        //$data = QuickAccounts::all();
         $data = QuickAccounts::where('mid_group_id', $mid_group_id)->get();
         return response()->json(['accountNames' => $data], 200);
     }
@@ -562,7 +534,6 @@ class Quickbook extends Controller
     public function getInvoices($mid_group_id)
     {
         $data = Invoices::where('mid_group_id', $mid_group_id)->get();
-        // $data = Invoices::find(1);
         return response()->json(['invoices' => $data], 200);
     }
 }

@@ -21,7 +21,6 @@ class MidController extends Controller
 {
     public function index(Request $request)
     {
-        DB::enableQueryLog();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -87,7 +86,6 @@ class MidController extends Controller
 
     public function get_mid_count_detail(Request $request)
     {
-        DB::enableQueryLog();
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
@@ -195,7 +193,6 @@ class MidController extends Controller
             ]
         )->getBody()->getContents());
         return response()->json(['status' => true, 'message' => 'Mid-group removed from' . $profile->alias]);
-        // dd('die');
     }
     public function pull_payment_router_view(Request $request)
     {

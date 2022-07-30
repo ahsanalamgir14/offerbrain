@@ -16,6 +16,7 @@ class CreateMidGroupsTable extends Migration
     {
         Schema::create('mid_groups', function (Blueprint $table) {
             $table->id()->index();
+            $table->string('user_id');
             $table->string('group_name');
             $table->string('group_alias')->nullable()->default(null);
             // $table->string('assigned_mids')->nullable()->default(0);

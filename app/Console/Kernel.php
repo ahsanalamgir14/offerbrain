@@ -48,14 +48,14 @@ class Kernel extends ConsoleKernel
         echo NetworkController::pull_affiliates_for_cron();
         echo CampaignsController::refresh_campaigns_for_cron();
         echo CustomerController::refresh_customers();
-        echo ProspectController::pull_prospects($prospectsStartDate, $prospectsEndDate);
-
+        
         $now_date = Carbon::now()->startOfDay()->format('m/d/Y');
         if($now_date != $start_date){
             echo OrdersController::pull_cron_orders($start_date, $end_date);
         } else {
             echo 'Start date is equal to now date';
         }
+        echo ProspectController::pull_prospects($prospectsStartDate, $prospectsEndDate);
     }
 
     /**

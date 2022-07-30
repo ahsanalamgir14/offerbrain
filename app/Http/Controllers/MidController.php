@@ -28,40 +28,39 @@ class MidController extends Controller
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
         }
-        DB::enableQueryLog();
         if (isset($request->search) && $request->search != '') {
             $query = $query->search($request->search, null, true, true);
         }
         if ($request->selected_mids) {
             $selected_mids = explode(",", $request->selected_mids);
-            // $query = DB::table('mids')->where(['orders.user_id' => 2, 'mids.is_deleted' => 0])->whereIn('mids.gateway_id', $selected_mids);
             $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0])->whereIn('mids.gateway_id', $selected_mids);
         } else {
-            // $query = DB::table('mids')->where(['orders.user_id' => 2, 'mids.is_deleted' => 0]);
             $query = DB::table('mids')->where(['orders.user_id' => Auth::id(), 'mids.is_deleted' => 0]);
         }
         $query = $query->join('orders', function ($join) use ($start_date, $end_date) {
             $join->on('orders.gateway_id', '=', 'mids.gateway_id')
-                // ->where('orders.user_id', '=', 2)
                 ->where('orders.user_id', '=', Auth::id())
                 ->where('orders.time_stamp', '>=', $start_date)
-                ->where('orders.time_stamp', '<=', $end_date)
-                ->where('orders.is_test_cc', 0);
+                ->where('orders.time_stamp', '<=', $end_date);
         })
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
-            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 or orders.order_status = 8 then orders.order_total else 0 end) - sum(case when (orders.order_status = 2 or orders.order_status = 8) and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
+            ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
+            // ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
             ->selectRaw("count(case when orders.order_status = 2 or orders.order_status = 8 then 1 end) as mid_count")
             ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
             ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
             ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
             ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
             ->addSelect('mids.mid_group as group_name')
-            // ->where('mids.user_id', '=', 2)
+            // ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
+            // ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
+            // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
+            // ->addSelect('order_products.id as product_id','order_products.name as product_name')
+            // ->groupBy('order_products.name')
             ->where('mids.user_id', '=', Auth::id())
             ->where('orders.is_test_cc', 0)
             ->groupBy('mids.id');
-
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
@@ -221,9 +220,7 @@ class MidController extends Controller
         $updated_gateways = 0;
         // $affected = DB::table('mids')->update(['is_active' => 0]);
         $db_gateway_ids = Mid::all()->pluck('gateway_id')->toArray();
-        // Mid::where('user_id', 2)->update(['is_active' => 0]);
         Mid::where('user_id', Auth::id())->update(['is_active' => 0]);
-        // $user = User::find(2);
         $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         $password = Crypt::decrypt($user->sticky_api_key);
@@ -235,17 +232,19 @@ class MidController extends Controller
             // foreach ($routers as $router) {
             $gateways = $router->gateways;
 
-            foreach ($gateways as $gateway) {
-                if ($gateway->gateway_status == 'Active') {
+            foreach ($gateways as $gateway_obj) {
+                
+                $gateway_status = $gateway_obj->gateway_status;
+                
+                if ($gateway_status == 'Active') {
                     $is_active = 1;
                 } else {
                     $is_active = 0;
                 }
-                array_push($gatewayArr, $gateway->gateway_id);
-                if (in_array($gateway->gateway_id, $db_gateway_ids)) {
-                    $update = Mid::where(['gateway_id' => $gateway->gateway_id])->first();
+                array_push($gatewayArr, $gateway_obj->gateway_id);
+                if (in_array($gateway_obj->gateway_id, $db_gateway_ids)) {
+                    $update = Mid::where(['gateway_id' => $gateway_obj->gateway_id])->first();
                     $update->router_id = $router->id;
-                    // $update->user_id = 2;
                     $update->user_id = Auth::id();
                     $update->router_name = $router->name;
                     $update->router_date_in = $router->date_in;
@@ -253,9 +252,9 @@ class MidController extends Controller
                     $update->mid_group_setting_id = $router->mid_group_setting_id;
                     $update->mid_group_setting = $router->mid_group_setting;
                     $update->is_three_d_routed = $router->is_three_d_routed;
-                        // $gateway->is_active = 1;
-                    $update->initials = $gateway->initial_order_count;
-                    $update->subscr = $gateway->rebill_order_count;
+                        // $gateway_obj->is_active = 1;
+                    $update->initials = $gateway_obj->initial_order_count;
+                    $update->subscr = $gateway_obj->rebill_order_count;
                     $update->is_strict_preserve = $router->is_strict_preserve;
                     $update->is_active = $is_active;
                     $update->save();
@@ -263,7 +262,6 @@ class MidController extends Controller
                 } else {
                     $mid = new Mid();
                     $mid->router_id = $router->id;
-                    // $mid->user_id = 2;
                     $mid->user_id = Auth::id();
                     $mid->router_name = $router->name;
                     $mid->router_date_in = $router->date_in;
@@ -271,9 +269,9 @@ class MidController extends Controller
                     $mid->mid_group_setting_id = $router->mid_group_setting_id;
                     $mid->mid_group_setting = $router->mid_group_setting;
                     $mid->is_three_d_routed = $router->is_three_d_routed;
-                        // $gateway->is_active = 1;
-                    $mid->initials = $gateway->initial_order_count;
-                    $mid->subscr = $gateway->rebill_order_count;
+                        // $gateway_obj->is_active = 1;
+                    $mid->initials = $gateway_obj->initial_order_count;
+                    $mid->subscr = $gateway_obj->rebill_order_count;
                     $mid->is_strict_preserve = $router->is_strict_preserve;
                     $mid->is_active = $is_active;
                     $mid->save();

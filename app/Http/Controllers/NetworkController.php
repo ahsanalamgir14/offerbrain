@@ -24,6 +24,7 @@ class NetworkController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         if ($request->start_date != '' && $request->end_date != '') {
+            DB::enableQueryLog();
             $start_date = Carbon::parse($request->start_date)->startOfDay();
             $end_date = Carbon::parse($request->end_date)->endOfDay();
            
@@ -38,12 +39,11 @@ class NetworkController extends Controller
                         ->where('orders.user_id', Auth::id())
                         ->where('orders.time_stamp', '>=', $start_date)
                         ->where('orders.time_stamp', '<=', $end_date)
-                        ->where('orders.order_status', 2)
+                        // ->where('orders.order_status', 2)
                         ->where('orders.is_test_cc', 0);
                 })
-                ->selectRaw('COUNT(orders.id) as total_count')
-                ->selectRaw('ROUND(SUM(orders.order_total) - sum(case when orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue')
-                // ->selectRaw('ROUND(SUM(orders.order_total), 2) as gross_revenue')
+                ->selectRaw('COUNT(case when orders.order_status = 2 then orders.id end) as total_count')
+                ->selectRaw('ROUND(SUM(case when orders.order_status = 2 OR orders.order_status = 8 then orders.order_total end) - sum(case when orders.order_status = 2 OR orders.order_status = 8 AND orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue')
                 ->selectRaw("ROUND(COUNT(case when orders.upsell_product_quantity > 1 then 0 end), 2) as upsell_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_chargeback = 1 then 0 end) , 2) as chargeback_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'yes' then 0 end), 2) as refund_per")
@@ -62,6 +62,7 @@ class NetworkController extends Controller
                 }
             }
             $data['affiliates'] = $query->get();
+            // dd(DB::getQueryLog());
         } else {
             // $data['affiliates'] = Network::where('user_id', 2)->get();
             $data['affiliates'] = Network::where('user_id', Auth::id())->get();

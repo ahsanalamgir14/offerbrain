@@ -441,6 +441,7 @@ class Quickbook extends Controller
         
         // var_dump($_SESSION['midGroupAccounts']);
 
+        
     }
 
    public static function parseAuthRedirectUrl($url)
@@ -544,7 +545,7 @@ class Quickbook extends Controller
     }
 
     public function insertInvoices($invoices)
-    
+    {
         Invoices::insert($invoices);
         return response()->json(['invoices'=>$invoices, 'status'=>'Invoices Created'],200);
     }
@@ -559,7 +560,7 @@ class Quickbook extends Controller
             $mid_group->quick_balance = $request->quick_balance;
             $mid_group->update();
             // unset session for mid_if on disconnect
-            unset($_SESSION['mid_info']);
+            //unset($_SESSION['mid_info']);
             $j = count($_SESSION['mid_info']);
 
             for($i=0;$i<$j;$i++)

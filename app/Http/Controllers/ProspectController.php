@@ -377,7 +377,7 @@ class ProspectController extends Controller
                     $result['year_created'] = $year;
                     $result['notes'] = json_encode($result['notes']);
 
-                    if (in_array($result['prospect_id'], $db_prospect_ids)) {
+                    if (in_array($result['prospect_id'], $prospect_ids)) {
                         $updated_prospects++;
                         $prospect = Prospect::where(['prospect_id' => $result['prospect_id']])->update($result);
                     } else {

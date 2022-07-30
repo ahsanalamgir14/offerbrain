@@ -16,6 +16,8 @@ class CreateQuickAccountsTable extends Migration
         Schema::create('quick_accounts', function (Blueprint $table) {
             $table->id();
             $table->integer('account_id');
+            $table->integer('user_id');
+            $table->integer('mid_group_id');
             $table->text('account_name');
             $table->timestamps();
         });

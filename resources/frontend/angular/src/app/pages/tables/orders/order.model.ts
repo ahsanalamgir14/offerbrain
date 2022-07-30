@@ -132,7 +132,6 @@ export class Order {
   pageno:string;
   rows_per_page:string;
   // time_stamp:string;
-  time_stamp:Date;
 
   constructor(order) {
     this.id = order.id;
@@ -254,8 +253,6 @@ export class Order {
     // this.stop_after_next_rebill = order.stop_after_next_rebill;
     // this.sub_affiliate = order.sub_affiliate;
     // this.systemNotes = order.systemNotes;
-    this.time_stamp = order.time_stamp;
-    
     // this.return_reason = order.time_stamp;
     this.time_stamp = order.time_stamp;
   }

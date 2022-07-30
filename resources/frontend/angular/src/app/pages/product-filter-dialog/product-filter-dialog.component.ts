@@ -1,19 +1,17 @@
-import { Component, Inject, OnInit, Input, ViewChild } from '@angular/core';
-import { ProductFilterDialogModel } from './product-filter-dialog';
-import { environment } from 'src/environments/environment';
-
-import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
-import { Product } from './product-filter-dialog.model';
-import { ListColumn } from '../../../@fury/shared/list/list-column.model';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { filter } from 'rxjs/operators';
 import { SelectionModel } from '@angular/cdk/collections';
+import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { fadeInRightAnimation } from '../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl } from '@angular/forms';
+import { ListColumn } from '../../../@fury/shared/list/list-column.model';
+import { ProductFilterDialogModel } from './product-filter-dialog';
+import { Product } from './product-filter-dialog.model';
 
 
 @Component({
@@ -29,12 +27,10 @@ export class ProductFilterDialogComponent implements OnInit {
   deleteSubscription: Subscription;
   search = '';
   customers: Product[];
-
-  // id : string;
   field: string;
-  start_date : string;
-  end_date : string;
-  filterProducts : any;
+  start_date: string;
+  end_date: string;
+  filterProducts: any;
   endPoint = '';
   products = [];
   idArray = [];
@@ -54,19 +50,18 @@ export class ProductFilterDialogComponent implements OnInit {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  
+
   constructor(public dialogRef: MatDialogRef<ProductFilterDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ProductFilterDialogModel, private dialog: MatDialog) {
-      this.start_date = data.start_date;
-      this.end_date = data.end_date;
-      // this.field = data.field;
-      this.endPoint = environment.endpoint;
-      this.products = data.filterProducts;
+    this.start_date = data.start_date;
+    this.end_date = data.end_date;
+    this.endPoint = environment.endpoint;
+    this.products = data.filterProducts;
+    this.isLoading = false;
+    this.mapData().subscribe(products => {
+      this.subject$.next(products);
       this.isLoading = false;
-      this.mapData().subscribe(products => {
-        this.subject$.next(products);
-        this.isLoading = false;
-      });
+    });
   }
 
   get visibleColumns() {
@@ -92,7 +87,8 @@ export class ProductFilterDialogComponent implements OnInit {
       this.dataSource.data = products;
     });
   }
-  async getData(){
+
+  async getData() {
     // const response = fetch(`${this.endPoint}/api/getProductForFilter?start_date=${this.start_date}&end_date=${this.end_date}&field=${this.field}`).then(res => res.json()).then((data) => {
     //   if(data.status){
     //     this.products = data.data;
@@ -103,11 +99,13 @@ export class ProductFilterDialogComponent implements OnInit {
     //     }
     // });
   }
+
   isAllSelected() {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
+
   masterToggle(event) {
     this.isAllSelected() ?
       this.selection.clear() :
@@ -139,9 +137,11 @@ export class ProductFilterDialogComponent implements OnInit {
       this.isChecked = false;
     }
   }
-  async getSelectedProductList(){
+
+  async getSelectedProductList() {
     this.dialogRef.close(this.idArray);
   }
+
   onFilterChange(value) {
     value = value.toLowerCase();
     this.search = value;

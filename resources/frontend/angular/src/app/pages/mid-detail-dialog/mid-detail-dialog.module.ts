@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -19,7 +20,6 @@ import { FurySharedModule } from 'src/@fury/fury-shared.module';
 import { BreadcrumbsModule } from 'src/@fury/shared/breadcrumbs/breadcrumbs.module';
 import { ListModule } from 'src/@fury/shared/list/list.module';
 import { MaterialModule } from 'src/@fury/shared/material-components.module';
-import { HttpClientModule } from '@angular/common/http'; 
 import { MidDetailDialogComponent } from './mid-detail-dialog.component';
 
 
@@ -27,7 +27,6 @@ import { MidDetailDialogComponent } from './mid-detail-dialog.component';
   declarations: [MidDetailDialogComponent],
   imports: [
     CommonModule,
-    // MidsRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,

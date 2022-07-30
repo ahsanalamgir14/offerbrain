@@ -215,18 +215,15 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         });
         for (var i = 0; i < this.no_of_upsells; i++) {
           this.arr_upsell[i] = data.data.upsell_products[i].full_name;
+          this.upsell_products[i] = [data.data.upsell_products[i]];
         }
-        for (var i = 0; i < this.no_of_upsells; i++) {
+        for (var i = 0; i < this.no_of_downsells; i++) {
           this.arr_downsell[i] = data.data.downsell_products[i].full_name;
+          this.downsell_products[i] = [data.data.downsell_products[i]];
         }
         this.upProducts = data.data.upsell_products;
         this.downProducts = data.data.downsell_products;
-        for (var i = 0; i < this.no_of_upsells; i++) {
-          this.upsell_products[i] = [data.data.upsell_products[i]];
-        }
-        for (var i = 0; i < this.no_of_upsells; i++) {
-          this.downsell_products[i] = [data.data.downsell_products[i]];
-        }
+
         this.no_of_cycles = data.data.no_of_cycles;
         this.cycleProducts = data.data.cycle_products;
         for (var i = 0; i < this.no_of_cycles + 1; i++) {
@@ -321,7 +318,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       this.arr_downsell[index] = '[]';
       // var ind = this.arr_downsell.indexOf(item);
       // this.arr_downsell.splice(ind, 1);
-      console.log('this.arr_downsell :', this.arr_downsell);
       this.downsell_products[index] = [];
     }
     if (param == 'cycleproductsDeSelect') {
@@ -329,15 +325,12 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
       // this.arr_cycleProducts.splice(ind, 1);
       this.arr_cycleProducts[index] = '[]';
       this.cycle_products[index] = [];
-      console.log('this.arr_cycleProducts', this.arr_cycleProducts);
     }
     if (param == 'upsell') {
-      console.log('Upsell Products are ', this.upsell_products);
       if (this.arr_upsell[index] != undefined) {
         // var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
         // this.arr_upsell.splice(selectedIndex, 1);
         this.arr_upsell[index] = '[]';
-        console.log('this.arr_upsell :', this.arr_upsell);
       }
       if (this.arr_upsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in upsell');
@@ -370,7 +363,6 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         // this.arr_downsell = this.arr_downsell.slice(0, this.no_of_downsells);
       }
     } else if (param == 'cycleproducts') {
-      console.log('this.arr_cycleProducts', this.arr_cycleProducts);
       if (this.arr_cycleProducts[index] != undefined) {
         this.arr_cycleProducts[index] = '[]';
         // var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
@@ -395,26 +387,26 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     }
   }
   getSelectValue(event, param, index) {
-    if (param == 'upsell') {
-      if (this.upsell_products[index] != undefined && this.upsell_products[index] != []) {
-        this.arr_upsell[index] = this.upsell_products[index][0].full_name;
-      }
-    } else if (param == 'downsell') {
-      if (this.arr_downsell[index] != undefined) {
-        this.arr_downsell[index] = this.downsell_products[index][0].full_name;
-      }
-    } else if (param == 'cycleproducts') {
-      if (this.arr_cycleProducts[index] != undefined) {
-        this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
-      }
-    }
+    // if (param == 'upsell') {
+    //   if (this.upsell_products[index] != undefined && this.upsell_products[index] != []) {
+    //     this.arr_upsell[index] = this.upsell_products[index][0].full_name;
+    //   }
+    // } else if (param == 'downsell') {
+    //   if (this.arr_downsell[index] != undefined) {
+    //     this.arr_downsell[index] = this.downsell_products[index][0].full_name;
+    //   }
+    // } else if (param == 'cycleproducts') {
+    //   if (this.arr_cycleProducts[index] != undefined) {
+    //     this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
+    //   }
+    // }
   }
 
   clear(form: NgForm): void {
     form.resetForm();
-    Object.keys(form.controls).forEach(key => {
-      form.controls[key].setErrors(null)
-    });
+    // Object.keys(form.controls).forEach(key => {
+    //   form.controls[key].setErrors(null)
+    // });
   }
 
   submit() {

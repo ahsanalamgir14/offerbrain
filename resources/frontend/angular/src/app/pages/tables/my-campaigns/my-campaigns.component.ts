@@ -1,23 +1,22 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SelectionModel } from '@angular/cdk/collections';
+import { formatDate } from '@angular/common';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Notyf } from 'notyf';
+import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl } from '@angular/forms';
-import { MyCampaignsService } from './my-campaigns.service';
-import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { formatDate } from '@angular/common';
-import { Campaign } from './my-campaigns.model';
-import { SelectionModel } from '@angular/cdk/collections';
-import { Notyf } from 'notyf';
-import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
-import { Location } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { Campaign } from './my-campaigns.model';
+import { MyCampaignsService } from './my-campaigns.service';
 
 @Component({
   selector: 'fury-campaigns',
@@ -30,7 +29,6 @@ export class MyCampaignsComponent implements OnInit {
   subject$: ReplaySubject<Campaign[]> = new ReplaySubject<Campaign[]>(1);
   data$: Observable<Campaign[]> = this.subject$.asObservable();
   getSubscription: Subscription;
-  deleteSubscription: Subscription;
   search = '';
   campaigns: Campaign[];
   filters = {};
@@ -134,8 +132,6 @@ export class MyCampaignsComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectDate('thisMonth');
-    // this.getSubscription = this.campaignsService.customersGetResponse$.subscribe(data => this.manageGetResponse(data));
-    // this.deleteSubscription = this.campaignsService.deleteResponse$.subscribe(data => this.manageDeleteResponse(data));
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
@@ -168,7 +164,6 @@ export class MyCampaignsComponent implements OnInit {
     }
     await this.campaignsService.getCampaigns(this.filters)
       .then(campaigns => {
-        // this.allIdArray = [];
         this.campaigns = campaigns.data;
         this.dataSource.data = campaigns.data;
         setTimeout(() => {
@@ -178,9 +173,6 @@ export class MyCampaignsComponent implements OnInit {
         this.mapData().subscribe(prospects => {
           this.subject$.next(prospects);
         });
-        // for (var i = 0; i < campaigns.data.data.length; i++) {
-        //   this.allIdArray.push(campaigns.data.data[i].id);
-        // }
         this.isLoading = false;
       }, error => {
         this.isLoading = false;
@@ -194,26 +186,7 @@ export class MyCampaignsComponent implements OnInit {
     value = value.trim();
     value = value.toLowerCase();
     this.dataSource.filter = value;
-    // value = value.toLowerCase();
-    // this.search = value;
-    // clearTimeout(this.timer);
-    // this.timer = setTimeout(() => { this.getData() }, 500)
   }
-
-  // manageGetResponse(campaigns) {
-  //   if (campaigns.status) {
-  //     this.campaigns = campaigns.data.data;
-  //     this.dataSource.data = campaigns.data.data;
-  //     setTimeout(() => {
-  //       this.paginator.pageIndex = this.currentPage;
-  //       this.paginator.length = campaigns.pag.count;
-  //     });
-  //     this.isLoading = false;
-  //   } else {
-  //     this.isLoading = false;
-  //   }
-  // }
-
 
   async manageDeleteResponse(data) {
     if (data.status) {
@@ -275,7 +248,6 @@ export class MyCampaignsComponent implements OnInit {
   }
 
   handleDeleteAction(id) {
-    console.log('id :', id);
     const dialogData = new ConfirmationDialogModel('Confirm Delete', 'Are you sure you want to delete this campaign?');
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       maxWidth: '500px',
@@ -293,7 +265,6 @@ export class MyCampaignsComponent implements OnInit {
           }
         });
         this.isDeleting = true;
-        // this.dataSource.data = [];
         this.idArray = [];
       }
     });
@@ -329,14 +300,7 @@ export class MyCampaignsComponent implements OnInit {
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.deleteSubscription) {
-      // this.campaignsService.deleteResponse.next([]);
-      this.deleteSubscription.unsubscribe();
-    }
-  }
   viewCampaignDetails(name) {
-    // alert(name);
     this.router.navigate(['campaign-view', name]);
   }
 }

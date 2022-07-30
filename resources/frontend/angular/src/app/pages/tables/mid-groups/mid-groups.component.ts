@@ -26,7 +26,6 @@ import { ActionDialogService } from './action-dialog/action-dialog.service'
   templateUrl: './mid-groups.component.html',
   styleUrls: ['./mid-groups.component.scss'],
   animations: [fadeInRightAnimation, fadeInUpAnimation],
-  // providers: [TooltipListPipe]
 })
 export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -34,7 +33,6 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
   data$: Observable<MidGroup[]> = this.subject$.asObservable();
   midGroups: any;
   authUrl: any;
-  // bankAccount : any;
   getSubscription: Subscription;
   refreshSubscription: Subscription;
   addGroupSubscription: Subscription;
@@ -50,16 +48,13 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
   filterData: any = [];
   filters = {};
   pageSizeOptions: number[] = [5, 10, 25, 100];
-  // toolTipMids: [];
   toolTipMids = [];
   start_date = '';
   end_date = '';
   selectAll: boolean = false;
   selectedRows: MidGroup[] = [];
   isBulkUpdate: boolean = false;
-  width:string;
-
-
+  width: string;
   range = new FormGroup({
     start: new FormControl(),
     end: new FormControl()
@@ -71,7 +66,7 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
   columns: ListColumn[] = [
     // { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     // { name: 'router_id', property: 'router_id', visible: true, isModelProperty: true },
-    { name: 'Checkbox', property: 'checkbox', visible: true},
+    { name: 'Checkbox', property: 'checkbox', visible: true },
     { name: 'Id', property: 'id', visible: true, isModelProperty: true },
     { name: 'Group Name', property: 'group_name', visible: true, isModelProperty: false },
     { name: 'Assigned Mids', property: 'assigned_mids', visible: true, isModelProperty: false },
@@ -86,16 +81,13 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Actions', property: 'actions', visible: true },
 
   ] as ListColumn[];
-  // pageSize = 20000;
   dataSource: MatTableDataSource<MidGroup> | null;
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MidGroupsComponent, { static: true }) MidGroupComponent: MidGroupsComponent;
 
-  constructor(private dialog: MatDialog, private midGroupService: MidGroupsService,
-    private apiService: ApiService, private listService: ListService,
-    private actionService: ActionDialogService) {
+  constructor(private dialog: MatDialog, private midGroupService: MidGroupsService, private actionService: ActionDialogService) {
     this.notyf.dismissAll();
   }
 
@@ -119,73 +111,58 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
     ).subscribe((midGroups) => {
       this.midGroups = midGroups;
       this.dataSource.data = midGroups;
-
-      // const data = this.dataSource.data;
-      // this.dataSource.data.push(this.bankAccount);
-      // this.dataSource.data = data;
-      // console.log('data source is '+this.dataSource);
-      // console.log('data source is '+this.dataSource.data);
-      // console.log('Mid group obj is '+this.midGroups);
-
     });
   }
 
-  checkQuickAccounts()
-  {
+  checkQuickAccounts() {
     this.midGroupService.checkQuickAccounts('checkQuickAccounts').subscribe(
-      {next:(res)=>{console.log(res);
-      this.getData()},
-      error:(err)=>console.log(err)}
+      {
+        next: (res) => {
+          this.getData()
+        },
+      }
     );
   }
 
   updateCheck() {
-    console.log('this.selectAll = ' ,this.selectAll)
     this.selectedRows = [];
     if (this.selectAll === true) {
-    this.midGroups.map((midGroups) => {
-    midGroups.checked = true;
-    this.selectedRows.push(midGroups);
-    this.isBulkUpdate = true;
-    });
-    
-    } else {
-    this.midGroups.map((midGroups) => {
-    midGroups.checked = false;
-    this.isBulkUpdate = false;
-    });
-    this.isBulkUpdate = false;
-    }
-    console.log(this.selectedRows);
-    console.log('in update check '+ this.isBulkUpdate);
-    }
-    
-    updateCheckedRow(event: any, row) {
-    console.log('event.id =',event.id)
-    if (event.checked) {
-    row.checked = true;
-    this.selectedRows.push(row);
-    this.isBulkUpdate = true;
-    } else {
-    row.checked = false;
-    this.selectedRows.splice(this.selectedRows.indexOf(row), 1);
-    if (this.selectedRows.length === 0) {
-    this.isBulkUpdate = false;
-    }
-    }
-    console.log(this.selectedRows);
-    console.log('in update check row'+ this.isBulkUpdate);
-    }
+      this.midGroups.map((midGroups) => {
+        midGroups.checked = true;
+        this.selectedRows.push(midGroups);
+        this.isBulkUpdate = true;
+      });
 
-  // get account balance from api for respcted midgroup id
-  bankAccounts(){
-    //alert('bankAccounts()');
-     this.midGroupService.getAccounts('bankAccounts',0).subscribe(
-      {next:(res)=>{console.log(res);
-        this.updateQuickBalance(res);
-      // this.bankAccount = res;
-      },
-      error:(err)=>console.log(err)}
+    } else {
+      this.midGroups.map((midGroups) => {
+        midGroups.checked = false;
+        this.isBulkUpdate = false;
+      });
+      this.isBulkUpdate = false;
+    }
+  }
+
+  updateCheckedRow(event: any, row) {
+    if (event.checked) {
+      row.checked = true;
+      this.selectedRows.push(row);
+      this.isBulkUpdate = true;
+    } else {
+      row.checked = false;
+      this.selectedRows.splice(this.selectedRows.indexOf(row), 1);
+      if (this.selectedRows.length === 0) {
+        this.isBulkUpdate = false;
+      }
+    }
+  }
+
+  bankAccounts() {
+    this.midGroupService.getAccounts('bankAccounts', 0).subscribe(
+      {
+        next: (res) => {
+          this.updateQuickBalance(res);
+        },
+      }
     );
 
   }
@@ -194,25 +171,20 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.midGroupService.updateQuickBalance(data, 'updateQuickBalance').subscribe(
       {
         next: (res) => {
-          console.log(res);
           this.getData()
         },
-        error: (err) => console.log(err)
       }
     );
   }
 
   async getQuickAccounts() {
-    console.log('quickbook mid-group component for getting account names');
 
     await this.actionService.quickbookCon('quickbookConnect', 0, 0)
       .then(res => {
         let data = res;
-        this.bankAccounts(); 
-        console.log(res);
+        this.bankAccounts();
 
       }, error => {
-        console.log('action-dialg component error in quickbookConnect');
       });
   }
 
@@ -248,7 +220,6 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
       .then(midGroups => {
         this.midGroups = midGroups.data;
         this.dataSource.data = midGroups.data;
-        //console.log('In mid-group component getData() '+midGroups.data)
         this.mapData().subscribe(midGroups => {
           this.subject$.next(midGroups);
         });
@@ -270,7 +241,6 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
       list += mid.gateway_alias + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + mid.current_monthly_amount + '\xa0\xa0\xa0 | \xa0\xa0\xa0' + mid.processing_percent;
       mid_names.push(list);
     });
-    console.log('mid_names :', mid_names);
     return mid_names;
   }
 
@@ -283,12 +253,11 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.width = '500px';
     }
-    if(action == 'Add')
-    { 
+    if (action == 'Add') {
       this.checkQuickAccounts();
     }
     const dialogRef = this.dialog.open(ActionDialogComponent, {
-      width:this.width,
+      width: this.width,
       disableClose: true,
       data: obj
     });
@@ -296,7 +265,7 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result.event == 'Add') {
         this.addNewGroup(result.data);
-       
+
       } else if (result.event == 'Update') {
         this.updateRowData(result.data);
       } else if (result.event == 'Delete') {
@@ -316,7 +285,7 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
   addNewGroup(data) {
     if (data) {
       this.midGroupService.addGroup(data);
-      
+
     }
   }
 

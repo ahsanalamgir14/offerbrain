@@ -1,25 +1,20 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { SelectionModel } from '@angular/cdk/collections';
+import { formatDate } from '@angular/common';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject, observable } from 'rxjs';
+import { Notyf } from 'notyf';
+import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ListColumn } from 'src/@fury/shared/list/list-column.model';
 import { fadeInRightAnimation } from 'src/@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from 'src/@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl } from '@angular/forms';
+import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { Network } from './affiliates-network.model';
 import { AffiliatesNetworkService } from './affiliates-network.service';
-import { Subscription } from 'rxjs';
-import { SelectionModel } from '@angular/cdk/collections';
-import { formatDate } from '@angular/common';
-import { environment } from 'src/environments/environment';
-import { ApiService } from 'src/app/api.service';
-import { Pipe, PipeTransform } from '@angular/core';
-import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
-import { ConfirmationDialogModel } from '../../confirmation-dialog/confirmation-dialog';
-import { Notyf } from 'notyf';
 
 @Component({
   selector: 'fury-affiliates-network',
@@ -35,7 +30,6 @@ export class AffiliatesNetworkComponent implements OnInit {
   affiliates: Network[];
   AffOptionsSubscription: Subscription;
   getSubscription: Subscription;
-  deleteSubscription: Subscription;
   refreshSubscription: Subscription;
   isLoading = false;
   totalRows = 0;
@@ -62,8 +56,6 @@ export class AffiliatesNetworkComponent implements OnInit {
   });
   network_affiliate_id: '';
   affiliateOptions = [];
-
-
 
   @Input()
   dataSource: MatTableDataSource<Network>;
@@ -131,7 +123,6 @@ export class AffiliatesNetworkComponent implements OnInit {
         this.affiliates = affiliates.data.affiliates;
         this.dataSource.data = affiliates.data.affiliates;
         this.networks = affiliates.data.networks;
-        console.log('Affiliates are ', this.affiliates)
         this.mapData().subscribe(affiliates => {
           this.subject$.next(affiliates);
         });
@@ -140,6 +131,7 @@ export class AffiliatesNetworkComponent implements OnInit {
         this.isLoading = false;
       });
   }
+
   manageAffOptionsResponse(data) {
     if (data.status) {
       this.affiliateOptions = data.data.affiliates;
@@ -161,6 +153,7 @@ export class AffiliatesNetworkComponent implements OnInit {
     value = value.toLowerCase();
     this.dataSource.filter = value;
   }
+
   commonFilter(value, field) {
     if (this.all_fields.indexOf(field) === -1) {
       this.all_fields.push(field);
@@ -169,12 +162,9 @@ export class AffiliatesNetworkComponent implements OnInit {
       let index = this.all_fields.indexOf(field);
       this.all_values[index] = value;
     }
-    // this.getData();
   }
 
-
   viewDetails(id) {
-    console.log(id);
   }
 
   handleDeleteAction(id) {
@@ -200,10 +190,6 @@ export class AffiliatesNetworkComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    if (this.deleteSubscription) {
-      // this.affiliateservice.deleteResponse.next([]);
-      // this.deleteSubscription.unsubscribe();
-    }
     if (this.refreshSubscription) {
       this.affiliatesService.refreshResponse.next({});
       this.refreshSubscription.unsubscribe();

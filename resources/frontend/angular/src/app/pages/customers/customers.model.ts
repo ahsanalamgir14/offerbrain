@@ -7,7 +7,7 @@ export class Customer {
     last_name: string;
     phone: string;
     ip_address: string;
-    
+
     constructor(customer) {
         this.id = customer.id;
         this.customer_id = customer.customer_id;

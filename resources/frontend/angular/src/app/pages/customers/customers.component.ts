@@ -1,23 +1,21 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { SelectionModel } from '@angular/cdk/collections';
+import { Location } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ListColumn } from '../../../@fury/shared/list/list-column.model';
+import { Notyf } from 'notyf';
+import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { fadeInRightAnimation } from '../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl } from '@angular/forms';
-import { CustomersService } from './customers.service';
-import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { formatDate } from '@angular/common';
-import { Customer } from './Customers.model';
-import { CustomerDetailComponent } from './customer-detail/customer-detail.component';
-import { SelectionModel } from '@angular/cdk/collections';
-import { Notyf } from 'notyf';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { ListColumn } from '../../../@fury/shared/list/list-column.model';
 import { ConfirmationDialogModel } from '../confirmation-dialog/confirmation-dialog';
-import { Location } from '@angular/common';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { CustomerDetailComponent } from './customer-detail/customer-detail.component';
+import { Customer } from './Customers.model';
+import { CustomersService } from './customers.service';
 
 @Component({
   selector: 'fury-customers',
@@ -34,12 +32,10 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   search = '';
   customers: Customer[];
   filters = {};
-  address = [];
   idArray = [];
   allIdArray = [];
   all_fields = [];
   all_values = [];
-  id: number;
   totalRows = 0;
   pageSize = 25;
   currentPage = 1;
@@ -51,11 +47,6 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   timer: any;
   notyf = new Notyf();
   customer_id = '';
-  isOrderLoader = false;
-  orderCount = null;
-
-
-
 
   @Input()
   columns: ListColumn[] = [
@@ -93,12 +84,11 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.location.replaceState('/customer');
-    // this.getSubscription = this.customersService.customersGetResponse$.subscribe(data => this.manageGetResponse(data));
     this.deleteSubscription = this.customersService.deleteResponse$.subscribe(data => this.manageDeleteResponse(data));
     this.getData();
     this.dataSource = new MatTableDataSource();
     this.data$.pipe(
-      
+
       filter(data => !!data)
     ).subscribe((customers) => {
       this.customers = customers;
@@ -128,7 +118,6 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
       .then(customers => {
         this.allIdArray = [];
         this.customers = customers.data.data;
-        // this.dataSource.data = customers.data.data;
         setTimeout(() => {
           this.paginator.pageIndex = this.currentPage;
           this.paginator.length = customers.pag.count;
@@ -144,8 +133,8 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoading = false;
       });
   }
+  
   commonFilter(value, field) {
-
     if (this.all_fields.indexOf(field) === -1) {
       this.all_fields.push(field);
       this.all_values.push(value);
@@ -154,43 +143,13 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.all_values[index] = value;
     }
   }
-  @ViewChild("conunt") conunt: ElementRef;
-  async getOrdersCount(id, event){
-    // this.isOrderLoader = true;
-    await this.customersService.getOrdersCount(id)
-      .then(count => {
-        // this.orderCount = count;
-        // this.pickUp.value = 
-    })
-  }
-  
+
   onFilterChange(value) {
-    // if (!this.dataSource) {
-    //   return;
-    // }
-    // value = value.trim();
-    // value = value.toLowerCase();
-    // this.dataSource.filter = value;
     value = value.toLowerCase();
     this.search = value;
     clearTimeout(this.timer);
     this.timer = setTimeout(() => { this.getData() }, 500)
   }
-
-  // manageGetResponse(customers) {
-  //   if (customers.status) {
-  //     this.customers = customers.data.data;
-  //     this.dataSource.data = customers.data.data;
-  //     setTimeout(() => {
-  //       this.paginator.pageIndex = this.currentPage;
-  //       this.paginator.length = customers.pag.count;
-  //     });
-  //     this.isLoading = false;
-  //   } else {
-  //     this.isLoading = false;
-  //   }
-  // }
-
 
   async manageDeleteResponse(data) {
     if (data.status) {

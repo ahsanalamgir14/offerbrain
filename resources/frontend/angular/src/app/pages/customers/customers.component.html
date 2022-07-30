@@ -45,10 +45,6 @@
         </div>
       </mat-expansion-panel>
 
-
-
-
-
   <div class="mt" *ngIf="isChecked">
     <button class="ml-1" mat-raised-button color="warn" (click)="deleteRecord()">Delete {{idArray?.length}} Selected
       Record</button>
@@ -59,14 +55,7 @@
   <fury-page-layout-content [@fadeInUp]>
     <fury-list name="Customers" [columns]="columns" (filterChange)="onFilterChange($event)">
       <mat-progress-bar mode="query" color="warn" *ngIf="isDeleting"></mat-progress-bar>
-      <!-- <ngx-ui-loader></ngx-ui-loader> -->
       <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-
-      <!-- Progress Spinner -->
-      <!-- <div *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center; background: white;">
-        <mat-progress-spinner color="primary" mode="indeterminate">
-        </mat-progress-spinner>http://ec2-184-72-73-137.compute-1.amazonaws.com/orders
-      </div> -->
       <div class="sticky-columns">
         <table [dataSource]="dataSource" mat-table matSort>
 
@@ -91,34 +80,6 @@
               </td>
             </ng-container>
           </ng-container>
-          
-          <!-- <ng-container matColumnDef="orders_count">
-            <th mat-header-cell *matHeaderCellDef> Orders Count </th>
-            <td mat-cell *matCellDef="let row">
-              <div *ngIf="isOrderLoader" class="loader"></div>
-              <a *ngIf="orderCount == null" (click)="getOrdersCount(row.customer_id, $event)">View</a>
-              <span *ngIf="orderCount != null" #conunt>{{ orderCount }}</span>
-            </td>
-          </ng-container> -->
-
-          <!-- old button actions Column to be deleted -->
-          <!-- <ng-container matColumnDef="actions">
-          <th *matHeaderCellDef class="actions-cell" mat-header-cell mat-sort-header></th>
-          <td *matCellDef="let element" class="actions-cell" mat-cell>
-            <button type="button" mat-icon-button [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()">
-              <mat-icon>more_horiz</mat-icon>
-            </button>
-
-            <mat-menu #actionsMenu="matMenu" yPosition="below" xPosition="before">
-              <button (click)="openDialog(element.id)" mat-menu-item>
-                <span>View Details</span>
-              </button>
-              <button (click)="handleDeleteAction(element.id)" mat-menu-item>
-                <span>Delete</span>
-              </button>
-            </mat-menu>
-          </td>
-        </ng-container> -->
 
           <!-- Action Column -->
           <ng-container matColumnDef="actions">

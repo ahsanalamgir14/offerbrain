@@ -1,17 +1,16 @@
-import { Component, OnInit, Inject, Input, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Notyf } from 'notyf';
+import { Observable, of, ReplaySubject, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { fadeInRightAnimation } from 'src/@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from 'src/@fury/animations/fade-in-up.animation';
-import { Subscription, Observable, of, ReplaySubject } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { ListColumn } from 'src/@fury/shared/list/list-column.model';
-import { MatTableDataSource } from '@angular/material/table';
 import { Mid } from './mids-detail.model';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { Notyf } from 'notyf';
-import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'fury-mids-detail',
@@ -21,7 +20,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 })
 
-export class MidsDetailComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MidsDetailComponent implements OnInit {
 
   subject$: ReplaySubject<Mid[]> = new ReplaySubject<Mid[]>(1);
   data$: Observable<Mid[]> = this.subject$.asObservable();
@@ -99,26 +98,9 @@ export class MidsDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     return of(this.mids.map(mid => new Mid(mid)));
   }
 
-  ngAfterViewInit() {
-    // this.dataSource.paginator = this.paginator;
-    // this.dataSource.sort = this.sort;
-  }
-
-  pageChanged(event: PageEvent) {
-    // this.pageSize = event.pageSize;
-    // this.currentPage = event.pageIndex;
-    // this.getData();
-  }
-
   viewMidDetails(alias) {
     this.dialogRef.close();
     this.router.navigate(['mid-view', alias]);
   }
 
-  ngOnDestroy() {
-    // if (this.refreshSubscription) {
-    //   this.midsService.refreshResponse.next([]);
-    //   this.refreshSubscription.unsubscribe();
-    // }
-  }
 }

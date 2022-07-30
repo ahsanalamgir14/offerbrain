@@ -7,7 +7,7 @@ export class CustomersService {
 
   customers: any;
   gateway: any;
-  customer_id : any;
+  customer_id: any;
   public customersGetResponse = new BehaviorSubject([]);
   public customersIdResponse = new BehaviorSubject([]);
   public deleteResponse = new BehaviorSubject([]);
@@ -26,6 +26,7 @@ export class CustomersService {
       });
     return this.customers;
   }
+  
   async getOrdersCount(id): Promise<any> {
     await this.apiService.getData(`getOrdersCount?id=${id}`)
       .then(res => res.json()).then((data) => {
@@ -37,7 +38,7 @@ export class CustomersService {
 
   async deleteData(data): Promise<any> {
     await this.apiService.postData(`destroy_customers`, data).then(res => res.json()).then((data) => {
-        this.deleteResponse.next(data);
-      });
+      this.deleteResponse.next(data);
+    });
   }
 }

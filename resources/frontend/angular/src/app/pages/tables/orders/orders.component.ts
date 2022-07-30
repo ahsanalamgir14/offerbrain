@@ -1,23 +1,22 @@
+import { formatDate } from '@angular/common';
 import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { filter, takeUntil, map} from 'rxjs/operators';
-import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
-import { Order } from './order.model';
+import { Observable, of, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+import { ApiService } from 'src/app/api.service';
 import { fadeInRightAnimation } from '../../../../@fury/animations/fade-in-right.animation';
 import { fadeInUpAnimation } from '../../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormControl } from '@angular/forms';
-import { OrdersService } from './orders.service';
-import { Subscription, Subject } from 'rxjs';
-import { formatDate } from '@angular/common';
+import { ListColumn } from '../../../../@fury/shared/list/list-column.model';
 import { environment } from '../../../../environments/environment';
+import { Order } from './order.model';
+import { OrdersService } from './orders.service';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
-import { ApiService } from 'src/app/api.service';
-import *  as  states from './states.json';
+import * as states from './states.json';
 
 
 @Component({
@@ -178,21 +177,20 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.data = orders;
     });
     this.productSearchCtrl.valueChanges
-    .pipe(takeUntil(this._onDestroy))
-    .subscribe(() => {
-      this.filterProductOptions();
-    });
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterProductOptions();
+      });
     this.campaignSearchCtrl.valueChanges
-    .pipe(takeUntil(this._onDestroy))
-    .subscribe(() => {
-      this.filterCampaignOptions();
-    });
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterCampaignOptions();
+      });
   }
   protected filterCampaignOptions() {
     if (!this.campaignOptions) {
       return;
     }
-    // get the search keyword
     let search = this.campaignSearchCtrl.value;
     if (!search) {
       this.filteredCampaigns.next(this.campaignOptions.slice());
@@ -201,15 +199,14 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       search = search.toLowerCase();
     }
     this.filteredCampaigns.next(
-    this.campaignOptions.filter( campaign =>  campaign.name.toLowerCase().indexOf(search) > -1)
+      this.campaignOptions.filter(campaign => campaign.name.toLowerCase().indexOf(search) > -1)
     );
-    
+
   }
   protected filterProductOptions() {
     if (!this.productOptions) {
       return;
     }
-    // get the search keyword
     let search = this.productSearchCtrl.value;
     if (!search) {
       this.filteredProducts.next(this.productOptions.slice());
@@ -221,7 +218,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.productOptions.filter(bank => bank.name.toLowerCase().indexOf(search) > -1)
     );
   }
-  
+
 
   mapData() {
     return of(this.orders.map(order => new Order(order)));
@@ -325,17 +322,9 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
       this.productOptions = data.data;
       this.filteredProducts.next(this.productOptions.slice());
     }
-    // if (data.status) {
-    //   this.productOptions = data.data;
-    // }
   }
 
   onFilterChange(value) {
-    // value = value.toLowerCase()
-    // this.search = value;
-    // if(value == ''){
-    //   this.getData();
-    // }
     if (!this.dataSource) {
       return;
     }

@@ -12,12 +12,8 @@ class Mid extends Model
     public $to;
     public $order_status;
     use HasFactory, SearchableTrait;
-    // public $timestamps = false;
     protected $guarded = [];
     protected $table = 'mids';
-    // protected $casts = [
-    //     'decline_orders' => 'array'
-
     protected $searchable = [
         'columns' => [
             'mids.gateway_alias' => 10,

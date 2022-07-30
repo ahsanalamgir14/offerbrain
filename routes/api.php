@@ -86,7 +86,6 @@ Route::get('pull_daily_orders', [OrdersController::class, 'pull_daily_orders']);
 Route::get('pull_daily_order_find', [OrdersController::class, 'pull_daily_order_find']);
 Route::get('pull_yesterday_orders', [OrdersController::class, 'pull_yesterday_orders']);
 Route::get('pull_prospects', [ProspectController::class, 'pull_prospects']);
-Route::get('pull_local_prospects', [ProspectController::class, 'pull_local_prospects']);
 Route::get('pull_user_prospects', [ProspectController::class, 'pull_user_prospects']);
 Route::get('daily_orders', [OrdersController::class, 'daily_orders']);
 Route::get('get_customer_detail', [CustomerController::class, 'get_customer_detail']);
@@ -110,7 +109,6 @@ Route::get('pull_payment_router_view', [MidController::class, 'pull_payment_rout
 Route::get('pull_profiles', [ProfileController::class, 'pull_profiles']);
 Route::get('refresh_mids_groups', [MidGroupController::class, 'refresh_mids_groups']);
 Route::get('mid_group_names', [MidGroupController::class, 'mid_group_names']);
-Route::get('getMidDetail', [MidGroupController::class, 'getMidDetail']);
 Route::get('getProductDetail', [MidGroupController::class, 'getProductDetail']);
 Route::get('assign_mid_group', [MidController::class, 'assign_mid_group']);
 Route::get('get_first_mid', [MidController::class, 'get_first_mid']);
@@ -130,7 +128,6 @@ Route::get('pull_affiliates_for_cron', [NetworkController::class, 'pull_affiliat
 Route::get('pull_networks', [NetworkController::class, 'pull_networks']);
 Route::get('refresh_decline_percentage', [MidController::class, 'refresh_decline_percentage']);
 Route::get('get_mids_decline_data', [MidController::class, 'get_mids_decline_data']);
-Route::get('get_mids_count_data', [MidController::class, 'get_mids_count_data']);
 Route::get('products', [MidController::class, 'products']);
 Route::get('getProductForFilter', [MidController::class, 'getProductForFilter']);
 Route::get('mids_order_total/{id}', [MidController::class, 'mids_order_total']);
@@ -149,16 +146,11 @@ Route::get('add_ip_details', [OrdersController::class, 'add_ip_details']);
 Route::get('dashboard_count', [DashboardController::class, 'dashboard_count']);
 Route::get('get_parent_affid', [OrdersController::class, 'get_parent_affid']);
 
-
-
 // route for quickbook
-
 Route::get('/quickbook',[Quickbook::class, 'index']);
 Route::get('/apiCall',[Quickbook::class, 'apicall']);
 Route::POST('/refreshToken',[Quickbook::class, 'refreshToken']);
 Route::get('/accounts_all',[Quickbook::class, 'accounts_all'])->name('/accounts_all');
-
-
 Route::get('/quickbookConnect/{midGroupId}/{account_id}',[Quickbook::class, 'quickbookConnect']);
 Route::get('/quickbookGet/{midGroupId}/{account_id}/{status}',[Quickbook::class, 'quickbookConnect']);
 Route::get('/callback.php',[Quickbook::class, 'processCode']);

@@ -1,26 +1,22 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldDefaultOptions, MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarConfig, MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Needed for Touch functionality of Material Components
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { PendingInterceptorModule } from '../@fury/shared/loading-indicator/pending-interceptor.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LayoutModule } from './layout/layout.module';
-import { PendingInterceptorModule } from '../@fury/shared/loading-indicator/pending-interceptor.module';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldDefaultOptions } from '@angular/material/form-field';
-import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { OrdersService } from './pages/tables/orders/orders.service';
 import { CustomersService } from './pages/customers/customers.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MidGroupsRoutingModule } from './pages/tables/mid-groups/mid-groups-routing.module';
-import { MidDetailDialogComponent } from './pages/mid-detail-dialog/mid-detail-dialog.component';
-import { Spinner2Component } from './pages/spinner/spinner2/spinner2.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatTableModule} from '@angular/material/table';
-import {MatSortModule} from '@angular/material/sort';
-import { AutomationsComponent } from './pages/automations/automations.component';
+import { OrdersService } from './pages/tables/orders/orders.service';
 
 
 @NgModule({
@@ -40,7 +36,7 @@ import { AutomationsComponent } from './pages/automations/automations.component'
     MatTableModule,
     MatSortModule
   ],
-  declarations: [AppComponent, MidDetailDialogComponent, Spinner2Component, AutomationsComponent],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
   providers: [
     {

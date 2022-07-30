@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MidGroup extends Model
 {
     use HasFactory, softDeletes;
-    // public $timestamps = false;
     protected $guarded = [];
     protected $table = 'mid_groups';
     protected $dates = ['deleted_at'];

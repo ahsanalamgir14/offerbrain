@@ -75,12 +75,7 @@ class MidGroupController extends Controller
 
         return response()->json(['status' => true, 'data' => $data]);
     }
-    public function getMidDetail(Request $request)
-    {
-        $group_name = $request->group_name;
-        $data = Profile::select('global_fields', 'alias', 'profile_id')->where('global_fields->mid_group', '=', $group_name)->get('alias');
-        return response()->json(['status' => true, 'data' => $data]);
-    }
+
     public function getProductDetail(Request $request)
     {
         $id = $request->id;

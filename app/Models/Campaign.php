@@ -104,10 +104,6 @@ class Campaign extends Model
         'third_party_track',
     ];
 
-    // public function getTrackingCampaignsAttribute($object)
-    // {
-    //     return array_column(json_decode($object), 'campaign_id');
-    // }
     public function getCogsTrackAttribute($value)
     {
         return $value == 1 ? 1 : 0;

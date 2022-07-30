@@ -46,27 +46,21 @@ class MidController extends Controller
             ->select(DB::raw('mids.*'))
             ->addSelect(DB::raw('COUNT(orders.id) as total_count'))
             ->addSelect(DB::raw('Round(SUM(case when orders.order_status = 2 then orders.order_total else 0 end) - sum(case when orders.order_status = 2 and orders.amount_refunded_to_date > 0 then orders.amount_refunded_to_date else 0 end), 2) as gross_revenue'))
-            // ->selectRaw(DB::raw("SUM(CASE WHEN orders.order_status = 2 THEN orders.order_total ELSE 0 END) AS gross_revenue"))
             ->selectRaw("count(case when orders.order_status = 2 or orders.order_status = 8 then 1 end) as mid_count")
             ->selectRaw("count(case when orders.order_status = 7 then 1 end) as decline_per")
             ->selectRaw("count(case when orders.is_refund = 'yes' then 1 end) as refund_per")
             ->selectRaw("count(case when orders.is_void = 'yes' then 1 end) as void_per")
             ->selectRaw("count(case when orders.is_chargeback = 1 then 1 end) as chargeback_per")
             ->addSelect('mids.mid_group as group_name')
-            // ->join('order_products', 'orders.order_id', '=', 'order_products.order_id')
-            // ->selectRaw('count(case when order_products.name like "%(c)%" then 0 end) as initials')
-            // ->selectRaw('count(case when order_products.name like "%(c1)%" then 0 end) as initials')
-            // ->addSelect('order_products.id as product_id','order_products.name as product_name')
-            // ->groupBy('order_products.name')
             ->where('mids.user_id', '=', Auth::id())
             ->where('orders.is_test_cc', 0)
             ->groupBy('mids.id');
+
         if ($request->product_id != null) {
             $nameArray = explode(",", $request->product_id);
             $query->join('order_products', 'orders.order_id', '=', 'order_products.order_id')->whereIn('order_products.name', $nameArray);
         }
         $data = $query->get();
-        // dd(DB::getQueryLog());
         return response()->json(['status' => true, 'data' => $data]);
     }
 
@@ -124,7 +118,7 @@ class MidController extends Controller
             $query->whereIn("order_products.name", $nameArray);
         }
         $details = $query->groupBy('order_products.name')->get();
-            // dd(DB::getQueryLog());
+
         foreach ($details as $detail) {
             $data['name'] = $detail->name;
             $data['total_count'] = $detail->total_count;
@@ -146,21 +140,10 @@ class MidController extends Controller
 
     public function mids_order_total($id)
     {
-        // DB::enableQueryLog();
-
         $mid = Mid::where(['id' => $id])->first();
-        // date for 03/29/22 records
         $start_date = Carbon::now()->subDays(4)->startOfDay();
         $end_date = Carbon::now()->subDays(4)->endOfDay();
-        // $daily_revenue = DB::table('orders')->whereBetween('acquisition_date', [$start_date, $end_date])->where(['order_status' => 2, 'gateway_id' => $mid->gateway_id])->sum('order_total');
-        // $mid->daily_revenue = Order::whereBetween(DB::raw('DATE(acquisition_date)'), [$start_date, $end_date])->where(['order_status' => 2, 'gateway_id' => $mid->gateway_id])->select(
-        //     DB::raw('sum(order_total) as order_total')
-        // )->first();
-        // $daily_revenue = DB::table('orders')->whereDate('acquisition_date', '>=', $start_date)->whereDate('acquisition_date', '<=', $end_date)->where(['order_status' => 2, 'gateway_id'=>$mid->gateway_id])->sum('order_total');
-        // $daily_revenue = DB::table('orders')->whereBetween(DB::raw('DATE(acquisition_date)'), [$start_date, $end_date])->where(['order_status' => 2, 'gateway_id'=>$mid->gateway_id])->sum('order_total');
         $daily_revenue = DB::table('orders')->where('acquisition_date', '>=', $start_date)->where('acquisition_date', '<=', $end_date)->where(['order_status' => 2, 'gateway_id' => $mid->gateway_id])->sum('order_total');
-        // dd(DB::getQueryLog());
-        // return $daily_revenue;
         $mid->daily_revenue = round($daily_revenue, 2);
         return response()->json(['status' => true, 'data' => $mid]);
     }
@@ -281,7 +264,6 @@ class MidController extends Controller
             // }
             Mid::whereNotIn('gateway_id', $gatewayArr)->where('user_id', Auth::id())->update(['is_deleted' => 1]);
         }
-        // app(\App\Http\Controllers\ProfileController::class)->update_profiles();
         return response()->json(['status' => true, 'data' => ['new_mids' => $new_gateways, 'user_id' => Auth::id(), 'updated_mids' => $updated_gateways]]);
     }
 
@@ -294,7 +276,6 @@ class MidController extends Controller
 
     public function assign_bulk_group(Request $request)
     {
-        // dd($request->all());
         $data = $request->all();
         $alias = array_column($data, 'gateway_alias');
         $total_mids = count($alias);
@@ -340,34 +321,6 @@ class MidController extends Controller
             $mid->decline_id = $decline->id;
             $mid->save();
             $decline_data = null;
-        }
-        return response()->json(['status' => true]);
-    }
-
-    public function get_mids_count_data()
-    {
-        $data = Mid::all();
-        foreach ($data as $mid) {
-            $data = [];
-            $data['gateway_id'] = $mid->gateway_id;
-            $data['gateway_alias'] = $mid->gateway_alias;
-            $declined_orders = Order::with('product')->where(['gateway_id' => $mid->gateway_id, 'order_status' => 2]);
-            $mid_count = $declined_orders->count();
-            // $data['decline_per'] = ($total_orders) / 100;
-            $product_names = $declined_orders->get()->countBy('product.name')->toArray();
-            foreach ($product_names as $name => $count) {
-                $mid_count_data[] = array(
-                    'name' => $name,
-                    'count' => $count,
-                    'percentage' => round((($count / $mid_count) * 100), 2)
-                );
-            }
-            $data['mid_count_data'] = $mid_count_data;
-            $data['mid_count'] = $mid_count;
-            $model = MidCount::create($data);
-            $mid->mid_count_id = $model->id;
-            $mid->save();
-            $mid_count_data = null;
         }
         return response()->json(['status' => true]);
     }

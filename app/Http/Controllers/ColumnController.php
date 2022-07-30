@@ -87,7 +87,6 @@ class ColumnController extends Controller
 
     public function change_column(Request $request)
     {
-        // dd($request->all());
         $data = $request->all();
         $column = Column::where(['table' => $request->table, 'property' => $request->property])->first();
         if($column){

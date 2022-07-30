@@ -27,9 +27,7 @@ class CustomerController extends Controller
                 ->orWhere('first_name', 'like', '%' . $request->search . '%')
                 ->orWhere('last_name', 'like', '%' . $request->search . '%');
         }
-            // dd($pageno);
-        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page); //data is ok 
-        // $total_rows = $query->count('id');
+        $data = $query->orderBy('id', 'asc')->SimplePaginate($no_of_records_per_page);
         $total_pages = ceil($total_rows / $data->perPage());
         $pag['count'] = $total_rows;
         $pag['total_pages'] = $total_pages;
@@ -41,10 +39,10 @@ class CustomerController extends Controller
     {
         // return Auth::id();
         $is_count = $request->customer_id;
-        if($is_count == null){
+        if ($is_count == null) {
             $is_count = 0;
         }
-        
+
         DB::statement("SET SQL_MODE=''");
         DB::enableQueryLog();
         $pageno = isset($request->page) ? $request->page : 0;
@@ -55,30 +53,49 @@ class CustomerController extends Controller
             // $query = Customer::doesnthave('customers')
 
             $query = Customer::where('customers.user_id', Auth::id())
-                ->select('customers.id', 'customers.customer_id', 'customers.user_id', 'customers.email', 
-                'customers.first_name', 'customers.last_name', 'customers.phone', 'customers.addresses', 
-                'customers.deleted_at', 'orders.ip_address')
+                ->select(
+                    'customers.id',
+                    'customers.customer_id',
+                    'customers.user_id',
+                    'customers.email',
+                    'customers.first_name',
+                    'customers.last_name',
+                    'customers.phone',
+                    'customers.addresses',
+                    'customers.deleted_at',
+                    'orders.ip_address'
+                )
                 ->addSelect(DB::raw('0 as orders_count'))
-                ->where('orders.user_id',Auth::id())
+                ->where('orders.user_id', Auth::id())
                 ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
-                ->orderBy('orders.ip_address','asc');
-                
+                ->orderBy('orders.ip_address', 'asc');
+
             $total_rows = $query->count('customers.id');
         } else {
             // ini_set('memory_limit', '512M');
             // set_time_limit(0);
             $query = DB::table('customers')
-                    ->select('customers.id', 'customers.user_id', 'customers.email', 
-                    'customers.first_name', 'customers.last_name', 'customers.phone', 'customers.customer_id', 
-                    'customers.addresses', 'customers.deleted_at', 'orders.id', 'orders.customer_id',
+                ->select(
+                    'customers.id',
+                    'customers.user_id',
+                    'customers.email',
+                    'customers.first_name',
+                    'customers.last_name',
+                    'customers.phone',
+                    'customers.customer_id',
+                    'customers.addresses',
+                    'customers.deleted_at',
+                    'orders.id',
+                    'orders.customer_id',
                     'orders.ip_address',
-                    DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count'))
-                    ->where('customers.user_id', Auth::id())
+                    DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count')
+                )
+                ->where('customers.user_id', Auth::id())
                     // ->where('customers.user_id', 2)
-                    ->where('orders.user_id',Auth::id())
-                    ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
-                    ->groupBy('customers.id')
-                    ->orderBy('orders.ip_address','asc');
+                ->where('orders.user_id', Auth::id())
+                ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
+                ->groupBy('customers.id')
+                ->orderBy('orders.ip_address', 'asc');
             ini_set('memory_limit', '512M');
             set_time_limit(0);
 
@@ -104,19 +121,29 @@ class CustomerController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         $pageno = isset($request->page) ? $request->page : 0;
-        
+
         $no_of_records_per_page = isset($request->per_page) ? $request->per_page : 25;
-        
+
         ini_set('memory_limit', '512M');
         set_time_limit(0);
         $query = DB::table('customers')
-                ->select('customers.id', 'customers.user_id', 'customers.email', 
-                'customers.first_name', 'customers.last_name', 'customers.phone', 'customers.customer_id', 
-                'customers.addresses', 'customers.deleted_at', 'orders.id', 'orders.customer_id',
-                DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count'))
-                ->where('customers.user_id', Auth::id())
-                ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
-                ->groupBy('customers.id');
+            ->select(
+                'customers.id',
+                'customers.user_id',
+                'customers.email',
+                'customers.first_name',
+                'customers.last_name',
+                'customers.phone',
+                'customers.customer_id',
+                'customers.addresses',
+                'customers.deleted_at',
+                'orders.id',
+                'orders.customer_id',
+                DB::raw('COUNT(CASE WHEN orders.customer_id = customers.customer_id AND customers.user_id = orders.user_id THEN 1 END) as orders_count')
+            )
+            ->where('customers.user_id', Auth::id())
+            ->join('orders', 'orders.customer_id', '=', 'customers.customer_id')
+            ->groupBy('customers.id');
         ini_set('memory_limit', '512M');
         set_time_limit(0);
         $total_rows = $query->get()->count('customers.id');
@@ -211,14 +238,12 @@ class CustomerController extends Controller
 
     public static function refresh_customers()
     {
-        // ini_set('memory_limit', '512M');
-        // set_time_limit(0);
         $users = User::orderBy('id', 'asc')->get();
         foreach ($users as $user) {
-            $setting = Setting::where('key', 'customer_last_page')->where('user_id',$user->id)->first();
+            $setting = Setting::where('key', 'customer_last_page')->where('user_id', $user->id)->first();
             $created = 0;
             $updated = 0;
-            $db_customers = Customer::pluck('customer_id')->where('user_id',$user->id)->toArray();
+            $db_customers = Customer::pluck('customer_id')->where('user_id', $user->id)->toArray();
             $username = $user->sticky_api_username;
             $password = Crypt::decrypt($user->sticky_api_key);
             $url = $user->sticky_url . '/api/v2/contacts';
@@ -237,7 +262,7 @@ class CustomerController extends Controller
 
                     if (in_array($result['id'], $db_customers)) {
                         $updated++;
-                        $customer = Customer::where(['customer_id' => $result['id']])->where('user_id',$user->id)->first();
+                        $customer = Customer::where(['customer_id' => $result['id']])->where('user_id', $user->id)->first();
                         $customer->update($result);
                     } else {
                         $created++;
@@ -260,7 +285,7 @@ class CustomerController extends Controller
 
                             if (in_array($result['id'], $db_customers)) {
                                 $updated++;
-                                $customer = Customer::where(['customer_id' => $result['id']])->where('user_id',$user->id)->first();
+                                $customer = Customer::where(['customer_id' => $result['id']])->where('user_id', $user->id)->first();
                                 $customer->update($result);
                             } else {
                                 $created++;
@@ -268,7 +293,7 @@ class CustomerController extends Controller
                             }
                             $response = null;
                         }
-                        Setting::where('key', 'customer_last_page')->where('user_id',$user->id)->update(['value' => $previousPage]);
+                        Setting::where('key', 'customer_last_page')->where('user_id', $user->id)->update(['value' => $previousPage]);
                         // Setting::where('key', 'customer_last_page')->where('user_id',2)->update(['value' => $previousPage]);
                     }
                 }
@@ -279,7 +304,6 @@ class CustomerController extends Controller
 
     public static function refresh_user_customers(Request $request)
     {
-        // return Auth::id();
         $created = 0;
         $updated = 0;
         $customer_last_page = Setting::where(['key' => 'customer_last_page', 'user_id' => Auth::id()])->first();
@@ -349,8 +373,9 @@ class CustomerController extends Controller
         }
         return response()->json(['status' => true, 'user_id' => Auth::id(), 'new_customers' => $created, 'updated_customers' => $updated]);
     }
-    public function getOrdersCount(Request $request){
-        $data = DB::table('orders')->select('id')->where('customer_id',$request->id)->count('id');
+    public function getOrdersCount(Request $request)
+    {
+        $data = DB::table('orders')->select('id')->where('customer_id', $request->id)->count('id');
         return response()->json($data);
     }
 }

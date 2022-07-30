@@ -102,14 +102,7 @@ class GoldenTicketController extends Controller
 
     public function refresh_golden_ticket(Request $request)
     {
-        // dd(Carbon::now()->format('Y')-1);
-        /* 
-            !important 
-            $golden_tickets = GoldenTicket::where(['year'=>Carbon::now()->format('Y')-1])->get();
-         */
-        /*
-            !filtration  
-         */
+        // $golden_tickets = GoldenTicket::where(['year'=>Carbon::now()->format('Y')-1])->get();
         if ($request->month && $request->year) {
             if ($request->month != "null" && $request->year != "null") {
                 $golden_tickets = GoldenTicket::where(['month' => $request->month, 'year' => $request->year])->get();
@@ -122,23 +115,10 @@ class GoldenTicketController extends Controller
             $golden_tickets = GoldenTicket::all();
         }
 
-        // dd($golden_tickets);
-
-        // $formulas = Formula::all();
-        // foreach ($formulas as $key => $formula) {
-        //     $formula->operands = unserialize($formula->operands);
-        //     $formula->operators = unserialize($formula->operators);
-        //     if ($formula->campaign_name == "Golden Ticket Main") {
-        //         $columns[$key]['column_name'] = $formula->column_name;
-        //         $columns[$key]['expression'] = $formula->expression;
-        //     }
-        // }
         foreach ($golden_tickets as $t_key => $ticket) {
             $date = $ticket->month . ' ' . $ticket->year;
             $start_day = Carbon::parse($date)->startOfMonth();
             $end_day = Carbon::parse($date)->endOfMonth();
-            // dd($start_day);
-
             $initials = 0;
             $rebills = 0;
             $cycle_2 = 0;
@@ -163,7 +143,6 @@ class GoldenTicketController extends Controller
                 ->where('orders.time_stamp', '>=', $start_day)
                 ->where('orders.time_stamp', '<=', $end_day)
                 ->select('orders.order_id', 'orders.time_stamp', 'orders.acquisition_month', 'orders.acquisition_year');
-            // dd($orders->get()->count());
 
             $join = $orders->join('order_products', 'orders.order_id', 'order_products.order_id')
                 ->where(['orders.order_status' => 7, 'order_products.offer_name' => 'Golden Ticket Offer'])

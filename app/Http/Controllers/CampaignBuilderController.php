@@ -30,24 +30,12 @@ class CampaignBuilderController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($request->all());
-        // $data = Campaign::find(250);
-        // return response()->json(['status' => true, 'data' => $data]);
-
         $start_date = $request->start_date;
         $end_date = $request->end_date;
         if ($start_date != null && $end_date != null) {
             $start_date = Carbon::parse($start_date)->startOfDay();
             $end_date = Carbon::parse($end_date)->endOfDay();
-            // var_dump($start_date);
-            // var_dump($end_date);
-            // return $start_date; 
-            // $start_date = '2022-05-31 00:00:00';
-            // $end_date = '2022-05-31 23:59:59';
         }
-        // return $end_date;
-
-        // return Auth::id();
 
         DB::enableQueryLog();
         $data = DB::table('campaigns')->where(['campaigns.user_id' => 2])->whereNull('campaigns.is_active')
@@ -152,8 +140,6 @@ class CampaignBuilderController extends Controller
     public function update(Request $request, $campaign_id)
     {
         $data = $request->all();
-        // return $data;
-        // $data['campaign_id'] = rand(100000, 999999);
         $data['tracking_campaign_ids'] = [];
         $data['tracking_network_ids'] = [];
         $data['upsell_product_ids'] = [];
@@ -178,20 +164,9 @@ class CampaignBuilderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
-    {
-        return $request->id;
-        $id = $request->id;
-        // $total_records = count($ids);
-        DB::table('campaigns')->where('campaign_id', $id)->delete();
-        return response()->json(['status' => true, 'message' => '<b>1</b> Customer Deleted Successfully']);
-    }
-
     public function delete_campaign(Request $request)
     {
-        // return $request->id;
         $id = $request->id;
-        // $total_records = count($ids);
         DB::table('campaigns')->where('campaign_id', $id)->delete();
         return response()->json(['status' => true, 'message' => '<b>1</b> Campaign Deleted Successfully']);
     }
@@ -200,14 +175,14 @@ class CampaignBuilderController extends Controller
     {
         DB::statement("SET SQL_MODE=''");
         //production
-        // $data['products'] = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => Auth::id()])->groupBy('product_id')->get();
-        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
+        $data['products'] = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => Auth::id()])->groupBy('product_id')->get();
+        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => Auth::id()])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => Auth::id()])->groupBy('network_affiliate_id')->get();
 
         //local
-        $data['products'] = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('product_id')->get();
-        $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
-        $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
+        // $data['products'] = DB::table('products')->select('product_id', 'name', 'price', DB::raw("CONCAT('#', product_id,' - ',name,' - $',price ) AS full_name"))->where(['user_id' => 2])->groupBy('product_id')->get();
+        // $data['campaigns'] = DB::table('campaigns')->select('id', 'campaign_id', 'gateway_id', 'name')->where(['user_id' => 2])->whereNotNull('is_active')->groupBy('campaign_id')->get();
+        // $data['networks'] = DB::table('networks')->select('id', 'network_affiliate_id', 'network_id', 'name')->where(['user_id' => 2])->groupBy('network_affiliate_id')->get();
 
         return response()->json(['status' => true, 'data' => $data]);
     }
@@ -216,13 +191,10 @@ class CampaignBuilderController extends Controller
     {
         DB::enableQueryLog();
         // $campaign = Campaign::where(['name' => $request->name, 'user_id' => 2])->first();
-        // return $campaign;
         $campaign = Campaign::where(['name' => $request->name, 'user_id' => Auth::id()])->first();
         $tracking_campaign_ids = array_column($campaign->tracking_campaigns, 'campaign_id');
         $tracking_network_ids = array_column($campaign->tracking_networks, 'network_affiliate_id');
         $cycle_product_ids = array_column($campaign->cycle_products, 'product_id');
-        // $upsell_product_ids = array_column($campaign->upsell_products, 'id');
-        // $downsell_product_ids = array_column($campaign->downsell_products, 'id');
 
         // $query = DB::table('orders')->where(['orders.user_id' => 2, 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
         $query = DB::table('orders')->where(['orders.user_id' => Auth::id(), 'orders.prepaid_match' => 'No', 'orders.is_test_cc' => 0])
@@ -251,71 +223,6 @@ class CampaignBuilderController extends Controller
         }
         $query->groupBy('orders.acquisition_month');
         $data = $query->get();
-        // dd($data);
-
-        // $data = [
-        //     [
-        //         "month" => "April",
-        //         "year" => "2022",
-        //         "name" => "Meal Plan App (c)",
-        //         "initials" => 1,
-        //         "rebills" => 0,
-        //         "cycle_2" => 0,
-        //         "cycle_3_plus" => 0,
-        //         "CBs" => 0,
-        //         "revenue" => 82348.84,
-        //         "refund" => 4150.56,
-        //         "CB_currency"=>'2000'
-        //     ],
-        //     [
-        //         "month" => "May",
-        //         "year" => "2022",
-        //         "name" => "Meal Plan App (c)",
-        //         "initials" => 1,
-        //         "rebills" => 0,
-        //         "cycle_2" => 0,
-        //         "cycle_3_plus" => 0,
-        //         "CBs" => 0,
-        //         "revenue" => 82348.84,
-        //         "refund" => 4150.56,
-        //         "CB_currency"=>'2000'
-        //     ],
-        //     [
-        //         "month" => "June",
-        //         "year" => "2022",
-        //         "name" => "Meal Plan App (c)",
-        //         "initials" => 1,
-        //         "rebills" => 0,
-        //         "cycle_2" => 0,
-        //         "cycle_3_plus" => 0,
-        //         "CBs" => 0,
-        //         "revenue" => 82348.84,
-        //         "refund" => 4150.56,
-        //         "CB_currency"=>'2000'
-        //     ]
-        // ];
-
-        // $decline = $orders->where(['orders.order_status' => 7])->get()->count();
-        // $CBs = $orders->where(['orders.order_status' => 7, 'orders.is_chargeback' => 1])->get()->count();
-        // $net = $revenue + $refund + $CBs + $fulfillment + $processing + $cpa;
-
-        // if ($initials != 0) {
-        //     $cycle_1_per = $rebills / $initials;
-        //     $avg_ticket = $revenue / $initials;
-        //     $fulfillment = -$initials;
-        //     $clv = $net / $initials;
-        // }
-        // if ($rebills != 0) {
-        //     $cycle_2_per = $cycle_2 / $rebills;
-        // }
-        // if ($cycle_2 != 0) {
-        //     $cycle_3_plus_per = $cycle_3_plus / $cycle_2;
-        // }
-        // if ($revenue != 0) {
-        //     $refund_rate = $refund / $revenue;
-        //     $CB_per = $CBs / $revenue;
-        //     $processing = -0.2 * $revenue;
-        // }
         return response()->json(['status' => true, 'data' => $data, 'Query' => DB::getQueryLog()]);
     }
 }

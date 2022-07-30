@@ -1,12 +1,11 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   endPoint = '';
-  constructor(private http:HttpClient) {
+  constructor(private http: HttpClient) {
     this.endPoint = environment.endpoint;
   }
 
@@ -20,8 +19,7 @@ export class ApiService {
     return response;
   }
 
-  getQuickdata(url,midGroupId,account_id):Promise<any>
-  {
+  getQuickdata(url, midGroupId, account_id): Promise<any> {
     const response = fetch(`${this.endPoint}/api/${url}/${midGroupId}/${account_id}`)
       .catch(error => {
         if (error.response) {
@@ -31,8 +29,7 @@ export class ApiService {
     return response;
   }
 
-  getQuickBalance(url,midGroupId,account_id,status):Promise<any>
-  {
+  getQuickBalance(url, midGroupId, account_id, status): Promise<any> {
     const response = fetch(`${this.endPoint}/api/${url}/${midGroupId}/${account_id}/${status}`)
       .catch(error => {
         if (error.response) {
@@ -42,8 +39,7 @@ export class ApiService {
     return response;
   }
 
-  getInvoice(url,data):Promise<any>
-  {
+  getInvoice(url, data): Promise<any> {
     const response = fetch(`${this.endPoint}/api/${url}/${data}`)
       .catch(error => {
         if (error.response) {

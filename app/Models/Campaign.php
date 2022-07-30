@@ -39,7 +39,7 @@ class Campaign extends Model
         'downsell_products' => 'array',
         'downsell_product_ids' => 'array',
         'cycle_products' => 'array',
-        'cycle_product_ids' => 'array',
+        'cycle_product_ids' => 'object',
         'cogs_track' => 'boolean',
         'cpa_track' => 'boolean',
         'third_party_track' => 'boolean',
@@ -162,7 +162,10 @@ class Campaign extends Model
         $cycle_products = json_decode($this->attributes['cycle_products']);
         if (is_array($cycle_products)) {
             $cycle_product_ids = array_column($cycle_products, 'product_id');
-            return $this->attributes['cycle_product_ids'] = json_encode($cycle_product_ids);
+            foreach ($cycle_product_ids as $i => $id) {
+                $string_ids[$i] = (string)$id;
+            }
+            return $this->attributes['cycle_product_ids'] = json_encode($string_ids);
         }
     }
 }

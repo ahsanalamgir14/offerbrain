@@ -141,9 +141,9 @@ class CampaignBuilderController extends Controller
         $data['downsell_product_ids'] = [];
         $data['cycle_product_ids'] = [];
         $data['user_id'] = $request->user()->id;
-        Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->update($data);
+        Campaign::where(['user_id' => Auth::id(), 'campaign_id' => $campaign_id])->update($data);
         $data['created_at'] = Carbon::now();
-        $campaign = Campaign::where(['user_id'=>Auth::id(), 'campaign_id'=>$id])->first();
+        $campaign = Campaign::where(['user_id' => Auth::id(), 'campaign_id' => $campaign_id])->first();
         if ($campaign) {
             $campaign->update($data);
         }

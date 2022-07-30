@@ -4,7 +4,7 @@
 
 :host {
   // background: url("~/public/assets/images/backgrounds/2.jpg");
-  background: url('../../../../../../../public/assets/images/2.jpg');
+  background: url("../../../../../../../public/assets/images/2.jpg");
   // background: url("/assets/img/backgrounds/2.jpg");
   background-size: cover;
   display: block;
@@ -194,4 +194,8 @@
 .product-loader {
   margin-top: 0px !important;
   margin-left: 10px;
+}
+
+::ng-deep .mat-horizontal-stepper-header {
+  pointer-events: none !important;
 }

@@ -12,7 +12,6 @@ class Prospect extends Model
     protected $guarded = [];
     protected $table = 'prospects';
     protected $dates = ['deleted_at'];
-    // public $timestamps = false;
     protected $casts = [
         'notes' => 'array'
     ];

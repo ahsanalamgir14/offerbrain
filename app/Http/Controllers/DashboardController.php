@@ -104,7 +104,6 @@ class DashboardController extends Controller
     }
     public function user_data(Request $request)
     {
-        // return response()->json(['status'=>true, 'name'=>'', 'email'=>'']);
         return response()->json(['status' => true, 'name' => $request->user()->name, 'email' => $request->user()->email]);
     }
 

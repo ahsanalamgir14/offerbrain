@@ -16,7 +16,7 @@ class FormulasController extends Controller
     public function index()
     {
         $data = Formula::all();
-        return response()->json(['status'=>true, 'data'=>$data]);
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
     /**
@@ -37,13 +37,7 @@ class FormulasController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        // $user = Auth::user();
-        // dd(auth('api')->user() );
         $formula = new Formula();
-        // $formula->name = $request->user->id;
-        // $formula->user_id = $request->user->id;
-        // $formula->user_name = $request->user->name;
         $formula->name = $request->name;
         $formula->shortcut_name = $request->shortcut_name;
         $formula->column_name = $request->column_name;
@@ -52,7 +46,7 @@ class FormulasController extends Controller
         $formula->operands = serialize($request->operands);
         $formula->operators = serialize($request->operators);
         $formula->save();
-        return response()->json(['status'=>true, 'data'=>'Formula saved successfully']);
+        return response()->json(['status' => true, 'data' => 'Formula saved successfully']);
     }
 
     /**

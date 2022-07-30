@@ -26,16 +26,17 @@ class SubAffiliateController extends Controller
         $AffArray = explode(",", $request->affiliate_id);
         $start_date = $request->start_date;
         $end_date = $request->end_date;
-       $sub_affiliates = SubAffiliate::where('sub1', 'LIKE', '%'.$request->sub1.'%')
-       ->where('sub2', 'LIKE', '%'.$request->sub2.'%')->where('sub3', 'LIKE', '%'.$request->sub3.'%')
-       ->where('date','>=',$start_date)->where('date','<=',$end_date)->whereIn('affid', $AffArray)->get();
-       $data  = $sub_affiliates;
-       return response()->json(['status' => true, 'data' => $data]);
+        $sub_affiliates = SubAffiliate::where('sub1', 'LIKE', '%' . $request->sub1 . '%')
+            ->where('sub2', 'LIKE', '%' . $request->sub2 . '%')->where('sub3', 'LIKE', '%' . $request->sub3 . '%')
+            ->where('date', '>=', $start_date)->where('date', '<=', $end_date)->whereIn('affid', $AffArray)->get();
+        $data = $sub_affiliates;
+        return response()->json(['status' => true, 'data' => $data]);
     }
 
-    public function pull_cron_sub_affiliates(){
-        $start_date =  Carbon::now()->startOfDay()->format('Y-m-d');
-        $end_date =  Carbon::now()->endOfDay()->format('Y-m-d');
+    public function pull_cron_sub_affiliates()
+    {
+        $start_date = Carbon::now()->startOfDay()->format('Y-m-d');
+        $end_date = Carbon::now()->endOfDay()->format('Y-m-d');
         $data = [];
         $new_sub_affiliates = 0;
         $updated_sub_affiliates = 0;
@@ -43,8 +44,6 @@ class SubAffiliateController extends Controller
         $key = "X-Eflow-API-Key";
         // $user = User::find(2);
         $user = User::find(Auth::id());
-        
-        // $user = User::find($request->user()->id);
         $username = $user->sticky_api_username;
         if ($user->everflow_api_key) {
             $value = Crypt::decrypt($user->everflow_api_key);
@@ -52,10 +51,10 @@ class SubAffiliateController extends Controller
             return response()->json(['status' => false, 'message' => 'No API key found for Everflow']);
         }
         // return $value;
-        $networks =  Network::where(['user_id' => Auth::id()])->get();
-        foreach($networks as $network){
-            $filterId = (string) $network->network_affiliate_id;
-            if($filterId != null && $filterId != ""){
+        $networks = Network::where(['user_id' => Auth::id()])->get();
+        foreach ($networks as $network) {
+            $filterId = (string)$network->network_affiliate_id;
+            if ($filterId != null && $filterId != "") {
                 $url = 'https://api.eflow.team/v1/networks/reporting/entity/table/export';
                 $api_data = Http::withHeaders([$key => $value])->accept('application/json')->post(
                     $url,
@@ -78,7 +77,7 @@ class SubAffiliateController extends Controller
                             [
                                 "column" => "date"
                             ],
-        
+
                         ],
                         "query" => [
                             "filters" => [
@@ -91,48 +90,46 @@ class SubAffiliateController extends Controller
                     ]
                 )->body();
                 $sub_affiliates = explode("\n", $api_data);
-                foreach($sub_affiliates as $sub_affiliate){
+                foreach ($sub_affiliates as $sub_affiliate) {
                     $obj = json_decode($sub_affiliate);
                     $netAff = $network->network_affiliate_id;
-                    if($obj != null){
-                    $obj->affid =  $netAff;
-                    $obj->user_id =  Auth::id();
-                    $subAffNotChanged = SubAffiliate::where(['user_id' => Auth::id(), 'affid' => $netAff, 'sub1'=> $obj->sub1, 'sub2'=> $obj->sub2, 'sub3'=> $obj->sub3 ])
-                    ->where( 'ROAS', '=',$obj->ROAS)
-                    ->where('total_conversions','=', $obj->total_conversions)
-                    ->where('CV', '=',$obj->CV)
-                    ->where('CPA', '=',$obj->CPA)
-                    ->where('RPA', '=',$obj->RPA)
-                    ->where( 'revenue', '=',$obj->revenue)
-                    ->where('gross_sales', '=',$obj->gross_sales)
-                    ->first();
+                    if ($obj != null) {
+                        $obj->affid = $netAff;
+                        $obj->user_id = Auth::id();
+                        $subAffNotChanged = SubAffiliate::where(['user_id' => Auth::id(), 'affid' => $netAff, 'sub1' => $obj->sub1, 'sub2' => $obj->sub2, 'sub3' => $obj->sub3])
+                            ->where('ROAS', '=', $obj->ROAS)
+                            ->where('total_conversions', '=', $obj->total_conversions)
+                            ->where('CV', '=', $obj->CV)
+                            ->where('CPA', '=', $obj->CPA)
+                            ->where('RPA', '=', $obj->RPA)
+                            ->where('revenue', '=', $obj->revenue)
+                            ->where('gross_sales', '=', $obj->gross_sales)
+                            ->first();
 
-                    $subAffChanged = SubAffiliate::where(['user_id' => Auth::id(), 'affid' => $netAff, 'sub1'=> $obj->sub1, 'sub2'=> $obj->sub2, 'sub3'=> $obj->sub3 ])
-                    ->where( 'ROAS', '!=',$obj->ROAS)
-                    ->where('total_conversions','!=', $obj->total_conversions)
-                    ->where('CV', '!=',$obj->CV)
-                    ->where('CPA', '!=',$obj->CPA)
-                    ->where('RPA', '!=',$obj->RPA)
-                    ->where( 'revenue', '!=',$obj->revenue)
-                    ->where('gross_sales', '!=',$obj->gross_sales)
-                    ->first();
-                    if($subAffChanged){
-                        $subAffChanged->update((array)$obj);
-                        $updated_sub_affiliates++;
-                       }
-                       else if($subAffNotChanged){
-                        $not_updated_sub_affiliates++;
-                       }
-                       else{
-                        SubAffiliate::create((array)$obj);
-                        $new_sub_affiliates++;
-                       }
+                        $subAffChanged = SubAffiliate::where(['user_id' => Auth::id(), 'affid' => $netAff, 'sub1' => $obj->sub1, 'sub2' => $obj->sub2, 'sub3' => $obj->sub3])
+                            ->where('ROAS', '!=', $obj->ROAS)
+                            ->where('total_conversions', '!=', $obj->total_conversions)
+                            ->where('CV', '!=', $obj->CV)
+                            ->where('CPA', '!=', $obj->CPA)
+                            ->where('RPA', '!=', $obj->RPA)
+                            ->where('revenue', '!=', $obj->revenue)
+                            ->where('gross_sales', '!=', $obj->gross_sales)
+                            ->first();
+                        if ($subAffChanged) {
+                            $subAffChanged->update((array)$obj);
+                            $updated_sub_affiliates++;
+                        } else if ($subAffNotChanged) {
+                            $not_updated_sub_affiliates++;
+                        } else {
+                            SubAffiliate::create((array)$obj);
+                            $new_sub_affiliates++;
+                        }
 
                     }
-                   
-                }   
-            }  
-        }     
+
+                }
+            }
+        }
         return response()->json(['status' => true, 'new_affiliates' => $new_sub_affiliates, 'updated_affiliates' => $updated_sub_affiliates, 'not_updated_affiliates' => $not_updated_sub_affiliates]);
     }
     /**
@@ -236,7 +233,6 @@ class SubAffiliateController extends Controller
     public function get_EF_key(Request $request)
     {
         $key = User::where(['id' => 2])->pluck('everflow_api_key')->first();
-        // $key = User::where(['id' => Auth::id()])->pluck('everflow_api_key')->first();
         $key = Crypt::decrypt($key);
         return response()->json(['status' => true, 'key' => $key]);
     }

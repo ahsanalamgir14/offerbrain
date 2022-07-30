@@ -30,9 +30,16 @@ class NetworkController extends Controller
            
             // $query = DB::table('networks')->where(['networks.user_id' => 2])
             $query = DB::table('networks')->where(['networks.user_id' => Auth::id()])
-                ->select('networks.*', 'orders.id', 'orders.order_status', 
-                'orders.order_total', 'orders.is_refund', 'orders.affid', 
-                'networks.network_affiliate_id', 'orders.time_stamp')
+                ->select(
+                    'networks.*',
+                    'orders.id',
+                    'orders.order_status',
+                    'orders.order_total',
+                    'orders.is_refund',
+                    'orders.affid',
+                    'networks.network_affiliate_id',
+                    'orders.time_stamp'
+                )
                 ->leftJoin('orders', function ($join) use ($start_date, $end_date) {
                     $join->on('orders.affid', '=', 'networks.network_affiliate_id')
                         // ->where('orders.user_id', '=', 2)
@@ -47,7 +54,6 @@ class NetworkController extends Controller
                 ->selectRaw("ROUND(COUNT(case when orders.upsell_product_quantity > 1 then 0 end), 2) as upsell_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_chargeback = 1 then 0 end) , 2) as chargeback_per")
                 ->selectRaw("ROUND(COUNT(case when orders.is_refund = 'yes' then 0 end), 2) as refund_per")
-                // ->join('order_products', 'order_products.order_id', '=', 'orders.order_id')
                 ->selectRaw('COUNT(case when orders.products NOT LIKE "%(c)%" then 0 end) as rebill_per')
                 ->groupBy('networks.id')
                 ->orderBy('networks.id', 'ASC');
@@ -62,7 +68,6 @@ class NetworkController extends Controller
                 }
             }
             $data['affiliates'] = $query->get();
-            // dd(DB::getQueryLog());
         } else {
             // $data['affiliates'] = Network::where('user_id', 2)->get();
             $data['affiliates'] = Network::where('user_id', Auth::id())->get();
@@ -135,7 +140,6 @@ class NetworkController extends Controller
     public function destroy_affiliates(Request $request)
     {
         $id = $request->all();
-        // $is_true = DB::table('affiliates')->where('id', $id)->delete();
         $is_true = Network::where('id', $id)->delete();
         if ($is_true) {
             return response()->json(['status' => true, 'message' => '<b>1</b> Network Deleted Successfully']);
@@ -200,7 +204,7 @@ class NetworkController extends Controller
             $key = "X-Eflow-API-Key";
             if ($user->everflow_api_key) {
                 $value = Crypt::decrypt($user->everflow_api_key);
-                
+
                 $url = 'https://api.eflow.team/v1/networks/affiliates';
                 $api_data = json_decode(Http::withHeaders([$key => $value])->accept('application/json')->get($url)->body());
                 if (isset($api_data->affiliates)) {

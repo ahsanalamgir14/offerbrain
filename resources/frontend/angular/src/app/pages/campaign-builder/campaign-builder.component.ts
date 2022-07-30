@@ -1,26 +1,13 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
-import { filter, takeUntil, map } from 'rxjs/operators';
-import { ListColumn } from '../../../@fury/shared/list/list-column.model';
-import { fadeInRightAnimation } from '../../../@fury/animations/fade-in-right.animation';
-import { fadeInUpAnimation } from '../../../@fury/animations/fade-in-up.animation';
-import { FormGroup, FormBuilder, Validators, FormControl, NgForm, FormGroupDirective } from '@angular/forms';
-import { CampaignBuilderService } from './campaign-builder.service';
-import { Subscription } from 'rxjs';
-import { formatDate } from '@angular/common';
-import { environment } from '../../../environments/environment';
-import { ApiService } from 'src/app/api.service';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { scaleInAnimation } from '../../../@fury/animations/scale-in.animation';
-import { Notyf } from "notyf";
 import { MatStepper } from '@angular/material/stepper';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
-import { Router } from '@angular/router';
+import { Notyf } from "notyf";
+import { ReplaySubject, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { CampaignBuilderService } from './campaign-builder.service';
 
 
 @Component({
@@ -316,20 +303,14 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
     }
     if (param == 'downsellDeSelect') {
       this.arr_downsell[index] = '[]';
-      // var ind = this.arr_downsell.indexOf(item);
-      // this.arr_downsell.splice(ind, 1);
       this.downsell_products[index] = [];
     }
     if (param == 'cycleproductsDeSelect') {
-      // var ind = this.arr_cycleProducts.indexOf(item);
-      // this.arr_cycleProducts.splice(ind, 1);
       this.arr_cycleProducts[index] = '[]';
       this.cycle_products[index] = [];
     }
     if (param == 'upsell') {
       if (this.arr_upsell[index] != undefined) {
-        // var selectedIndex = this.arr_upsell.indexOf(this.arr_upsell[index]);
-        // this.arr_upsell.splice(selectedIndex, 1);
         this.arr_upsell[index] = '[]';
       }
       if (this.arr_upsell.indexOf(item) !== -1) {
@@ -342,13 +323,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.arr_upsell[index] = '[]';
       } else {
         this.arr_upsell.splice(index, 1, item);
-        // this.arr_upsell = this.arr_upsell.slice(0, this.no_of_upsells);
       }
     } else if (param == 'downsell') {
       if (this.arr_downsell[index] != undefined) {
         this.arr_downsell[index] = '[]';
-        // var selectedIndex = this.arr_downsell.indexOf(this.arr_downsell[index]);
-        // this.arr_downsell.splice(selectedIndex, 1);
       }
       if (this.arr_downsell.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in downsell');
@@ -360,13 +338,10 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.downsell_products[index] = [];
       } else {
         this.arr_downsell.splice(index, 1, item);
-        // this.arr_downsell = this.arr_downsell.slice(0, this.no_of_downsells);
       }
     } else if (param == 'cycleproducts') {
       if (this.arr_cycleProducts[index] != undefined) {
         this.arr_cycleProducts[index] = '[]';
-        // var selectedIndex = this.arr_cycleProducts.indexOf(this.arr_cycleProducts[index]);
-        // this.arr_cycleProducts.splice(selectedIndex, 1);
       }
       if (this.arr_cycleProducts.indexOf(item) !== -1) {
         this.notyf.error('Value already exist in cycle products');
@@ -382,24 +357,23 @@ export class CampaignBuilderComponent implements OnInit, OnDestroy {
         this.arr_cycleProducts[index] = '[]';
       } else {
         this.arr_cycleProducts.splice(index, 1, item);
-        // this.arr_cycleProducts = this.arr_cycleProducts.slice(0, this.no_of_cycles);
       }
     }
   }
   getSelectValue(event, param, index) {
-    // if (param == 'upsell') {
-    //   if (this.upsell_products[index] != undefined && this.upsell_products[index] != []) {
-    //     this.arr_upsell[index] = this.upsell_products[index][0].full_name;
-    //   }
-    // } else if (param == 'downsell') {
-    //   if (this.arr_downsell[index] != undefined) {
-    //     this.arr_downsell[index] = this.downsell_products[index][0].full_name;
-    //   }
-    // } else if (param == 'cycleproducts') {
-    //   if (this.arr_cycleProducts[index] != undefined) {
-    //     this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
-    //   }
-    // }
+    if (param == 'upsell') {
+      if (this.upsell_products[index] != undefined && this.upsell_products[index] != []) {
+        this.arr_upsell[index] = this.upsell_products[index][0].full_name;
+      }
+    } else if (param == 'downsell') {
+      if (this.arr_downsell[index] != undefined) {
+        this.arr_downsell[index] = this.downsell_products[index][0].full_name;
+      }
+    } else if (param == 'cycleproducts') {
+      if (this.arr_cycleProducts[index] != undefined) {
+        this.arr_cycleProducts[index] = this.cycle_products[index][0].full_name;
+      }
+    }
   }
 
   clear(form: NgForm): void {

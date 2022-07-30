@@ -24,7 +24,6 @@ class TicketDailyController extends Controller
         $db_dates = TicketDaily::pluck('date')->toArray();
         $date_today = Carbon::now()->format('Y-m-d');
 
-        
             // ?previous two month records insert query 
         /* for ($i = 142 ; $i > 0; $i--) {
             $model = new TicketDaily();

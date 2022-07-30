@@ -173,8 +173,6 @@ export class ActionDialogComponent {
       });
   }
 
-
-
   async generateInvoice(data: any[]) {
     await this.actionService.generateInvoice('generateInvoice', data)
       .then(res => {
@@ -280,7 +278,4 @@ export class ActionDialogComponent {
       }
     }, 100);
   }
-
-
-
 }

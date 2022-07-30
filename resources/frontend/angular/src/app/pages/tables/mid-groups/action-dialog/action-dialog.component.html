@@ -117,9 +117,10 @@
     <!-- <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="quickbookConnect(midGroupId)">{{quick}}</button> -->
     <!-- <button  mat-raised-button color="primary" *ngIf = "!quick_balance" (click)="doQuickAction()">{{quick}}</button> -->
     <button class="mb" mat-raised-button color="accent" *ngIf="account_obj==''"  (click)="getQuickAccounts(midGroupId)">{{quick}} </button>
-    <button  mat-raised-button color="primary" *ngIf="account_obj!=''"  (click)="doQuickAction('add_balance')">Add Balance</button>
+    <button  mat-raised-button color="primary" *ngIf="account_obj!=''"  (click)="doQuickAction('add_balance')">Update</button>
+    <!-- update/Add button for group name and % only -->
+    <button mat-raised-button color="primary" *ngIf = "account_obj==''" (click)="doAction()">{{action}}</button>  
     <button  mat-raised-button color="warn" *ngIf = "account_obj!=''" (click) = "quickbookDisconnect(midGroupId);">Disconnect from Quickbooks</button>
-    <button mat-raised-button color="primary" (click)="doAction()">{{action}}</button>
     <button mat-raised-button color="gray" (click)="closeDialog()">Cancel</button>
 </div>
 

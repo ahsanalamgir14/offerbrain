@@ -273,6 +273,7 @@ export class MidGroupsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       else if (result.event == 'connect') {
         //alert('to dialog close action(connect)')
+        this.updateRowData(result.data);
         this.getData();
       }
       else if (result.event == 'disConnect') {
